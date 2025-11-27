@@ -1,0 +1,3 @@
+package clusteringmanet;
+
+@license(LGPL);
