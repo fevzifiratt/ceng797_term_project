@@ -1,8 +1,8 @@
 version 3
-run General-0-20251127-20:24:24-13743
+run General-0-20251207-20:42:03-4956
 attr configname General
-attr datetime 20251127-20:24:24
-attr datetimef 20251127-202424
+attr datetime 20251207-20:42:03
+attr datetimef 20251207-204203
 attr experiment General
 attr inifile omnetpp.ini
 attr iterationvars ""
@@ -10,7 +10,7 @@ attr iterationvarsd ""
 attr iterationvarsf ""
 attr measurement ""
 attr network clusteringmanet.simulations.ClusteringNetwork
-attr processid 13743
+attr processid 4956
 attr repetition 0
 attr replication #0
 attr resultdir results
@@ -19,9 +19,13 @@ attr seedset 0
 config image-path ../../inet-4.5.4/images
 config network clusteringmanet.simulations.ClusteringNetwork
 config sim-time-limit 200s
-config ClusteringNetwork.numHosts 10
+config *.host[*].numApps 1
+config *.host[*].app[0].typename GraphColoringClustering
+config *.host[*].hasUdp true
+config ClusteringNetwork.numHosts 2
 config *.host[*].mobility.typename RandomWaypointMobility
 config *.host[*].mobility.initialZ 0m
+config *.host[*].mobility.initFromDisplayString false
 config *.host[*].mobility.constraintAreaMinX 0m
 config *.host[*].mobility.constraintAreaMinY 0m
 config *.host[*].mobility.constraintAreaMinZ 0m
@@ -35,12 +39,16 @@ config *.host[*].wlan[0].radio.transmitter.power 2mW
 config *.host[*].wlan[0].radio.transmitter.bitrate 6Mbps
 config *.host[*].wlan[0].radio.receiver.sensitivity -85dBm
 config *.host[*].wlan[0].radio.receiver.snirThreshold 4dB
-config *.host[*].wlan[0].radio.transmitter.communicationRange 250m
+config *.host[*].wlan[0].radio.transmitter.communicationRange 100m
 config *.host[*].wlan[0].mac.bitrate 6Mbps
-config *.host[*].gcc.helloInterval 1s
-config *.host[*].gcc.neighborTimeout 3s
-config *.host[*].gcc.maintenanceInterval 1s
-config *.host[*].gcc.coloringJitter 0.5s
+config *.host[*].wlan[0].radio.receiver.bitrate 6Mbps
+config *.host[*].wlan[0].bitrate 6Mbps
+config *.host[*].app[0].helloInterval 0.5s
+config *.host[*].app[0].neighborTimeout 2s
+config *.host[*].app[0].maintenanceInterval 0.5s
+config *.host[*].app[0].coloringJitter 0.7s
+config *.host[*].app[0].localPort 5000
+config *.host[*].app[0].destPort 5000
 
 vector 0 ClusteringNetwork.host[0].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
 attr interpolationmode none
@@ -464,2272 +472,848 @@ attr interpolationmode none
 attr recordingmode vector(count)
 attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
 attr title "packets dropped (checksum error), count"
-vector 80 ClusteringNetwork.host[2].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 81 ClusteringNetwork.host[2].lo[0].lo passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 82 ClusteringNetwork.host[2].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 83 ClusteringNetwork.host[2].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 84 ClusteringNetwork.host[2].wlan[0].queue queueLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
-attr title "queue length"
-attr unit pk
-vector 85 ClusteringNetwork.host[2].wlan[0].queue queueBitLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
-attr title "queue bit length"
-attr unit b
-vector 86 ClusteringNetwork.host[2].wlan[0].queue queueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(packetPulled)
-attr title "queueing times"
-attr unit s
-vector 87 ClusteringNetwork.host[2].wlan[0].queue incomingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPushStarted)
-attr title "incoming packet lengths"
-attr unit b
-vector 88 ClusteringNetwork.host[2].wlan[0].queue incomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPushStarted)
-attr title "incoming datarate"
-attr unit bps
-vector 89 ClusteringNetwork.host[2].wlan[0].queue outgoingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPulled)
-attr title "outgoing packet lengths"
-attr unit b
-vector 90 ClusteringNetwork.host[2].wlan[0].queue outgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPulled)
-attr title "outgoing datarate"
-attr unit bps
-vector 91 ClusteringNetwork.host[2].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
-attr title "dropped packet lengths: queue overflow"
-attr unit b
-vector 92 ClusteringNetwork.host[2].wlan[0].queue flowQueueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(demuxFlow(packetPulled))
-attr title "flow queueing times"
-attr unit s
-vector 93 ClusteringNetwork.host[2].wlan[0].queue flowIncomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
-attr title "flow specific incoming data rate"
-attr unit bps
-vector 94 ClusteringNetwork.host[2].wlan[0].queue flowOutgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
-attr title "flow specific outgoing data rate"
-attr unit bps
-vector 95 ClusteringNetwork.host[2].wlan[0].mac passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 96 ClusteringNetwork.host[2].wlan[0].mac sentDownPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToLower
-attr title "packets sent to lower layer, packetBytes"
-vector 97 ClusteringNetwork.host[2].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 98 ClusteringNetwork.host[2].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromLower
-attr title "packets received from lower layer, packetBytes"
-vector 99 ClusteringNetwork.host[2].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packet drop: incorrectly received, packetBytes"
-vector 100 ClusteringNetwork.host[2].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drop: interface down, packetBytes"
-vector 101 ClusteringNetwork.host[2].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNotAddressedToUs(packetDropped)
-attr title "packet drop: not addressed to us, packetBytes"
-vector 102 ClusteringNetwork.host[2].wlan[0].radio radioMode:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source radioModeChanged
-attr title "Radio mode"
-vector 103 ClusteringNetwork.host[2].wlan[0].radio receptionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source receptionStateChanged
-attr title "Radio reception state"
-vector 104 ClusteringNetwork.host[2].wlan[0].radio transmissionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source transmissionStateChanged
-attr title "Radio transmission state"
-vector 105 ClusteringNetwork.host[2].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 106 ClusteringNetwork.host[2].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 107 ClusteringNetwork.host[2].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
-attr title "packet drop: address resolution failed, packetBytes"
-vector 108 ClusteringNetwork.host[2].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsHopLimitReached(packetDropped)
-attr title "packet drop: hop limit reached, packetBytes"
-vector 109 ClusteringNetwork.host[2].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsForwardingDisabled(packetDropped)
-attr title "packet drop: forwarding disabled, packetBytes"
-vector 110 ClusteringNetwork.host[2].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoInterfaceFound(packetDropped)
-attr title "packet drop: no interface found, packetBytes"
-vector 111 ClusteringNetwork.host[2].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoRouteFound(packetDropped)
-attr title "packet drop: no route found, packetBytes"
-vector 112 ClusteringNetwork.host[2].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsUndefined(packetDropped)
-attr title "packet drop: undefined, packetBytes"
-vector 113 ClusteringNetwork.host[2].ipv4.arp arpRequestSent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpRequestSent
-attr title "ARP request sent, packetBytes"
-vector 114 ClusteringNetwork.host[2].ipv4.arp arpReplySent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpReplySent
-attr title "ARP replies sent, packetBytes"
-vector 115 ClusteringNetwork.host[2].udp packetSent:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSent
-attr title "packets sent, packetBytes"
-vector 116 ClusteringNetwork.host[2].udp packetReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceived
-attr title "packets received, packetBytes"
-vector 117 ClusteringNetwork.host[2].udp passedUpPk:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetSentToUpper
-attr title "packets passed up, count"
-vector 118 ClusteringNetwork.host[2].udp droppedPkWrongPort:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsNoPortFound(packetDropped)
-attr title "packets dropped (wrong port), count"
-vector 119 ClusteringNetwork.host[2].udp droppedPkBadChecksum:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packets dropped (checksum error), count"
-vector 120 ClusteringNetwork.host[3].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 121 ClusteringNetwork.host[3].lo[0].lo passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 122 ClusteringNetwork.host[3].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 123 ClusteringNetwork.host[3].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 124 ClusteringNetwork.host[3].wlan[0].queue queueLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
-attr title "queue length"
-attr unit pk
-vector 125 ClusteringNetwork.host[3].wlan[0].queue queueBitLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
-attr title "queue bit length"
-attr unit b
-vector 126 ClusteringNetwork.host[3].wlan[0].queue queueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(packetPulled)
-attr title "queueing times"
-attr unit s
-vector 127 ClusteringNetwork.host[3].wlan[0].queue incomingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPushStarted)
-attr title "incoming packet lengths"
-attr unit b
-vector 128 ClusteringNetwork.host[3].wlan[0].queue incomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPushStarted)
-attr title "incoming datarate"
-attr unit bps
-vector 129 ClusteringNetwork.host[3].wlan[0].queue outgoingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPulled)
-attr title "outgoing packet lengths"
-attr unit b
-vector 130 ClusteringNetwork.host[3].wlan[0].queue outgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPulled)
-attr title "outgoing datarate"
-attr unit bps
-vector 131 ClusteringNetwork.host[3].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
-attr title "dropped packet lengths: queue overflow"
-attr unit b
-vector 132 ClusteringNetwork.host[3].wlan[0].queue flowQueueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(demuxFlow(packetPulled))
-attr title "flow queueing times"
-attr unit s
-vector 133 ClusteringNetwork.host[3].wlan[0].queue flowIncomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
-attr title "flow specific incoming data rate"
-attr unit bps
-vector 134 ClusteringNetwork.host[3].wlan[0].queue flowOutgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
-attr title "flow specific outgoing data rate"
-attr unit bps
-vector 135 ClusteringNetwork.host[3].wlan[0].mac passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 136 ClusteringNetwork.host[3].wlan[0].mac sentDownPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToLower
-attr title "packets sent to lower layer, packetBytes"
-vector 137 ClusteringNetwork.host[3].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 138 ClusteringNetwork.host[3].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromLower
-attr title "packets received from lower layer, packetBytes"
-vector 139 ClusteringNetwork.host[3].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packet drop: incorrectly received, packetBytes"
-vector 140 ClusteringNetwork.host[3].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drop: interface down, packetBytes"
-vector 141 ClusteringNetwork.host[3].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNotAddressedToUs(packetDropped)
-attr title "packet drop: not addressed to us, packetBytes"
-vector 142 ClusteringNetwork.host[3].wlan[0].radio radioMode:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source radioModeChanged
-attr title "Radio mode"
-vector 143 ClusteringNetwork.host[3].wlan[0].radio receptionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source receptionStateChanged
-attr title "Radio reception state"
-vector 144 ClusteringNetwork.host[3].wlan[0].radio transmissionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source transmissionStateChanged
-attr title "Radio transmission state"
-vector 145 ClusteringNetwork.host[3].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 146 ClusteringNetwork.host[3].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 147 ClusteringNetwork.host[3].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
-attr title "packet drop: address resolution failed, packetBytes"
-vector 148 ClusteringNetwork.host[3].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsHopLimitReached(packetDropped)
-attr title "packet drop: hop limit reached, packetBytes"
-vector 149 ClusteringNetwork.host[3].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsForwardingDisabled(packetDropped)
-attr title "packet drop: forwarding disabled, packetBytes"
-vector 150 ClusteringNetwork.host[3].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoInterfaceFound(packetDropped)
-attr title "packet drop: no interface found, packetBytes"
-vector 151 ClusteringNetwork.host[3].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoRouteFound(packetDropped)
-attr title "packet drop: no route found, packetBytes"
-vector 152 ClusteringNetwork.host[3].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsUndefined(packetDropped)
-attr title "packet drop: undefined, packetBytes"
-vector 153 ClusteringNetwork.host[3].ipv4.arp arpRequestSent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpRequestSent
-attr title "ARP request sent, packetBytes"
-vector 154 ClusteringNetwork.host[3].ipv4.arp arpReplySent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpReplySent
-attr title "ARP replies sent, packetBytes"
-vector 155 ClusteringNetwork.host[3].udp packetSent:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSent
-attr title "packets sent, packetBytes"
-vector 156 ClusteringNetwork.host[3].udp packetReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceived
-attr title "packets received, packetBytes"
-vector 157 ClusteringNetwork.host[3].udp passedUpPk:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetSentToUpper
-attr title "packets passed up, count"
-vector 158 ClusteringNetwork.host[3].udp droppedPkWrongPort:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsNoPortFound(packetDropped)
-attr title "packets dropped (wrong port), count"
-vector 159 ClusteringNetwork.host[3].udp droppedPkBadChecksum:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packets dropped (checksum error), count"
-vector 160 ClusteringNetwork.host[4].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 161 ClusteringNetwork.host[4].lo[0].lo passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 162 ClusteringNetwork.host[4].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 163 ClusteringNetwork.host[4].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 164 ClusteringNetwork.host[4].wlan[0].queue queueLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
-attr title "queue length"
-attr unit pk
-vector 165 ClusteringNetwork.host[4].wlan[0].queue queueBitLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
-attr title "queue bit length"
-attr unit b
-vector 166 ClusteringNetwork.host[4].wlan[0].queue queueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(packetPulled)
-attr title "queueing times"
-attr unit s
-vector 167 ClusteringNetwork.host[4].wlan[0].queue incomingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPushStarted)
-attr title "incoming packet lengths"
-attr unit b
-vector 168 ClusteringNetwork.host[4].wlan[0].queue incomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPushStarted)
-attr title "incoming datarate"
-attr unit bps
-vector 169 ClusteringNetwork.host[4].wlan[0].queue outgoingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPulled)
-attr title "outgoing packet lengths"
-attr unit b
-vector 170 ClusteringNetwork.host[4].wlan[0].queue outgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPulled)
-attr title "outgoing datarate"
-attr unit bps
-vector 171 ClusteringNetwork.host[4].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
-attr title "dropped packet lengths: queue overflow"
-attr unit b
-vector 172 ClusteringNetwork.host[4].wlan[0].queue flowQueueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(demuxFlow(packetPulled))
-attr title "flow queueing times"
-attr unit s
-vector 173 ClusteringNetwork.host[4].wlan[0].queue flowIncomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
-attr title "flow specific incoming data rate"
-attr unit bps
-vector 174 ClusteringNetwork.host[4].wlan[0].queue flowOutgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
-attr title "flow specific outgoing data rate"
-attr unit bps
-vector 175 ClusteringNetwork.host[4].wlan[0].mac passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 176 ClusteringNetwork.host[4].wlan[0].mac sentDownPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToLower
-attr title "packets sent to lower layer, packetBytes"
-vector 177 ClusteringNetwork.host[4].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 178 ClusteringNetwork.host[4].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromLower
-attr title "packets received from lower layer, packetBytes"
-vector 179 ClusteringNetwork.host[4].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packet drop: incorrectly received, packetBytes"
-vector 180 ClusteringNetwork.host[4].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drop: interface down, packetBytes"
-vector 181 ClusteringNetwork.host[4].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNotAddressedToUs(packetDropped)
-attr title "packet drop: not addressed to us, packetBytes"
-vector 182 ClusteringNetwork.host[4].wlan[0].radio radioMode:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source radioModeChanged
-attr title "Radio mode"
-vector 183 ClusteringNetwork.host[4].wlan[0].radio receptionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source receptionStateChanged
-attr title "Radio reception state"
-vector 184 ClusteringNetwork.host[4].wlan[0].radio transmissionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source transmissionStateChanged
-attr title "Radio transmission state"
-vector 185 ClusteringNetwork.host[4].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 186 ClusteringNetwork.host[4].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 187 ClusteringNetwork.host[4].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
-attr title "packet drop: address resolution failed, packetBytes"
-vector 188 ClusteringNetwork.host[4].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsHopLimitReached(packetDropped)
-attr title "packet drop: hop limit reached, packetBytes"
-vector 189 ClusteringNetwork.host[4].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsForwardingDisabled(packetDropped)
-attr title "packet drop: forwarding disabled, packetBytes"
-vector 190 ClusteringNetwork.host[4].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoInterfaceFound(packetDropped)
-attr title "packet drop: no interface found, packetBytes"
-vector 191 ClusteringNetwork.host[4].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoRouteFound(packetDropped)
-attr title "packet drop: no route found, packetBytes"
-vector 192 ClusteringNetwork.host[4].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsUndefined(packetDropped)
-attr title "packet drop: undefined, packetBytes"
-vector 193 ClusteringNetwork.host[4].ipv4.arp arpRequestSent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpRequestSent
-attr title "ARP request sent, packetBytes"
-vector 194 ClusteringNetwork.host[4].ipv4.arp arpReplySent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpReplySent
-attr title "ARP replies sent, packetBytes"
-vector 195 ClusteringNetwork.host[4].udp packetSent:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSent
-attr title "packets sent, packetBytes"
-vector 196 ClusteringNetwork.host[4].udp packetReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceived
-attr title "packets received, packetBytes"
-vector 197 ClusteringNetwork.host[4].udp passedUpPk:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetSentToUpper
-attr title "packets passed up, count"
-vector 198 ClusteringNetwork.host[4].udp droppedPkWrongPort:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsNoPortFound(packetDropped)
-attr title "packets dropped (wrong port), count"
-vector 199 ClusteringNetwork.host[4].udp droppedPkBadChecksum:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packets dropped (checksum error), count"
-vector 200 ClusteringNetwork.host[5].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 201 ClusteringNetwork.host[5].lo[0].lo passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 202 ClusteringNetwork.host[5].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 203 ClusteringNetwork.host[5].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 204 ClusteringNetwork.host[5].wlan[0].queue queueLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
-attr title "queue length"
-attr unit pk
-vector 205 ClusteringNetwork.host[5].wlan[0].queue queueBitLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
-attr title "queue bit length"
-attr unit b
-vector 206 ClusteringNetwork.host[5].wlan[0].queue queueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(packetPulled)
-attr title "queueing times"
-attr unit s
-vector 207 ClusteringNetwork.host[5].wlan[0].queue incomingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPushStarted)
-attr title "incoming packet lengths"
-attr unit b
-vector 208 ClusteringNetwork.host[5].wlan[0].queue incomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPushStarted)
-attr title "incoming datarate"
-attr unit bps
-vector 209 ClusteringNetwork.host[5].wlan[0].queue outgoingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPulled)
-attr title "outgoing packet lengths"
-attr unit b
-vector 210 ClusteringNetwork.host[5].wlan[0].queue outgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPulled)
-attr title "outgoing datarate"
-attr unit bps
-vector 211 ClusteringNetwork.host[5].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
-attr title "dropped packet lengths: queue overflow"
-attr unit b
-vector 212 ClusteringNetwork.host[5].wlan[0].queue flowQueueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(demuxFlow(packetPulled))
-attr title "flow queueing times"
-attr unit s
-vector 213 ClusteringNetwork.host[5].wlan[0].queue flowIncomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
-attr title "flow specific incoming data rate"
-attr unit bps
-vector 214 ClusteringNetwork.host[5].wlan[0].queue flowOutgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
-attr title "flow specific outgoing data rate"
-attr unit bps
-vector 215 ClusteringNetwork.host[5].wlan[0].mac passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 216 ClusteringNetwork.host[5].wlan[0].mac sentDownPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToLower
-attr title "packets sent to lower layer, packetBytes"
-vector 217 ClusteringNetwork.host[5].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 218 ClusteringNetwork.host[5].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromLower
-attr title "packets received from lower layer, packetBytes"
-vector 219 ClusteringNetwork.host[5].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packet drop: incorrectly received, packetBytes"
-vector 220 ClusteringNetwork.host[5].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drop: interface down, packetBytes"
-vector 221 ClusteringNetwork.host[5].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNotAddressedToUs(packetDropped)
-attr title "packet drop: not addressed to us, packetBytes"
-vector 222 ClusteringNetwork.host[5].wlan[0].radio radioMode:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source radioModeChanged
-attr title "Radio mode"
-vector 223 ClusteringNetwork.host[5].wlan[0].radio receptionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source receptionStateChanged
-attr title "Radio reception state"
-vector 224 ClusteringNetwork.host[5].wlan[0].radio transmissionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source transmissionStateChanged
-attr title "Radio transmission state"
-vector 225 ClusteringNetwork.host[5].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 226 ClusteringNetwork.host[5].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 227 ClusteringNetwork.host[5].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
-attr title "packet drop: address resolution failed, packetBytes"
-vector 228 ClusteringNetwork.host[5].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsHopLimitReached(packetDropped)
-attr title "packet drop: hop limit reached, packetBytes"
-vector 229 ClusteringNetwork.host[5].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsForwardingDisabled(packetDropped)
-attr title "packet drop: forwarding disabled, packetBytes"
-vector 230 ClusteringNetwork.host[5].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoInterfaceFound(packetDropped)
-attr title "packet drop: no interface found, packetBytes"
-vector 231 ClusteringNetwork.host[5].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoRouteFound(packetDropped)
-attr title "packet drop: no route found, packetBytes"
-vector 232 ClusteringNetwork.host[5].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsUndefined(packetDropped)
-attr title "packet drop: undefined, packetBytes"
-vector 233 ClusteringNetwork.host[5].ipv4.arp arpRequestSent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpRequestSent
-attr title "ARP request sent, packetBytes"
-vector 234 ClusteringNetwork.host[5].ipv4.arp arpReplySent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpReplySent
-attr title "ARP replies sent, packetBytes"
-vector 235 ClusteringNetwork.host[5].udp packetSent:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSent
-attr title "packets sent, packetBytes"
-vector 236 ClusteringNetwork.host[5].udp packetReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceived
-attr title "packets received, packetBytes"
-vector 237 ClusteringNetwork.host[5].udp passedUpPk:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetSentToUpper
-attr title "packets passed up, count"
-vector 238 ClusteringNetwork.host[5].udp droppedPkWrongPort:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsNoPortFound(packetDropped)
-attr title "packets dropped (wrong port), count"
-vector 239 ClusteringNetwork.host[5].udp droppedPkBadChecksum:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packets dropped (checksum error), count"
-vector 240 ClusteringNetwork.host[6].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 241 ClusteringNetwork.host[6].lo[0].lo passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 242 ClusteringNetwork.host[6].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 243 ClusteringNetwork.host[6].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 244 ClusteringNetwork.host[6].wlan[0].queue queueLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
-attr title "queue length"
-attr unit pk
-vector 245 ClusteringNetwork.host[6].wlan[0].queue queueBitLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
-attr title "queue bit length"
-attr unit b
-vector 246 ClusteringNetwork.host[6].wlan[0].queue queueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(packetPulled)
-attr title "queueing times"
-attr unit s
-vector 247 ClusteringNetwork.host[6].wlan[0].queue incomingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPushStarted)
-attr title "incoming packet lengths"
-attr unit b
-vector 248 ClusteringNetwork.host[6].wlan[0].queue incomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPushStarted)
-attr title "incoming datarate"
-attr unit bps
-vector 249 ClusteringNetwork.host[6].wlan[0].queue outgoingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPulled)
-attr title "outgoing packet lengths"
-attr unit b
-vector 250 ClusteringNetwork.host[6].wlan[0].queue outgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPulled)
-attr title "outgoing datarate"
-attr unit bps
-vector 251 ClusteringNetwork.host[6].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
-attr title "dropped packet lengths: queue overflow"
-attr unit b
-vector 252 ClusteringNetwork.host[6].wlan[0].queue flowQueueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(demuxFlow(packetPulled))
-attr title "flow queueing times"
-attr unit s
-vector 253 ClusteringNetwork.host[6].wlan[0].queue flowIncomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
-attr title "flow specific incoming data rate"
-attr unit bps
-vector 254 ClusteringNetwork.host[6].wlan[0].queue flowOutgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
-attr title "flow specific outgoing data rate"
-attr unit bps
-vector 255 ClusteringNetwork.host[6].wlan[0].mac passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 256 ClusteringNetwork.host[6].wlan[0].mac sentDownPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToLower
-attr title "packets sent to lower layer, packetBytes"
-vector 257 ClusteringNetwork.host[6].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 258 ClusteringNetwork.host[6].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromLower
-attr title "packets received from lower layer, packetBytes"
-vector 259 ClusteringNetwork.host[6].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packet drop: incorrectly received, packetBytes"
-vector 260 ClusteringNetwork.host[6].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drop: interface down, packetBytes"
-vector 261 ClusteringNetwork.host[6].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNotAddressedToUs(packetDropped)
-attr title "packet drop: not addressed to us, packetBytes"
-vector 262 ClusteringNetwork.host[6].wlan[0].radio radioMode:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source radioModeChanged
-attr title "Radio mode"
-vector 263 ClusteringNetwork.host[6].wlan[0].radio receptionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source receptionStateChanged
-attr title "Radio reception state"
-vector 264 ClusteringNetwork.host[6].wlan[0].radio transmissionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source transmissionStateChanged
-attr title "Radio transmission state"
-vector 265 ClusteringNetwork.host[6].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 266 ClusteringNetwork.host[6].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 267 ClusteringNetwork.host[6].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
-attr title "packet drop: address resolution failed, packetBytes"
-vector 268 ClusteringNetwork.host[6].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsHopLimitReached(packetDropped)
-attr title "packet drop: hop limit reached, packetBytes"
-vector 269 ClusteringNetwork.host[6].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsForwardingDisabled(packetDropped)
-attr title "packet drop: forwarding disabled, packetBytes"
-vector 270 ClusteringNetwork.host[6].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoInterfaceFound(packetDropped)
-attr title "packet drop: no interface found, packetBytes"
-vector 271 ClusteringNetwork.host[6].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoRouteFound(packetDropped)
-attr title "packet drop: no route found, packetBytes"
-vector 272 ClusteringNetwork.host[6].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsUndefined(packetDropped)
-attr title "packet drop: undefined, packetBytes"
-vector 273 ClusteringNetwork.host[6].ipv4.arp arpRequestSent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpRequestSent
-attr title "ARP request sent, packetBytes"
-vector 274 ClusteringNetwork.host[6].ipv4.arp arpReplySent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpReplySent
-attr title "ARP replies sent, packetBytes"
-vector 275 ClusteringNetwork.host[6].udp packetSent:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSent
-attr title "packets sent, packetBytes"
-vector 276 ClusteringNetwork.host[6].udp packetReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceived
-attr title "packets received, packetBytes"
-vector 277 ClusteringNetwork.host[6].udp passedUpPk:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetSentToUpper
-attr title "packets passed up, count"
-vector 278 ClusteringNetwork.host[6].udp droppedPkWrongPort:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsNoPortFound(packetDropped)
-attr title "packets dropped (wrong port), count"
-vector 279 ClusteringNetwork.host[6].udp droppedPkBadChecksum:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packets dropped (checksum error), count"
-vector 280 ClusteringNetwork.host[7].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 281 ClusteringNetwork.host[7].lo[0].lo passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 282 ClusteringNetwork.host[7].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 283 ClusteringNetwork.host[7].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 284 ClusteringNetwork.host[7].wlan[0].queue queueLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
-attr title "queue length"
-attr unit pk
-vector 285 ClusteringNetwork.host[7].wlan[0].queue queueBitLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
-attr title "queue bit length"
-attr unit b
-vector 286 ClusteringNetwork.host[7].wlan[0].queue queueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(packetPulled)
-attr title "queueing times"
-attr unit s
-vector 287 ClusteringNetwork.host[7].wlan[0].queue incomingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPushStarted)
-attr title "incoming packet lengths"
-attr unit b
-vector 288 ClusteringNetwork.host[7].wlan[0].queue incomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPushStarted)
-attr title "incoming datarate"
-attr unit bps
-vector 289 ClusteringNetwork.host[7].wlan[0].queue outgoingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPulled)
-attr title "outgoing packet lengths"
-attr unit b
-vector 290 ClusteringNetwork.host[7].wlan[0].queue outgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPulled)
-attr title "outgoing datarate"
-attr unit bps
-vector 291 ClusteringNetwork.host[7].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
-attr title "dropped packet lengths: queue overflow"
-attr unit b
-vector 292 ClusteringNetwork.host[7].wlan[0].queue flowQueueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(demuxFlow(packetPulled))
-attr title "flow queueing times"
-attr unit s
-vector 293 ClusteringNetwork.host[7].wlan[0].queue flowIncomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
-attr title "flow specific incoming data rate"
-attr unit bps
-vector 294 ClusteringNetwork.host[7].wlan[0].queue flowOutgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
-attr title "flow specific outgoing data rate"
-attr unit bps
-vector 295 ClusteringNetwork.host[7].wlan[0].mac passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 296 ClusteringNetwork.host[7].wlan[0].mac sentDownPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToLower
-attr title "packets sent to lower layer, packetBytes"
-vector 297 ClusteringNetwork.host[7].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 298 ClusteringNetwork.host[7].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromLower
-attr title "packets received from lower layer, packetBytes"
-vector 299 ClusteringNetwork.host[7].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packet drop: incorrectly received, packetBytes"
-vector 300 ClusteringNetwork.host[7].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drop: interface down, packetBytes"
-vector 301 ClusteringNetwork.host[7].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNotAddressedToUs(packetDropped)
-attr title "packet drop: not addressed to us, packetBytes"
-vector 302 ClusteringNetwork.host[7].wlan[0].radio radioMode:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source radioModeChanged
-attr title "Radio mode"
-vector 303 ClusteringNetwork.host[7].wlan[0].radio receptionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source receptionStateChanged
-attr title "Radio reception state"
-vector 304 ClusteringNetwork.host[7].wlan[0].radio transmissionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source transmissionStateChanged
-attr title "Radio transmission state"
-vector 305 ClusteringNetwork.host[7].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 306 ClusteringNetwork.host[7].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 307 ClusteringNetwork.host[7].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
-attr title "packet drop: address resolution failed, packetBytes"
-vector 308 ClusteringNetwork.host[7].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsHopLimitReached(packetDropped)
-attr title "packet drop: hop limit reached, packetBytes"
-vector 309 ClusteringNetwork.host[7].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsForwardingDisabled(packetDropped)
-attr title "packet drop: forwarding disabled, packetBytes"
-vector 310 ClusteringNetwork.host[7].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoInterfaceFound(packetDropped)
-attr title "packet drop: no interface found, packetBytes"
-vector 311 ClusteringNetwork.host[7].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoRouteFound(packetDropped)
-attr title "packet drop: no route found, packetBytes"
-vector 312 ClusteringNetwork.host[7].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsUndefined(packetDropped)
-attr title "packet drop: undefined, packetBytes"
-vector 313 ClusteringNetwork.host[7].ipv4.arp arpRequestSent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpRequestSent
-attr title "ARP request sent, packetBytes"
-vector 314 ClusteringNetwork.host[7].ipv4.arp arpReplySent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpReplySent
-attr title "ARP replies sent, packetBytes"
-vector 315 ClusteringNetwork.host[7].udp packetSent:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSent
-attr title "packets sent, packetBytes"
-vector 316 ClusteringNetwork.host[7].udp packetReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceived
-attr title "packets received, packetBytes"
-vector 317 ClusteringNetwork.host[7].udp passedUpPk:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetSentToUpper
-attr title "packets passed up, count"
-vector 318 ClusteringNetwork.host[7].udp droppedPkWrongPort:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsNoPortFound(packetDropped)
-attr title "packets dropped (wrong port), count"
-vector 319 ClusteringNetwork.host[7].udp droppedPkBadChecksum:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packets dropped (checksum error), count"
-vector 320 ClusteringNetwork.host[8].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 321 ClusteringNetwork.host[8].lo[0].lo passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 322 ClusteringNetwork.host[8].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 323 ClusteringNetwork.host[8].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 324 ClusteringNetwork.host[8].wlan[0].queue queueLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
-attr title "queue length"
-attr unit pk
-vector 325 ClusteringNetwork.host[8].wlan[0].queue queueBitLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
-attr title "queue bit length"
-attr unit b
-vector 326 ClusteringNetwork.host[8].wlan[0].queue queueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(packetPulled)
-attr title "queueing times"
-attr unit s
-vector 327 ClusteringNetwork.host[8].wlan[0].queue incomingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPushStarted)
-attr title "incoming packet lengths"
-attr unit b
-vector 328 ClusteringNetwork.host[8].wlan[0].queue incomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPushStarted)
-attr title "incoming datarate"
-attr unit bps
-vector 329 ClusteringNetwork.host[8].wlan[0].queue outgoingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPulled)
-attr title "outgoing packet lengths"
-attr unit b
-vector 330 ClusteringNetwork.host[8].wlan[0].queue outgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPulled)
-attr title "outgoing datarate"
-attr unit bps
-vector 331 ClusteringNetwork.host[8].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
-attr title "dropped packet lengths: queue overflow"
-attr unit b
-vector 332 ClusteringNetwork.host[8].wlan[0].queue flowQueueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(demuxFlow(packetPulled))
-attr title "flow queueing times"
-attr unit s
-vector 333 ClusteringNetwork.host[8].wlan[0].queue flowIncomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
-attr title "flow specific incoming data rate"
-attr unit bps
-vector 334 ClusteringNetwork.host[8].wlan[0].queue flowOutgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
-attr title "flow specific outgoing data rate"
-attr unit bps
-vector 335 ClusteringNetwork.host[8].wlan[0].mac passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 336 ClusteringNetwork.host[8].wlan[0].mac sentDownPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToLower
-attr title "packets sent to lower layer, packetBytes"
-vector 337 ClusteringNetwork.host[8].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 338 ClusteringNetwork.host[8].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromLower
-attr title "packets received from lower layer, packetBytes"
-vector 339 ClusteringNetwork.host[8].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packet drop: incorrectly received, packetBytes"
-vector 340 ClusteringNetwork.host[8].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drop: interface down, packetBytes"
-vector 341 ClusteringNetwork.host[8].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNotAddressedToUs(packetDropped)
-attr title "packet drop: not addressed to us, packetBytes"
-vector 342 ClusteringNetwork.host[8].wlan[0].radio radioMode:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source radioModeChanged
-attr title "Radio mode"
-vector 343 ClusteringNetwork.host[8].wlan[0].radio receptionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source receptionStateChanged
-attr title "Radio reception state"
-vector 344 ClusteringNetwork.host[8].wlan[0].radio transmissionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source transmissionStateChanged
-attr title "Radio transmission state"
-vector 345 ClusteringNetwork.host[8].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 346 ClusteringNetwork.host[8].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 347 ClusteringNetwork.host[8].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
-attr title "packet drop: address resolution failed, packetBytes"
-vector 348 ClusteringNetwork.host[8].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsHopLimitReached(packetDropped)
-attr title "packet drop: hop limit reached, packetBytes"
-vector 349 ClusteringNetwork.host[8].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsForwardingDisabled(packetDropped)
-attr title "packet drop: forwarding disabled, packetBytes"
-vector 350 ClusteringNetwork.host[8].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoInterfaceFound(packetDropped)
-attr title "packet drop: no interface found, packetBytes"
-vector 351 ClusteringNetwork.host[8].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoRouteFound(packetDropped)
-attr title "packet drop: no route found, packetBytes"
-vector 352 ClusteringNetwork.host[8].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsUndefined(packetDropped)
-attr title "packet drop: undefined, packetBytes"
-vector 353 ClusteringNetwork.host[8].ipv4.arp arpRequestSent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpRequestSent
-attr title "ARP request sent, packetBytes"
-vector 354 ClusteringNetwork.host[8].ipv4.arp arpReplySent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpReplySent
-attr title "ARP replies sent, packetBytes"
-vector 355 ClusteringNetwork.host[8].udp packetSent:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSent
-attr title "packets sent, packetBytes"
-vector 356 ClusteringNetwork.host[8].udp packetReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceived
-attr title "packets received, packetBytes"
-vector 357 ClusteringNetwork.host[8].udp passedUpPk:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetSentToUpper
-attr title "packets passed up, count"
-vector 358 ClusteringNetwork.host[8].udp droppedPkWrongPort:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsNoPortFound(packetDropped)
-attr title "packets dropped (wrong port), count"
-vector 359 ClusteringNetwork.host[8].udp droppedPkBadChecksum:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packets dropped (checksum error), count"
-vector 360 ClusteringNetwork.host[9].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 361 ClusteringNetwork.host[9].lo[0].lo passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 362 ClusteringNetwork.host[9].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 363 ClusteringNetwork.host[9].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 364 ClusteringNetwork.host[9].wlan[0].queue queueLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
-attr title "queue length"
-attr unit pk
-vector 365 ClusteringNetwork.host[9].wlan[0].queue queueBitLength:vector ETV
-attr autoWarmupFilter false
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
-attr title "queue bit length"
-attr unit b
-vector 366 ClusteringNetwork.host[9].wlan[0].queue queueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(packetPulled)
-attr title "queueing times"
-attr unit s
-vector 367 ClusteringNetwork.host[9].wlan[0].queue incomingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPushStarted)
-attr title "incoming packet lengths"
-attr unit b
-vector 368 ClusteringNetwork.host[9].wlan[0].queue incomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPushStarted)
-attr title "incoming datarate"
-attr unit bps
-vector 369 ClusteringNetwork.host[9].wlan[0].queue outgoingPacketLengths:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetPulled)
-attr title "outgoing packet lengths"
-attr unit b
-vector 370 ClusteringNetwork.host[9].wlan[0].queue outgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(packetPulled)
-attr title "outgoing datarate"
-attr unit bps
-vector 371 ClusteringNetwork.host[9].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
-attr title "dropped packet lengths: queue overflow"
-attr unit b
-vector 372 ClusteringNetwork.host[9].wlan[0].queue flowQueueingTime:vector ETV
-attr interpolationmode none
-attr recordingmode vector
-attr source queueingTime(demuxFlow(packetPulled))
-attr title "flow queueing times"
-attr unit s
-vector 373 ClusteringNetwork.host[9].wlan[0].queue flowIncomingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
-attr title "flow specific incoming data rate"
-attr unit bps
-vector 374 ClusteringNetwork.host[9].wlan[0].queue flowOutgoingDataRate:vector ETV
-attr interpolationmode linear
-attr recordingmode vector
-attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
-attr title "flow specific outgoing data rate"
-attr unit bps
-vector 375 ClusteringNetwork.host[9].wlan[0].mac passedUpPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToUpper
-attr title "packets passed to higher layer, packetBytes"
-vector 376 ClusteringNetwork.host[9].wlan[0].mac sentDownPk:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSentToLower
-attr title "packets sent to lower layer, packetBytes"
-vector 377 ClusteringNetwork.host[9].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromUpper
-attr title "packets received from higher layer, packetBytes"
-vector 378 ClusteringNetwork.host[9].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceivedFromLower
-attr title "packets received from lower layer, packetBytes"
-vector 379 ClusteringNetwork.host[9].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packet drop: incorrectly received, packetBytes"
-vector 380 ClusteringNetwork.host[9].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drop: interface down, packetBytes"
-vector 381 ClusteringNetwork.host[9].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNotAddressedToUs(packetDropped)
-attr title "packet drop: not addressed to us, packetBytes"
-vector 382 ClusteringNetwork.host[9].wlan[0].radio radioMode:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source radioModeChanged
-attr title "Radio mode"
-vector 383 ClusteringNetwork.host[9].wlan[0].radio receptionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source receptionStateChanged
-attr title "Radio reception state"
-vector 384 ClusteringNetwork.host[9].wlan[0].radio transmissionState:vector ETV
-attr interpolationmode sample-hold
-attr recordingmode vector
-attr source transmissionStateChanged
-attr title "Radio transmission state"
-vector 385 ClusteringNetwork.host[9].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsInterfaceDown(packetDropped)
-attr title "packet drops: interface down, packetBytes"
-vector 386 ClusteringNetwork.host[9].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoCarrier(packetDropped)
-attr title "packet drops: no carrier, packetBytes"
-vector 387 ClusteringNetwork.host[9].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
-attr title "packet drop: address resolution failed, packetBytes"
-vector 388 ClusteringNetwork.host[9].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsHopLimitReached(packetDropped)
-attr title "packet drop: hop limit reached, packetBytes"
-vector 389 ClusteringNetwork.host[9].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsForwardingDisabled(packetDropped)
-attr title "packet drop: forwarding disabled, packetBytes"
-vector 390 ClusteringNetwork.host[9].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoInterfaceFound(packetDropped)
-attr title "packet drop: no interface found, packetBytes"
-vector 391 ClusteringNetwork.host[9].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsNoRouteFound(packetDropped)
-attr title "packet drop: no route found, packetBytes"
-vector 392 ClusteringNetwork.host[9].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetDropReasonIsUndefined(packetDropped)
-attr title "packet drop: undefined, packetBytes"
-vector 393 ClusteringNetwork.host[9].ipv4.arp arpRequestSent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpRequestSent
-attr title "ARP request sent, packetBytes"
-vector 394 ClusteringNetwork.host[9].ipv4.arp arpReplySent:vector(packetBytes) ETV
-attr recordingmode vector(packetBytes)
-attr source arpReplySent
-attr title "ARP replies sent, packetBytes"
-vector 395 ClusteringNetwork.host[9].udp packetSent:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetSent
-attr title "packets sent, packetBytes"
-vector 396 ClusteringNetwork.host[9].udp packetReceived:vector(packetBytes) ETV
-attr interpolationmode none
-attr recordingmode vector(packetBytes)
-attr source packetReceived
-attr title "packets received, packetBytes"
-vector 397 ClusteringNetwork.host[9].udp passedUpPk:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetSentToUpper
-attr title "packets passed up, count"
-vector 398 ClusteringNetwork.host[9].udp droppedPkWrongPort:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsNoPortFound(packetDropped)
-attr title "packets dropped (wrong port), count"
-vector 399 ClusteringNetwork.host[9].udp droppedPkBadChecksum:vector(count) ETV
-attr interpolationmode none
-attr recordingmode vector(count)
-attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
-attr title "packets dropped (checksum error), count"
+0	25	0.5	29
+0	62	1	29
+0	101	1.5	29
+0	138	2	29
+0	177	2.5	29
+0	216	3	29
+0	255	3.5	29
+0	292	4	29
+1	25	0.5	29
+1	62	1	29
+1	101	1.5	29
+1	138	2	29
+1	177	2.5	29
+1	216	3	29
+1	255	3.5	29
+1	292	4	29
 4	0	0	0
 4	0	0	0
 4	0	0	0
 4	0	0	0
 4	0	0	0
+4	26	0.5	0
+4	63	1	0
+4	102	1.5	0
+4	139	2	0
+4	178	2.5	0
+4	217	3	0
+4	256	3.5	0
+4	293	4	0
 5	0	0	0
 5	0	0	0
 5	0	0	0
 5	0	0	0
 5	0	0	0
+5	26	0.5	0
+5	63	1	0
+5	102	1.5	0
+5	139	2	0
+5	178	2.5	0
+5	217	3	0
+5	256	3.5	0
+5	293	4	0
+6	26	0.5	0
+6	63	1	0
+6	102	1.5	0
+6	139	2	0
+6	178	2.5	0
+6	217	3	0
+6	256	3.5	0
+6	293	4	0
+7	26	0.5	232
+7	63	1	232
+7	102	1.5	232
+7	139	2	232
+7	178	2.5	232
+7	217	3	232
+7	256	3.5	232
+7	293	4	232
+9	26	0.5	232
+9	63	1	232
+9	102	1.5	232
+9	139	2	232
+9	178	2.5	232
+9	217	3	232
+9	256	3.5	232
+9	293	4	232
+16	26	0.5	45
+16	63	1	45
+16	102	1.5	45
+16	139	2	45
+16	178	2.5	45
+16	217	3	45
+16	256	3.5	45
+16	293	4	45
+17	26	0.5	29
+17	63	1	29
+17	102	1.5	29
+17	139	2	29
+17	178	2.5	29
+17	217	3	29
+17	256	3.5	29
+17	293	4	29
 22	0	0	0
 22	0	0	0
 22	0	0	4
 23	0	0	1
 24	0	0	1
+24	30	0.5	2
+24	39	0.500076	1
+24	67	1	2
+24	76	1.000076	1
+24	106	1.5	2
+24	115	1.500076	1
+24	143	2	2
+24	152	2.000076	1
+24	182	2.5	2
+24	191	2.500076	1
+24	221	3	2
+24	230	3.000076	1
+24	260	3.5	2
+24	269	3.500076	1
+24	297	4	2
+35	21	0.5	9
+35	58	1	9
+35	97	1.5	9
+35	134	2	9
+35	173	2.5	9
+35	212	3	9
+35	251	3.5	9
+35	288	4	9
+36	33	0.5	9
+36	70	1	9
+36	109	1.5	9
+36	146	2	9
+36	185	2.5	9
+36	224	3	9
+36	263	3.5	9
+36	300	4	9
 37	0	0	0
+37	33	0.5	1
+37	70	1	2
+37	109	1.5	3
+37	146	2	4
+37	185	2.5	5
+37	224	3	6
+37	263	3.5	7
+37	300	4	8
 38	0	0	0
 39	0	0	0
+40	27	0.5	29
+40	64	1	29
+40	103	1.5	29
+40	140	2	29
+40	179	2.5	29
+40	218	3	29
+40	257	3.5	29
+40	294	4	29
+41	27	0.5	29
+41	64	1	29
+41	103	1.5	29
+41	140	2	29
+41	179	2.5	29
+41	218	3	29
+41	257	3.5	29
+41	294	4	29
 44	0	0	0
 44	0	0	0
 44	0	0	0
 44	0	0	0
 44	0	0	0
+44	28	0.5	0
+44	65	1	0
+44	104	1.5	0
+44	141	2	0
+44	180	2.5	0
+44	219	3	0
+44	258	3.5	0
+44	295	4	0
 45	0	0	0
 45	0	0	0
 45	0	0	0
 45	0	0	0
 45	0	0	0
+45	28	0.5	0
+45	65	1	0
+45	104	1.5	0
+45	141	2	0
+45	180	2.5	0
+45	219	3	0
+45	258	3.5	0
+45	295	4	0
+46	28	0.5	0
+46	65	1	0
+46	104	1.5	0
+46	141	2	0
+46	180	2.5	0
+46	219	3	0
+46	258	3.5	0
+46	295	4	0
+47	28	0.5	232
+47	65	1	232
+47	104	1.5	232
+47	141	2	232
+47	180	2.5	232
+47	219	3	232
+47	258	3.5	232
+47	295	4	232
+49	28	0.5	232
+49	65	1	232
+49	104	1.5	232
+49	141	2	232
+49	180	2.5	232
+49	219	3	232
+49	258	3.5	232
+49	295	4	232
+56	28	0.5	45
+56	65	1	45
+56	104	1.5	45
+56	141	2	45
+56	180	2.5	45
+56	219	3	45
+56	258	3.5	45
+56	295	4	45
+57	28	0.5	29
+57	65	1	29
+57	104	1.5	29
+57	141	2	29
+57	180	2.5	29
+57	219	3	29
+57	258	3.5	29
+57	295	4	29
 62	0	0	0
 62	0	0	0
 62	0	0	4
 63	0	0	1
 64	0	0	1
+64	32	0.5	2
+64	40	0.500076	1
+64	69	1	2
+64	77	1.000076	1
+64	108	1.5	2
+64	116	1.500076	1
+64	145	2	2
+64	153	2.000076	1
+64	184	2.5	2
+64	192	2.500076	1
+64	223	3	2
+64	231	3.000076	1
+64	262	3.5	2
+64	270	3.500076	1
+64	299	4	2
+75	22	0.5	9
+75	59	1	9
+75	98	1.5	9
+75	135	2	9
+75	174	2.5	9
+75	213	3	9
+75	252	3.5	9
+75	289	4	9
+76	34	0.5	9
+76	71	1	9
+76	110	1.5	9
+76	147	2	9
+76	186	2.5	9
+76	225	3	9
+76	264	3.5	9
+76	301	4	9
 77	0	0	0
+77	34	0.5	1
+77	71	1	2
+77	110	1.5	3
+77	147	2	4
+77	186	2.5	5
+77	225	3	6
+77	264	3.5	7
+77	301	4	8
 78	0	0	0
 79	0	0	0
-84	0	0	0
-84	0	0	0
-84	0	0	0
-84	0	0	0
-84	0	0	0
-85	0	0	0
-85	0	0	0
-85	0	0	0
-85	0	0	0
-85	0	0	0
-102	0	0	0
-102	0	0	0
-102	0	0	4
-103	0	0	1
-104	0	0	1
-117	0	0	0
-118	0	0	0
-119	0	0	0
-124	0	0	0
-124	0	0	0
-124	0	0	0
-124	0	0	0
-124	0	0	0
-125	0	0	0
-125	0	0	0
-125	0	0	0
-125	0	0	0
-125	0	0	0
-142	0	0	0
-142	0	0	0
-142	0	0	4
-143	0	0	1
-144	0	0	1
-157	0	0	0
-158	0	0	0
-159	0	0	0
-164	0	0	0
-164	0	0	0
-164	0	0	0
-164	0	0	0
-164	0	0	0
-165	0	0	0
-165	0	0	0
-165	0	0	0
-165	0	0	0
-165	0	0	0
-182	0	0	0
-182	0	0	0
-182	0	0	4
-183	0	0	1
-184	0	0	1
-197	0	0	0
-198	0	0	0
-199	0	0	0
-204	0	0	0
-204	0	0	0
-204	0	0	0
-204	0	0	0
-204	0	0	0
-205	0	0	0
-205	0	0	0
-205	0	0	0
-205	0	0	0
-205	0	0	0
-222	0	0	0
-222	0	0	0
-222	0	0	4
-223	0	0	1
-224	0	0	1
-237	0	0	0
-238	0	0	0
-239	0	0	0
-244	0	0	0
-244	0	0	0
-244	0	0	0
-244	0	0	0
-244	0	0	0
-245	0	0	0
-245	0	0	0
-245	0	0	0
-245	0	0	0
-245	0	0	0
-262	0	0	0
-262	0	0	0
-262	0	0	4
-263	0	0	1
-264	0	0	1
-277	0	0	0
-278	0	0	0
-279	0	0	0
-284	0	0	0
-284	0	0	0
-284	0	0	0
-284	0	0	0
-284	0	0	0
-285	0	0	0
-285	0	0	0
-285	0	0	0
-285	0	0	0
-285	0	0	0
-302	0	0	0
-302	0	0	0
-302	0	0	4
-303	0	0	1
-304	0	0	1
-317	0	0	0
-318	0	0	0
-319	0	0	0
-324	0	0	0
-324	0	0	0
-324	0	0	0
-324	0	0	0
-324	0	0	0
-325	0	0	0
-325	0	0	0
-325	0	0	0
-325	0	0	0
-325	0	0	0
-342	0	0	0
-342	0	0	0
-342	0	0	4
-343	0	0	1
-344	0	0	1
-357	0	0	0
-358	0	0	0
-359	0	0	0
-364	0	0	0
-364	0	0	0
-364	0	0	0
-364	0	0	0
-364	0	0	0
-365	0	0	0
-365	0	0	0
-365	0	0	0
-365	0	0	0
-365	0	0	0
-382	0	0	0
-382	0	0	0
-382	0	0	4
-383	0	0	1
-384	0	0	1
-397	0	0	0
-398	0	0	0
-399	0	0	0
-8	243	0.1	0
-8	243	0.2	0
-8	243	0.3	0
-8	243	0.4	0
-8	243	0.5	0
-8	243	0.6	0
-8	243	0.7	0
-8	243	0.8	0
-8	243	0.9	0
-8	243	1	0
-8	243	1.1	0
-8	243	1.2	0
-8	243	1.3	0
-8	243	1.4	0
-8	243	1.5	0
-8	243	1.6	0
-8	243	1.7	0
-8	243	1.8	0
-8	243	1.9	0
-8	243	2	0
-10	243	0.1	0
-10	243	0.2	0
-10	243	0.3	0
-10	243	0.4	0
-10	243	0.5	0
-10	243	0.6	0
-10	243	0.7	0
-10	243	0.8	0
-10	243	0.9	0
-10	243	1	0
-10	243	1.1	0
-10	243	1.2	0
-10	243	1.3	0
-10	243	1.4	0
-10	243	1.5	0
-10	243	1.6	0
-10	243	1.7	0
-10	243	1.8	0
-10	243	1.9	0
-10	243	2	0
-48	243	0.1	0
-48	243	0.2	0
-48	243	0.3	0
-48	243	0.4	0
-48	243	0.5	0
-48	243	0.6	0
-48	243	0.7	0
-48	243	0.8	0
-48	243	0.9	0
-48	243	1	0
-48	243	1.1	0
-48	243	1.2	0
-48	243	1.3	0
-48	243	1.4	0
-48	243	1.5	0
-48	243	1.6	0
-48	243	1.7	0
-48	243	1.8	0
-48	243	1.9	0
-48	243	2	0
-50	243	0.1	0
-50	243	0.2	0
-50	243	0.3	0
-50	243	0.4	0
-50	243	0.5	0
-50	243	0.6	0
-50	243	0.7	0
-50	243	0.8	0
-50	243	0.9	0
-50	243	1	0
-50	243	1.1	0
-50	243	1.2	0
-50	243	1.3	0
-50	243	1.4	0
-50	243	1.5	0
-50	243	1.6	0
-50	243	1.7	0
-50	243	1.8	0
-50	243	1.9	0
-50	243	2	0
-88	243	0.1	0
-88	243	0.2	0
-88	243	0.3	0
-88	243	0.4	0
-88	243	0.5	0
-88	243	0.6	0
-88	243	0.7	0
-88	243	0.8	0
-88	243	0.9	0
-88	243	1	0
-88	243	1.1	0
-88	243	1.2	0
-88	243	1.3	0
-88	243	1.4	0
-88	243	1.5	0
-88	243	1.6	0
-88	243	1.7	0
-88	243	1.8	0
-88	243	1.9	0
-88	243	2	0
-90	243	0.1	0
-90	243	0.2	0
-90	243	0.3	0
-90	243	0.4	0
-90	243	0.5	0
-90	243	0.6	0
-90	243	0.7	0
-90	243	0.8	0
-90	243	0.9	0
-90	243	1	0
-90	243	1.1	0
-90	243	1.2	0
-90	243	1.3	0
-90	243	1.4	0
-90	243	1.5	0
-90	243	1.6	0
-90	243	1.7	0
-90	243	1.8	0
-90	243	1.9	0
-90	243	2	0
-128	243	0.1	0
-128	243	0.2	0
-128	243	0.3	0
-128	243	0.4	0
-128	243	0.5	0
-128	243	0.6	0
-128	243	0.7	0
-128	243	0.8	0
-128	243	0.9	0
-128	243	1	0
-128	243	1.1	0
-128	243	1.2	0
-128	243	1.3	0
-128	243	1.4	0
-128	243	1.5	0
-128	243	1.6	0
-128	243	1.7	0
-128	243	1.8	0
-128	243	1.9	0
-128	243	2	0
-130	243	0.1	0
-130	243	0.2	0
-130	243	0.3	0
-130	243	0.4	0
-130	243	0.5	0
-130	243	0.6	0
-130	243	0.7	0
-130	243	0.8	0
-130	243	0.9	0
-130	243	1	0
-130	243	1.1	0
-130	243	1.2	0
-130	243	1.3	0
-130	243	1.4	0
-130	243	1.5	0
-130	243	1.6	0
-130	243	1.7	0
-130	243	1.8	0
-130	243	1.9	0
-130	243	2	0
-168	243	0.1	0
-168	243	0.2	0
-168	243	0.3	0
-168	243	0.4	0
-168	243	0.5	0
-168	243	0.6	0
-168	243	0.7	0
-168	243	0.8	0
-168	243	0.9	0
-168	243	1	0
-168	243	1.1	0
-168	243	1.2	0
-168	243	1.3	0
-168	243	1.4	0
-168	243	1.5	0
-168	243	1.6	0
-168	243	1.7	0
-168	243	1.8	0
-168	243	1.9	0
-168	243	2	0
-170	243	0.1	0
-170	243	0.2	0
-170	243	0.3	0
-170	243	0.4	0
-170	243	0.5	0
-170	243	0.6	0
-170	243	0.7	0
-170	243	0.8	0
-170	243	0.9	0
-170	243	1	0
-170	243	1.1	0
-170	243	1.2	0
-170	243	1.3	0
-170	243	1.4	0
-170	243	1.5	0
-170	243	1.6	0
-170	243	1.7	0
-170	243	1.8	0
-170	243	1.9	0
-170	243	2	0
-208	243	0.1	0
-208	243	0.2	0
-208	243	0.3	0
-208	243	0.4	0
-208	243	0.5	0
-208	243	0.6	0
-208	243	0.7	0
-208	243	0.8	0
-208	243	0.9	0
-208	243	1	0
-208	243	1.1	0
-208	243	1.2	0
-208	243	1.3	0
-208	243	1.4	0
-208	243	1.5	0
-208	243	1.6	0
-208	243	1.7	0
-208	243	1.8	0
-208	243	1.9	0
-208	243	2	0
-210	243	0.1	0
-210	243	0.2	0
-210	243	0.3	0
-210	243	0.4	0
-210	243	0.5	0
-210	243	0.6	0
-210	243	0.7	0
-210	243	0.8	0
-210	243	0.9	0
-210	243	1	0
-210	243	1.1	0
-210	243	1.2	0
-210	243	1.3	0
-210	243	1.4	0
-210	243	1.5	0
-210	243	1.6	0
-210	243	1.7	0
-210	243	1.8	0
-210	243	1.9	0
-210	243	2	0
-248	243	0.1	0
-248	243	0.2	0
-248	243	0.3	0
-248	243	0.4	0
-248	243	0.5	0
-248	243	0.6	0
-248	243	0.7	0
-248	243	0.8	0
-248	243	0.9	0
-248	243	1	0
-248	243	1.1	0
-248	243	1.2	0
-248	243	1.3	0
-248	243	1.4	0
-248	243	1.5	0
-248	243	1.6	0
-248	243	1.7	0
-248	243	1.8	0
-248	243	1.9	0
-248	243	2	0
-250	243	0.1	0
-250	243	0.2	0
-250	243	0.3	0
-250	243	0.4	0
-250	243	0.5	0
-250	243	0.6	0
-250	243	0.7	0
-250	243	0.8	0
-250	243	0.9	0
-250	243	1	0
-250	243	1.1	0
-250	243	1.2	0
-250	243	1.3	0
-250	243	1.4	0
-250	243	1.5	0
-250	243	1.6	0
-250	243	1.7	0
-250	243	1.8	0
-250	243	1.9	0
-250	243	2	0
-288	243	0.1	0
-288	243	0.2	0
-288	243	0.3	0
-288	243	0.4	0
-288	243	0.5	0
-288	243	0.6	0
-288	243	0.7	0
-288	243	0.8	0
-288	243	0.9	0
-288	243	1	0
-288	243	1.1	0
-288	243	1.2	0
-288	243	1.3	0
-288	243	1.4	0
-288	243	1.5	0
-288	243	1.6	0
-288	243	1.7	0
-288	243	1.8	0
-288	243	1.9	0
-288	243	2	0
-290	243	0.1	0
-290	243	0.2	0
-290	243	0.3	0
-290	243	0.4	0
-290	243	0.5	0
-290	243	0.6	0
-290	243	0.7	0
-290	243	0.8	0
-290	243	0.9	0
-290	243	1	0
-290	243	1.1	0
-290	243	1.2	0
-290	243	1.3	0
-290	243	1.4	0
-290	243	1.5	0
-290	243	1.6	0
-290	243	1.7	0
-290	243	1.8	0
-290	243	1.9	0
-290	243	2	0
-328	243	0.1	0
-328	243	0.2	0
-328	243	0.3	0
-328	243	0.4	0
-328	243	0.5	0
-328	243	0.6	0
-328	243	0.7	0
-328	243	0.8	0
-328	243	0.9	0
-328	243	1	0
-328	243	1.1	0
-328	243	1.2	0
-328	243	1.3	0
-328	243	1.4	0
-328	243	1.5	0
-328	243	1.6	0
-328	243	1.7	0
-328	243	1.8	0
-328	243	1.9	0
-328	243	2	0
-330	243	0.1	0
-330	243	0.2	0
-330	243	0.3	0
-330	243	0.4	0
-330	243	0.5	0
-330	243	0.6	0
-330	243	0.7	0
-330	243	0.8	0
-330	243	0.9	0
-330	243	1	0
-330	243	1.1	0
-330	243	1.2	0
-330	243	1.3	0
-330	243	1.4	0
-330	243	1.5	0
-330	243	1.6	0
-330	243	1.7	0
-330	243	1.8	0
-330	243	1.9	0
-330	243	2	0
-368	243	0.1	0
-368	243	0.2	0
-368	243	0.3	0
-368	243	0.4	0
-368	243	0.5	0
-368	243	0.6	0
-368	243	0.7	0
-368	243	0.8	0
-368	243	0.9	0
-368	243	1	0
-368	243	1.1	0
-368	243	1.2	0
-368	243	1.3	0
-368	243	1.4	0
-368	243	1.5	0
-368	243	1.6	0
-368	243	1.7	0
-368	243	1.8	0
-368	243	1.9	0
-368	243	2	0
-370	243	0.1	0
-370	243	0.2	0
-370	243	0.3	0
-370	243	0.4	0
-370	243	0.5	0
-370	243	0.6	0
-370	243	0.7	0
-370	243	0.8	0
-370	243	0.9	0
-370	243	1	0
-370	243	1.1	0
-370	243	1.2	0
-370	243	1.3	0
-370	243	1.4	0
-370	243	1.5	0
-370	243	1.6	0
-370	243	1.7	0
-370	243	1.8	0
-370	243	1.9	0
-370	243	2	0
+0	331	4.5	29
+1	331	4.5	29
+4	332	4.5	0
+5	332	4.5	0
+6	332	4.5	0
+7	332	4.5	232
+9	332	4.5	232
+16	332	4.5	45
+17	332	4.5	29
+24	306	4.000076	1
+24	336	4.5	2
+24	345	4.500076	1
+35	327	4.5	9
+36	339	4.5	9
+37	339	4.5	9
+40	333	4.5	29
+41	333	4.5	29
+44	334	4.5	0
+45	334	4.5	0
+46	334	4.5	0
+47	334	4.5	232
+49	334	4.5	232
+56	334	4.5	45
+57	334	4.5	29
+64	307	4.000076	1
+64	338	4.5	2
+64	346	4.500076	1
+75	328	4.5	9
+76	340	4.5	9
+77	340	4.5	9
+0	370	5	29
+1	370	5	29
+4	371	5	0
+5	371	5	0
+6	371	5	0
+7	371	5	232
+9	371	5	232
+16	371	5	45
+17	371	5	29
+35	366	5	9
+75	367	5	9
+24	375	5	2
+24	384	5.000076	1
+36	378	5	9
+37	378	5	10
+40	372	5	29
+41	372	5	29
+44	373	5	0
+45	373	5	0
+46	373	5	0
+47	373	5	232
+49	373	5	232
+56	373	5	45
+57	373	5	29
+64	377	5	2
+64	385	5.000076	1
+76	379	5	9
+77	379	5	10
+0	407	5.5	29
+0	446	6	29
+0	485	6.5	29
+0	524	7	29
+0	561	7.5	29
+0	600	8	29
+0	647	8.5	29
+0	692	9	29
+0	739	9.5	29
+0	786	10	29
+0	833	10.5	29
+0	878	11	29
+0	925	11.5	29
+0	972	12	29
+0	1017	12.5	29
+1	407	5.5	29
+1	446	6	29
+1	485	6.5	29
+1	524	7	29
+1	561	7.5	29
+1	600	8	29
+1	647	8.5	29
+1	692	9	29
+1	739	9.5	29
+1	786	10	29
+1	833	10.5	29
+1	878	11	29
+1	925	11.5	29
+1	972	12	29
+1	1017	12.5	29
+4	408	5.5	0
+4	447	6	0
+4	486	6.5	0
+4	525	7	0
+4	562	7.5	0
+4	601	8	0
+4	648	8.5	0
+4	693	9	0
+4	740	9.5	0
+4	787	10	0
+4	834	10.5	0
+4	879	11	0
+4	926	11.5	0
+4	973	12	0
+4	1018	12.5	0
+5	408	5.5	0
+5	447	6	0
+5	486	6.5	0
+5	525	7	0
+5	562	7.5	0
+5	601	8	0
+5	648	8.5	0
+5	693	9	0
+5	740	9.5	0
+5	787	10	0
+5	834	10.5	0
+5	879	11	0
+5	926	11.5	0
+5	973	12	0
+5	1018	12.5	0
+6	408	5.5	0
+6	447	6	0
+6	486	6.5	0
+6	525	7	0
+6	562	7.5	0
+6	601	8	0
+6	648	8.5	0
+6	693	9	0
+6	740	9.5	0
+6	787	10	0
+6	834	10.5	0
+6	879	11	0
+6	926	11.5	0
+6	973	12	0
+6	1018	12.5	0
+7	408	5.5	232
+7	447	6	232
+7	486	6.5	232
+7	525	7	232
+7	562	7.5	232
+7	601	8	232
+7	648	8.5	232
+7	693	9	232
+7	740	9.5	232
+7	787	10	232
+7	834	10.5	232
+7	879	11	232
+7	926	11.5	232
+7	973	12	232
+7	1018	12.5	232
+9	408	5.5	232
+9	447	6	232
+9	486	6.5	232
+9	525	7	232
+9	562	7.5	232
+9	601	8	232
+9	648	8.5	232
+9	693	9	232
+9	740	9.5	232
+9	787	10	232
+9	834	10.5	232
+9	879	11	232
+9	926	11.5	232
+9	973	12	232
+9	1018	12.5	232
+15	619	8.000076331038	29
+15	666	8.500076320373	29
+15	711	9.000076309723	29
+15	758	9.500076299087	29
+15	805	10.000076288469	29
+15	852	10.500076277869	29
+15	897	11.00007626729	29
+15	944	11.500076256735	29
+15	991	12.000076246207	29
+16	408	5.5	45
+16	447	6	45
+16	486	6.5	45
+16	525	7	45
+16	562	7.5	45
+16	601	8	45
+16	648	8.5	45
+16	693	9	45
+16	740	9.5	45
+16	787	10	45
+16	834	10.5	45
+16	879	11	45
+16	926	11.5	45
+16	973	12	45
+16	1018	12.5	45
+17	408	5.5	29
+17	447	6	29
+17	486	6.5	29
+17	525	7	29
+17	562	7.5	29
+17	601	8	29
+17	648	8.5	29
+17	693	9	29
+17	740	9.5	29
+17	787	10	29
+17	834	10.5	29
+17	879	11	29
+17	926	11.5	29
+17	973	12	29
+17	1018	12.5	29
+18	619	8.000076331038	45
+18	666	8.500076320373	45
+18	711	9.000076309723	45
+18	758	9.500076299087	45
+18	805	10.000076288469	45
+18	852	10.500076277869	45
+18	897	11.00007626729	45
+18	944	11.500076256735	45
+18	991	12.000076246207	45
+23	613	8.000000331038	3
+23	617	8.000076331038	1
+23	660	8.500000320373	3
+23	664	8.500076320373	1
+23	705	9.000000309723	3
+23	709	9.000076309723	1
+23	752	9.500000299087	3
+23	756	9.500076299087	1
+23	799	10.000000288469	3
+23	803	10.000076288469	1
+23	846	10.500000277869	3
+23	850	10.500076277869	1
+23	891	11.00000026729	3
+23	895	11.00007626729	1
+23	938	11.500000256735	3
+23	942	11.500076256735	1
+23	985	12.000000246207	3
+23	989	12.000076246207	1
+23	1030	12.500000235709	3
+24	412	5.5	2
+24	421	5.500076	1
+24	451	6	2
+24	460	6.000076	1
+24	490	6.5	2
+24	499	6.500076	1
+24	529	7	2
+24	538	7.000076	1
+24	566	7.5	2
+24	575	7.500076	1
+24	605	8	2
+24	614	8.000076	1
+24	652	8.5	2
+24	661	8.500076	1
+24	697	9	2
+24	706	9.000076	1
+24	744	9.5	2
+24	753	9.500076	1
+24	791	10	2
+24	800	10.000076	1
+24	838	10.5	2
+24	847	10.500076	1
+24	883	11	2
+24	892	11.000076	1
+24	930	11.5	2
+24	939	11.500076	1
+24	977	12	2
+24	986	12.000076	1
+24	1022	12.5	2
+35	403	5.5	9
+35	442	6	9
+35	481	6.5	9
+35	520	7	9
+35	557	7.5	9
+35	596	8	9
+35	643	8.5	9
+35	688	9	9
+35	735	9.5	9
+35	782	10	9
+35	829	10.5	9
+35	874	11	9
+35	921	11.5	9
+35	968	12	9
+35	1013	12.5	9
+36	415	5.5	9
+36	454	6	9
+36	493	6.5	9
+36	532	7	9
+36	569	7.5	9
+36	608	8	9
+36	623	8.000076331038	9
+36	655	8.5	9
+36	670	8.500076320373	9
+36	700	9	9
+36	715	9.000076309723	9
+36	747	9.5	9
+36	762	9.500076299087	9
+36	794	10	9
+36	809	10.000076288469	9
+36	841	10.5	9
+36	856	10.500076277869	9
+36	886	11	9
+36	901	11.00007626729	9
+36	933	11.5	9
+36	948	11.500076256735	9
+36	980	12	9
+36	995	12.000076246207	9
+36	1025	12.5	9
+37	415	5.5	11
+37	454	6	12
+37	493	6.5	13
+37	532	7	14
+37	569	7.5	15
+37	608	8	16
+37	623	8.000076331038	17
+37	655	8.5	18
+37	670	8.500076320373	19
+37	700	9	20
+37	715	9.000076309723	21
+37	747	9.5	22
+37	762	9.500076299087	23
+37	794	10	24
+37	809	10.000076288469	25
+37	841	10.5	26
+37	856	10.500076277869	27
+37	886	11	28
+37	901	11.00007626729	29
+37	933	11.5	30
+37	948	11.500076256735	31
+37	980	12	32
+37	995	12.000076246207	33
+37	1025	12.5	34
+40	409	5.5	29
+40	448	6	29
+40	487	6.5	29
+40	526	7	29
+40	563	7.5	29
+40	602	8	29
+40	649	8.5	29
+40	694	9	29
+40	741	9.5	29
+40	788	10	29
+40	835	10.5	29
+40	880	11	29
+40	927	11.5	29
+40	974	12	29
+40	1019	12.5	29
+41	409	5.5	29
+41	448	6	29
+41	487	6.5	29
+41	526	7	29
+41	563	7.5	29
+41	602	8	29
+41	649	8.5	29
+41	694	9	29
+41	741	9.5	29
+41	788	10	29
+41	835	10.5	29
+41	880	11	29
+41	927	11.5	29
+41	974	12	29
+41	1019	12.5	29
+44	410	5.5	0
+44	449	6	0
+44	488	6.5	0
+44	527	7	0
+44	564	7.5	0
+44	603	8	0
+44	650	8.5	0
+44	695	9	0
+44	742	9.5	0
+44	789	10	0
+44	836	10.5	0
+44	881	11	0
+44	928	11.5	0
+44	975	12	0
+44	1020	12.5	0
+45	410	5.5	0
+45	449	6	0
+45	488	6.5	0
+45	527	7	0
+45	564	7.5	0
+45	603	8	0
+45	650	8.5	0
+45	695	9	0
+45	742	9.5	0
+45	789	10	0
+45	836	10.5	0
+45	881	11	0
+45	928	11.5	0
+45	975	12	0
+45	1020	12.5	0
+46	410	5.5	0
+46	449	6	0
+46	488	6.5	0
+46	527	7	0
+46	564	7.5	0
+46	603	8	0
+46	650	8.5	0
+46	695	9	0
+46	742	9.5	0
+46	789	10	0
+46	836	10.5	0
+46	881	11	0
+46	928	11.5	0
+46	975	12	0
+46	1020	12.5	0
+47	410	5.5	232
+47	449	6	232
+47	488	6.5	232
+47	527	7	232
+47	564	7.5	232
+47	603	8	232
+47	650	8.5	232
+47	695	9	232
+47	742	9.5	232
+47	789	10	232
+47	836	10.5	232
+47	881	11	232
+47	928	11.5	232
+47	975	12	232
+47	1020	12.5	232
+49	410	5.5	232
+49	449	6	232
+49	488	6.5	232
+49	527	7	232
+49	564	7.5	232
+49	603	8	232
+49	650	8.5	232
+49	695	9	232
+49	742	9.5	232
+49	789	10	232
+49	836	10.5	232
+49	881	11	232
+49	928	11.5	232
+49	975	12	232
+49	1020	12.5	232
+55	618	8.000076331038	29
+55	665	8.500076320373	29
+55	710	9.000076309723	29
+55	757	9.500076299087	29
+55	804	10.000076288469	29
+55	851	10.500076277869	29
+55	896	11.00007626729	29
+55	943	11.500076256735	29
+55	990	12.000076246207	29
+56	410	5.5	45
+56	449	6	45
+56	488	6.5	45
+56	527	7	45
+56	564	7.5	45
+56	603	8	45
+56	650	8.5	45
+56	695	9	45
+56	742	9.5	45
+56	789	10	45
+56	836	10.5	45
+56	881	11	45
+56	928	11.5	45
+56	975	12	45
+56	1020	12.5	45
+57	410	5.5	29
+57	449	6	29
+57	488	6.5	29
+57	527	7	29
+57	564	7.5	29
+57	603	8	29
+57	650	8.5	29
+57	695	9	29
+57	742	9.5	29
+57	789	10	29
+57	836	10.5	29
+57	881	11	29
+57	928	11.5	29
+57	975	12	29
+57	1020	12.5	29
+58	618	8.000076331038	45
+58	665	8.500076320373	45
+58	710	9.000076309723	45
+58	757	9.500076299087	45
+58	804	10.000076288469	45
+58	851	10.500076277869	45
+58	896	11.00007626729	45
+58	943	11.500076256735	45
+58	990	12.000076246207	45
+63	612	8.000000331038	3
+63	616	8.000076331038	1
+63	659	8.500000320373	3
+63	663	8.500076320373	1
+63	704	9.000000309723	3
+63	708	9.000076309723	1
+63	751	9.500000299087	3
+63	755	9.500076299087	1
+63	798	10.000000288469	3
+63	802	10.000076288469	1
+63	845	10.500000277869	3
+63	849	10.500076277869	1
+63	890	11.00000026729	3
+63	894	11.00007626729	1
+63	937	11.500000256735	3
+63	941	11.500076256735	1
+63	984	12.000000246207	3
+63	988	12.000076246207	1
+63	1029	12.500000235709	3
+64	414	5.5	2
+64	422	5.500076	1
+64	453	6	2
+64	461	6.000076	1
+64	492	6.5	2
+64	500	6.500076	1
+64	531	7	2
+64	539	7.000076	1
+64	568	7.5	2
+64	576	7.500076	1
+64	607	8	2
+64	615	8.000076	1
+64	654	8.5	2
+64	662	8.500076	1
+64	699	9	2
+64	707	9.000076	1
+64	746	9.5	2
+64	754	9.500076	1
+64	793	10	2
+64	801	10.000076	1
+64	840	10.5	2
+64	848	10.500076	1
+64	885	11	2
+64	893	11.000076	1
+64	932	11.5	2
+64	940	11.500076	1
+64	979	12	2
+64	987	12.000076	1
+64	1024	12.5	2
+75	404	5.5	9
+75	443	6	9
+75	482	6.5	9
+75	521	7	9
+75	558	7.5	9
+75	597	8	9
+75	644	8.5	9
+75	689	9	9
+75	736	9.5	9
+75	783	10	9
+75	830	10.5	9
+75	875	11	9
+75	922	11.5	9
+75	969	12	9
+75	1014	12.5	9
+76	416	5.5	9
+76	455	6	9
+76	494	6.5	9
+76	533	7	9
+76	570	7.5	9
+76	609	8	9
+76	622	8.000076331038	9
+76	656	8.5	9
+76	669	8.500076320373	9
+76	701	9	9
+76	714	9.000076309723	9
+76	748	9.5	9
+76	761	9.500076299087	9
+76	795	10	9
+76	808	10.000076288469	9
+76	842	10.5	9
+76	855	10.500076277869	9
+76	887	11	9
+76	900	11.00007626729	9
+76	934	11.5	9
+76	947	11.500076256735	9
+76	981	12	9
+76	994	12.000076246207	9
+76	1026	12.5	9
+77	416	5.5	11
+77	455	6	12
+77	494	6.5	13
+77	533	7	14
+77	570	7.5	15
+77	609	8	16
+77	622	8.000076331038	17
+77	656	8.5	18
+77	669	8.500076320373	19
+77	701	9	20
+77	714	9.000076309723	21
+77	748	9.5	22
+77	761	9.500076299087	23
+77	795	10	24
+77	808	10.000076288469	25
+77	842	10.5	26
+77	855	10.500076277869	27
+77	887	11	28
+77	900	11.00007626729	29
+77	934	11.5	30
+77	947	11.500076256735	31
+77	981	12	32
+77	994	12.000076246207	33
+77	1026	12.5	34
 

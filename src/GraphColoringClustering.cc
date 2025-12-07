@@ -1,110 +1,222 @@
 #include "GraphColoringClustering.h"
-
+#include "inet/common/packet/Packet.h"
+#include "omnetpp/cdisplaystring.h"
+#include "inet/common/packet/chunk/ByteCountChunk.h"
 using namespace omnetpp;
+using namespace inet;
 
 Define_Module(GraphColoringClustering);
 
-void GraphColoringClustering::initialize()
-{
-    // Node ID: use parent index if available, otherwise module ID
-    nodeId = getParentModule() ? getParentModule()->getIndex() : getId();
+// simple mapping: colorId -> color string
+static const char *COLOR_MAP[] = { "red", "green", "blue", "yellow", "orange",
+        "gray", "magenta", "cyan", "black", "white" };
+static const int NUM_COLORS = sizeof(COLOR_MAP) / sizeof(COLOR_MAP[0]);
 
-    currentColor = -1;     // uncolored
-    role        = UNDECIDED;
-    clusterId   = -1;
+//----------------------------------------------------------
+// Initialization (multi-stage)
+//----------------------------------------------------------
+void GraphColoringClustering::initialize(int stage) {
+    cSimpleModule::initialize(stage);
 
-    // Read parameters
-    helloInterval       = par("helloInterval");
-    neighborTimeout     = par("neighborTimeout");
-    maintenanceInterval = par("maintenanceInterval");
-    coloringJitter      = par("coloringJitter");
+    if (stage == INITSTAGE_LOCAL) {
+        // basic state & parameters
+        nodeId = getParentModule() ? getParentModule()->getIndex() : getId();
+        currentColor = -1;
+        role = UNDECIDED;
+        clusterId = -1;
 
-    // Create timers
-    helloTimer       = new cMessage("helloTimer");
-    colorTimer       = new cMessage("colorTimer");
-    maintenanceTimer = new cMessage("maintenanceTimer");
+        helloInterval = par("helloInterval");
+        neighborTimeout = par("neighborTimeout");
+        maintenanceInterval = par("maintenanceInterval");
+        coloringJitter = par("coloringJitter");
 
-    // Schedule timers with small random offsets
-    scheduleAt(simTime() + uniform(0, helloInterval.dbl()), helloTimer);
-    scheduleAt(simTime() + uniform(0, coloringJitter.dbl()), colorTimer);
-    scheduleAt(simTime() + maintenanceInterval, maintenanceTimer);
+        localPort = par("localPort");
+        destPort = par("destPort");
+
+        // (optional but recommended) sanity checks
+        if (helloInterval < SIMTIME_ZERO)
+            throw cRuntimeError("helloInterval must be >= 0s (is %s)",
+                    helloInterval.str().c_str());
+        if (maintenanceInterval <= SIMTIME_ZERO)
+            throw cRuntimeError("maintenanceInterval must be > 0s (is %s)",
+                    maintenanceInterval.str().c_str());
+        if (coloringJitter < SIMTIME_ZERO)
+            throw cRuntimeError("coloringJitter must be >= 0s (is %s)",
+                    coloringJitter.str().c_str());
+
+        helloTimer = new cMessage("helloTimer");
+        colorTimer = new cMessage("colorTimer");
+        maintenanceTimer = new cMessage("maintenanceTimer");
+        lastDisplayColor = -1;
+
+    } else if (stage == INITSTAGE_APPLICATION_LAYER) {
+        // now the protocol stack (incl. UDP) exists and is registered
+
+        socket.setOutputGate(gate("socketOut"));
+        socket.bind(localPort);
+
+        // tell UDP we want callbacks for this socket
+        socket.setCallback(this);
+
+        // allow broadcast if we ever use it
+        socket.setBroadcast(true);
+
+        destAddress = L3AddressResolver().resolve("224.0.0.1");
+        socket.joinMulticastGroup(destAddress);
+
+        // --- schedule timers (NO uniform(), no invalid ranges) ---
+        // First HELLO: after helloInterval (can be 0s if you want it at t=0)
+        scheduleAt(simTime() + helloInterval, helloTimer);
+
+        // First coloring: after coloringJitter (0s means "immediately")
+        scheduleAt(simTime() + 2 * coloringJitter, colorTimer);
+
+        // First maintenance: after maintenanceInterval
+        scheduleAt(simTime() + maintenanceInterval, maintenanceTimer);
+    }
 }
 
-void GraphColoringClustering::handleMessage(cMessage *msg)
-{
+//----------------------------------------------------------
+// Message handling
+//----------------------------------------------------------
+void GraphColoringClustering::handleMessage(cMessage *msg) {
     if (msg->isSelfMessage()) {
-        if (msg == helloTimer) {
+        if (msg == helloTimer)
             handleHelloTimer();
-        }
-        else if (msg == colorTimer) {
+        else if (msg == colorTimer)
             handleColorTimer();
-        }
-        else if (msg == maintenanceTimer) {
+        else if (msg == maintenanceTimer)
             handleMaintenanceTimer();
-        }
         else {
-            EV_WARN << "Unknown self-message: " << msg->getName() << "\n";
+            EV_WARN << "Unknown self-message " << msg->getName()
+                           << ", deleting.\n";
             delete msg;
         }
+    } else {
+        // IMPORTANT: hand all incoming UDP/indication messages to UdpSocket
+        socket.processMessage(msg);
     }
-    else {
-        // Message from other node: should be HelloMessage
-        HelloMessage *hello = dynamic_cast<HelloMessage *>(msg);
-        if (hello != nullptr) {
-            handleHelloMessage(hello);
-        }
-        else {
-            EV_WARN << "Received unknown message type, dropping.\n";
-            delete msg;
-        }
-    }
+    //OLD!!!!
+    /*if (msg->isSelfMessage()) {
+     if (msg == helloTimer)
+     handleHelloTimer();
+     else if (msg == colorTimer)
+     handleColorTimer();
+     else if (msg == maintenanceTimer)
+     handleMaintenanceTimer();
+     else {
+     EV_WARN << "Unknown self-message " << msg->getName()
+     << ", deleting.\n";
+     delete msg;
+     }
+     } else if (msg->arrivedOn("socketIn")) {
+     EV_INFO << "message arrived!!!!!!!!!" << "\n";
+     auto *pk = check_and_cast<Packet*>(msg);
+     handleUdpPacket(pk);
+     } else {
+     EV_WARN << "Message arrived on unexpected gate, deleting.\n";
+     delete msg;
+     }*/
 }
 
-void GraphColoringClustering::handleHelloTimer()
-{
-    // Create HELLO
-    auto *hello = new HelloMessage("HELLO");
-    hello->setSenderId(nodeId);
-    hello->setColor(currentColor);
-    hello->setRole(role);
+//----------------------------------------------------------
+// Timer handlers
+//----------------------------------------------------------
+void GraphColoringClustering::handleHelloTimer() {
 
-    // Only send if 'out' gate is actually connected
-    if (gate("out")->isConnected()) {
-        send(hello, "out");
-    }
-    else {
-        EV_WARN << "Node " << nodeId
-                << ": gcc.out gate not connected, dropping HELLO\n";
-        delete hello;
-    }
+    // Create a UDP packet that will carry the HELLO information
+    auto *pk = new Packet("HELLO");
 
-    // Reschedule
+    // Encode GCC state as packet parameters (small & simple)
+    pk->addPar("senderId") = nodeId;
+    pk->addPar("color") = currentColor;
+    pk->addPar("role") = role;
+    pk->addPar("clusterId") = clusterId;
+
+    // add a small dummy payload so UDP doesn't see an EmptyChunk
+    const auto& payload = makeShared<inet::ByteCountChunk>(inet::B(1)); // 1 byte is enough
+    pk->insertAtBack(payload);
+
+    socket.sendTo(pk, destAddress, destPort);
+
+    // Periodic HELLO
     scheduleAt(simTime() + helloInterval, helloTimer);
 }
 
-void GraphColoringClustering::handleColorTimer()
-{
-    int newColor = chooseGreedyColor();
+void GraphColoringClustering::handleColorTimer() {
+    int oldColor = currentColor;
 
-    if (newColor != currentColor) {
-        EV_INFO << "Node " << nodeId << " changes color from "
-                << currentColor << " to " << newColor << "\n";
-        currentColor = newColor;
+    // Collect neighbor colors that are already assigned (>= 0)
+    std::set<int> usedColors;
+    for (const auto &entry : neighborTable) {
+        const NeighborInfo &nb = entry.second;
+        if (nb.color >= 0)
+            usedColors.insert(nb.color);
     }
 
-    // In this simple GCC model, clusterId = color
-    clusterId = currentColor;
+    // 1) If we are uncolored, pick the smallest color not used by neighbors
+    if (currentColor < 0) {
+        int newColor = 0;
+        while (usedColors.count(newColor) != 0)
+            ++newColor;
 
-    // After color is set, recompute CH / MEMBER / GATEWAY role
+        currentColor = newColor;
+    } else {
+        // 2) We already have a color: check for conflict with higher-priority neighbor
+
+        bool conflictWithHigherPrio = false;
+
+        // Priority = smaller nodeId
+        for (const auto &entry : neighborTable) {
+            const NeighborInfo &nb = entry.second;
+            if (nb.color == currentColor && nb.neighborId < nodeId) {
+                conflictWithHigherPrio = true;
+                break;
+            }
+        }
+
+        if (conflictWithHigherPrio) {
+            // We lose the clash -> choose a new color different from neighbors
+            int newColor = 0;
+            while (usedColors.count(newColor) != 0)
+                ++newColor;
+
+            currentColor = newColor;
+        }
+        // else: keep currentColor
+    }
+
+    // Update clustering state after any color change
     recomputeRole();
+    updateDisplayColor();   // if you have this helper to tint the icon
 
-    // We do not automatically reschedule colorTimer - recoloring is triggered
-    // by maintenance or topology changes if you decide to do so.
+    if (currentColor != oldColor) {
+        EV_INFO << "Node " << nodeId << " changes color from " << oldColor
+                       << " to " << currentColor << "\n";
+    }
+
+    // Schedule next coloring round -> **iterative** algorithm
+    scheduleAt(simTime() + coloringJitter, colorTimer);
+    /*int newColor = chooseGreedyColor();
+
+     if (newColor != currentColor) {
+     EV_INFO << "Node " << nodeId << " changes color from " << currentColor
+     << " to " << newColor << "\n";
+     currentColor = newColor;
+     clusterId = currentColor;
+     updateDisplayColor();
+     } else {
+     clusterId = currentColor;
+     }
+
+     // Decide CH/MEMBER/GATEWAY based on colors we currently know
+     recomputeRole();*/
+
+    // If you want periodic recoloring, you could reschedule here:
+    // scheduleAt(simTime() + coloringJitter, colorTimer);
 }
 
-
-void GraphColoringClustering::handleMaintenanceTimer()
-{
+void GraphColoringClustering::handleMaintenanceTimer() {
     // Remove neighbors that timed out
     pruneNeighbors();
 
@@ -114,33 +226,72 @@ void GraphColoringClustering::handleMaintenanceTimer()
     scheduleAt(simTime() + maintenanceInterval, maintenanceTimer);
 }
 
-void GraphColoringClustering::handleHelloMessage(HelloMessage *hello)
-{
-    int sender = hello->getSenderId();
-    int color  = hello->getColor();
-    int r      = hello->getRole();
+/* UNUSED
+ void GraphColoringClustering::handleHelloMessage(HelloMessage *hello) {
+ int sender = hello->getSenderId();
+ int color = hello->getColor();
+ int r = hello->getRole();
+ int clusId = hello->getClusterId();   // NEW
+
+ NeighborInfo info;
+ info.neighborId = sender;
+ info.color = color;
+ info.role = r;
+ info.clusterId = clusId;                // NEW
+ info.lastHeard = simTime();
+
+ auto it = neighborTable.find(sender);
+ if (it == neighborTable.end()) {
+ neighborTable[sender] = info;
+ } else {
+ it->second = info;
+ }
+
+ // Neighbor info updated; roles may change
+ recomputeRole();
+
+ delete hello;
+ }*/
+
+// new helper
+void GraphColoringClustering::handleUdpPacket(Packet *pk) {
+    int sender = (int) pk->par("senderId");
+    int neighCol = (int) pk->par("color");
+    int neighRole = (int) pk->par("role");
+    int neighCid = (int) pk->par("clusterId");
+
+    EV_INFO << "Node " << nodeId << " received HELLO from " << sender
+                   << " (color=" << neighCol << ", role=" << neighRole
+                   << ", clusterId=" << neighCid << ")\n";
 
     NeighborInfo info;
     info.neighborId = sender;
-    info.color      = color;
-    info.role       = r;
-    info.lastHeard  = simTime();
+    info.color = neighCol;
+    info.role = neighRole;
+    info.clusterId = neighCid;
+    info.lastHeard = simTime();
 
-    auto it = neighborTable.find(sender);
-    if (it == neighborTable.end()) {
-        neighborTable[sender] = info;
-    } else {
-        it->second = info;
-    }
+    neighborTable[sender] = info;
 
-    // Neighbor info updated; roles may change
+    // New info may change our role
     recomputeRole();
 
-    delete hello;
+    delete pk;
 }
 
-int GraphColoringClustering::chooseGreedyColor() const
+void GraphColoringClustering::socketDataArrived(UdpSocket *socket, Packet *pk)
 {
+    EV_INFO << "Node " << nodeId << " received packet " << pk->getName()
+            << " of length " << pk->getByteLength() << " bytes\n";
+
+    // reuse your existing logic
+    handleUdpPacket(pk);
+}
+
+//----------------------------------------------------------
+// Coloring & neighbor maintenance
+//----------------------------------------------------------
+int GraphColoringClustering::chooseGreedyColor() const {
     // Collect neighbor colors
     std::set<int> usedColors;
     for (const auto &entry : neighborTable) {
@@ -158,9 +309,7 @@ int GraphColoringClustering::chooseGreedyColor() const
     return candidate;
 }
 
-
-void GraphColoringClustering::pruneNeighbors()
-{
+void GraphColoringClustering::pruneNeighbors() {
     simtime_t now = simTime();
     std::vector<int> toRemove;
 
@@ -171,14 +320,42 @@ void GraphColoringClustering::pruneNeighbors()
     }
 
     for (int id : toRemove) {
-        EV_INFO << "Node " << nodeId << " removing stale neighbor " << id << "\n";
+        EV_INFO << "Node " << nodeId << " removing stale neighbor " << id
+                       << "\n";
         neighborTable.erase(id);
     }
 }
 
+void GraphColoringClustering::updateDisplayColor() {
+    if (!hasGUI())
+        return;  // skip in Cmdenv
+
+    if (currentColor < 0)
+        return;  // uncolored
+
+    if (currentColor == lastDisplayColor)
+        return;  // nothing to do
+
+    lastDisplayColor = currentColor;
+
+    cModule *host = getParentModule();
+    if (!host)
+        return;
+
+    omnetpp::cDisplayString &ds = host->getDisplayString();
+
+    const char *col = COLOR_MAP[currentColor % NUM_COLORS];
+
+    // tint the icon
+    ds.setTagArg("i", 1, col);
+
+    // (optional) also color the background instead/too:
+    // ds.setTagArg("b", 0, col);
+    // ds.setTagArg("b", 1, "oval");
+}
+
 // Minimum color among this node + its neighbors
-int GraphColoringClustering::computeLocalMinColor() const
-{
+int GraphColoringClustering::computeLocalMinColor() const {
     int minColor = -1;
 
     if (currentColor >= 0)
@@ -186,7 +363,8 @@ int GraphColoringClustering::computeLocalMinColor() const
 
     for (const auto &entry : neighborTable) {
         int c = entry.second.color;
-        if (c < 0) continue;
+        if (c < 0)
+            continue;
         if (minColor < 0 || c < minColor)
             minColor = c;
     }
@@ -195,59 +373,78 @@ int GraphColoringClustering::computeLocalMinColor() const
 }
 
 // Does this node hear 2 or more distinct cluster heads?
-bool GraphColoringClustering::hearsMultipleClusterHeads() const
-{
-    std::set<int> chColors;
+/*bool GraphColoringClustering::hearsMultipleClusterHeads() const {
+ std::set<int> chColors;
 
+ for (const auto &entry : neighborTable) {
+ const NeighborInfo &n = entry.second;
+ if (n.role == CLUSTER_HEAD && n.color >= 0) {
+ chColors.insert(n.color);
+ if (chColors.size() >= 2)
+ return true;
+ }
+ }
+ return false;
+ }*/
+
+bool GraphColoringClustering::hasSmallerIdSameColor() const {
     for (const auto &entry : neighborTable) {
         const NeighborInfo &n = entry.second;
-        if (n.role == CLUSTER_HEAD && n.color >= 0) {
-            chColors.insert(n.color);
-            if (chColors.size() >= 2)
-                return true;
-        }
+        if (n.color == currentColor && n.neighborId < nodeId)
+            return true;
     }
     return false;
 }
 
 // Decide role (CH / MEMBER / GATEWAY) based on colors and neighbors
-void GraphColoringClustering::recomputeRole()
-{
+void GraphColoringClustering::recomputeRole() {
     int oldRole = role;
 
     if (currentColor < 0) {
         role = UNDECIDED;
         clusterId = -1;
-    }
-    else {
+    } else {
+        // In this simple model, clusterId == color
         clusterId = currentColor;
 
+        // --- 1) Decide if we are a Cluster Head (CH) ---
         int minColor = computeLocalMinColor();
-        bool isCH = (currentColor >= 0 && currentColor == minColor);
+        bool hasMinCol = (currentColor >= 0 && currentColor == minColor);
+        bool isClusterHead = hasMinCol && !hasSmallerIdSameColor();
 
-        if (isCH) {
-            role = CLUSTER_HEAD;
-        }
-        else {
-            if (hearsMultipleClusterHeads()) {
-                role = GATEWAY;
-            } else {
-                role = MEMBER;
+        // --- 2) Check if we hear any neighbor from another cluster ---
+        bool hearsOtherCluster = false;
+        for (const auto &entry : neighborTable) {
+            const NeighborInfo &n = entry.second;
+            // Neighbor is in some cluster (clusterId >= 0)
+            // and that cluster is different from ours
+            if (n.clusterId >= 0 && n.clusterId != clusterId) {
+                hearsOtherCluster = true;
+                break;
             }
+        }
+
+        // --- 3) Assign role with priority: CH > GATEWAY > MEMBER ---
+        if (isClusterHead) {
+            role = CLUSTER_HEAD;
+        } else if (hearsOtherCluster) {
+            role = GATEWAY;
+        } else {
+            role = MEMBER;
         }
     }
 
+    // Log role changes
     if (role != oldRole) {
-        EV_INFO << "Node " << nodeId << " changes role from "
-                << oldRole << " to " << role
-                << " (color=" << currentColor
-                << ", clusterId=" << clusterId << ")\n";
+        EV_INFO << "Node " << nodeId << " changes role from " << oldRole
+                       << " to " << role << " (color=" << currentColor
+                       << ", clusterId=" << clusterId << ")\n";
     }
 }
 
-void GraphColoringClustering::finish()
-{
+void GraphColoringClustering::finish() {
     cancelAndDelete(helloTimer);
     cancelAndDelete(colorTimer);
     cancelAndDelete(maintenanceTimer);
 }
+

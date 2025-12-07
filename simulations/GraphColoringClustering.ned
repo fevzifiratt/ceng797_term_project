@@ -14,18 +14,25 @@
 //
 
 package clusteringmanet.simulations;
-
+//import inet.applications.contract.IUDPApp;
+import inet.applications.contract.IApp;
 //
 // TODO auto-generated type
 //
-simple GraphColoringClustering
+simple GraphColoringClustering like IApp
 {
     parameters:
-        double helloInterval @unit(s) = default(1s);
-        double neighborTimeout @unit(s) = default(3s);
-        double maintenanceInterval @unit(s) = default(1s);
-        double coloringJitter @unit(s) = default(0.5s);
+        @display("i=block/app");
+
+        // your existing parameters
+        double helloInterval @unit(s);
+        double neighborTimeout @unit(s);
+        double maintenanceInterval @unit(s);
+        double coloringJitter @unit(s);
+		// NEW: UDP parameters
+        int localPort = default(5000);
+        int destPort = default(5000);
     gates:
-        input in;
-        output out;
+        input socketIn @labels(UdpControlInfo/up);
+        output socketOut @labels(UdpControlInfo/down);
 }

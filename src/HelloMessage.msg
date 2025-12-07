@@ -12,11 +12,11 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
-
 // Control packet used for clustering HELLO messages
-packet HelloMessage
+class HelloMessage 
 {
     int senderId;
     int color;
-    int role; // 0=UNDECIDED, 1=CLUSTER_HEAD, 2=MEMBER, 3=GATEWAY
+    int role;
+    int clusterId;
 }

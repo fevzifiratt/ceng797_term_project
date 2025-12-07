@@ -24,7 +24,7 @@ network ClusteringNetwork
     parameters:
         int numHosts = default(10);
     submodules:
-        radioMedium: UnitDiskRadioMedium ;
+        radioMedium: UnitDiskRadioMedium;
         configurator: Ipv4NetworkConfigurator;
         host[numHosts]: GCCAdhocHost {
             @display("i=device/laptop");

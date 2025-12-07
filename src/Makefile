@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for ClusteringManet
 #
 # This file was generated with the command:
-#  opp_makemake -f --deep -KINET_4_5_4_PROJ=../../inet-4.5.4 -DINET_IMPORT -L$$\(INET_4_5_4_PROJ\)/src -lINET$$\(D\)
+#  opp_makemake -f --deep -KINET_4_5_4_PROJ=../../inet-4.5.4 -DINET_IMPORT -I$$\(INET_4_5_4_PROJ\)/src -L$$\(INET_4_5_4_PROJ\)/src -lINET$$\(D\)
 #
 
 # Name of target to be created (-o option)
@@ -17,7 +17,7 @@ USERIF_LIBS = $(ALL_ENV_LIBS) # that is, $(QTENV_LIBS) $(CMDENV_LIBS)
 #USERIF_LIBS = $(QTENV_LIBS)
 
 # C++ include paths (with -I)
-INCLUDE_PATH =
+INCLUDE_PATH = -I$(INET_4_5_4_PROJ)/src
 
 # Additional object and library files to link with
 EXTRA_OBJS =

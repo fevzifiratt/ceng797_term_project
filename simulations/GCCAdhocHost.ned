@@ -19,14 +19,11 @@ package clusteringmanet.simulations;
 // TODO auto-generated type
 //
 import inet.node.inet.AdhocHost;
+//import inet.transportlayer.udp.Udp;
 import clusteringmanet.simulations.GraphColoringClustering;
 
 module GCCAdhocHost extends AdhocHost
 {
-    submodules:
-        gcc: GraphColoringClustering {
-        }
-    //connections allowunconnected:
-    //    gcc.out --> wlan[0].upperLayerIn;
-    //    wlan[0].upperLayerOut --> gcc.in;
+    parameters:
+        numApps = default(1);   // we will use app[0] as GCC
 }
