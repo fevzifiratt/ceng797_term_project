@@ -144,7 +144,57 @@ void GraphColoringClustering::handleHelloTimer() {
 }
 
 void GraphColoringClustering::handleColorTimer() {
-    int oldColor = currentColor;
+    // Collect neighbor colors
+    std::set<int> usedColors;
+    for (const auto &entry : neighborTable) {
+        int c = entry.second.color;
+        if (c >= 0)
+            usedColors.insert(c);
+    }
+
+    // Check if we currently conflict with a higher-priority neighbor
+    // (same color but smaller nodeId). If so, we must recolor.
+    bool conflictWithHigherPrio = false;
+    if (currentColor >= 0) {
+        for (const auto &entry : neighborTable) {
+            const NeighborInfo &n = entry.second;
+            if (n.color == currentColor && n.neighborId < nodeId) {
+                conflictWithHigherPrio = true;
+                break;
+            }
+        }
+    }
+
+    int newColor = currentColor;
+
+    // Initial coloring OR conflict resolution: pick smallest unused color.
+    if (currentColor < 0 || conflictWithHigherPrio) {
+        newColor = 0;
+        while (usedColors.find(newColor) != usedColors.end())
+            ++newColor;
+    }
+    // CH recovery: if nobody around uses color 0, try to become CH.
+    // Any clashes are resolved next rounds by the "smaller nodeId wins" rule.
+    else if (!neighborTable.empty() && usedColors.find(0) == usedColors.end() && currentColor != 0) {
+        newColor = 0;
+    }
+
+    if (newColor != currentColor) {
+        EV_INFO << "Node " << nodeId << " changes color from " << currentColor
+                << " to " << newColor << "\n";
+        currentColor = newColor;
+        updateDisplayColor();
+    }
+
+    // Decide CH/MEMBER/GATEWAY using the *new* clustering semantics:
+    // CH <=> color==0, clusterId = CH id, gateway by clusterId mismatch.
+    recomputeRole();
+
+    // Periodic recoloring is required for self-healing under mobility/CH loss.
+    scheduleAt(simTime() + coloringJitter, colorTimer);
+
+    //OLD CODE
+    /*int oldColor = currentColor;
 
     // Collect neighbor colors that are already assigned (>= 0)
     std::set<int> usedColors;
@@ -196,24 +246,7 @@ void GraphColoringClustering::handleColorTimer() {
     }
 
     // Schedule next coloring round -> **iterative** algorithm
-    scheduleAt(simTime() + coloringJitter, colorTimer);
-    /*int newColor = chooseGreedyColor();
-
-     if (newColor != currentColor) {
-     EV_INFO << "Node " << nodeId << " changes color from " << currentColor
-     << " to " << newColor << "\n";
-     currentColor = newColor;
-     clusterId = currentColor;
-     updateDisplayColor();
-     } else {
-     clusterId = currentColor;
-     }
-
-     // Decide CH/MEMBER/GATEWAY based on colors we currently know
-     recomputeRole();*/
-
-    // If you want periodic recoloring, you could reschedule here:
-    // scheduleAt(simTime() + coloringJitter, colorTimer);
+    scheduleAt(simTime() + coloringJitter, colorTimer);*/
 }
 
 void GraphColoringClustering::handleMaintenanceTimer() {
@@ -400,6 +433,59 @@ bool GraphColoringClustering::hasSmallerIdSameColor() const {
 void GraphColoringClustering::recomputeRole() {
     int oldRole = role;
 
+    int oldClusterId = clusterId;
+
+    // New semantics:
+    //   - Cluster Head (CH)  <=> color == 0
+    //   - CH's clusterId     = nodeId
+    //   - Non-CH clusterId   = chosen CH id among 1-hop neighbors (lowest id)
+    //   - Gateway            = hears any neighbor whose clusterId != my clusterId
+    if (currentColor < 0) {
+        role = UNDECIDED;
+        clusterId = -1;
+    }
+    else if (currentColor == 0) {
+        role = CLUSTER_HEAD;
+        clusterId = nodeId;
+    }
+    else {
+        // Join a CH we can hear (strict 1-hop attachment)
+        int chosenChId = -1;
+        for (const auto &entry : neighborTable) {
+            const NeighborInfo &n = entry.second;
+            if (n.color == 0) { // CH candidate under our rule
+                if (chosenChId < 0 || n.neighborId < chosenChId)
+                    chosenChId = n.neighborId;
+            }
+        }
+        clusterId = chosenChId;
+
+        if (clusterId < 0) {
+            // Not clustered yet (e.g., before convergence). Keep it undecided.
+            role = UNDECIDED;
+        } else {
+            // Gateway if we hear anyone from a different cluster
+            bool hearsOtherCluster = false;
+            for (const auto &entry : neighborTable) {
+                const NeighborInfo &n = entry.second;
+                if (n.clusterId >= 0 && n.clusterId != clusterId) {
+                    hearsOtherCluster = true;
+                    break;
+                }
+            }
+            role = hearsOtherCluster ? GATEWAY : MEMBER;
+        }
+    }
+
+    if (role != oldRole || clusterId != oldClusterId) {
+        EV_INFO << "Node " << nodeId
+                << " updates state: role " << oldRole << " -> " << role
+                << ", clusterId " << oldClusterId << " -> " << clusterId
+                << " (color=" << currentColor << ")\n";
+    }
+    // OLD CODE
+    /*int oldRole = role;
+
     if (currentColor < 0) {
         role = UNDECIDED;
         clusterId = -1;
@@ -439,7 +525,7 @@ void GraphColoringClustering::recomputeRole() {
         EV_INFO << "Node " << nodeId << " changes role from " << oldRole
                        << " to " << role << " (color=" << currentColor
                        << ", clusterId=" << clusterId << ")\n";
-    }
+    }*/
 }
 
 void GraphColoringClustering::finish() {
