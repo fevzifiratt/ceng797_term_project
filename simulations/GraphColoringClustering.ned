@@ -26,6 +26,7 @@ simple GraphColoringClustering like IApp
 
         // your existing parameters
         double helloInterval @unit(s);
+        double helloJitter @unit(s);
         double neighborTimeout @unit(s);
         double maintenanceInterval @unit(s);
         double coloringJitter @unit(s);

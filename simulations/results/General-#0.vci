@@ -1,9 +1,9 @@
-file 327416 1766348195                                          
+file 178030 1766520045                                          
 version 3
-run General-0-20251221-23:14:22-9904
+run General-0-20251223-22:48:03-5008
 attr configname General
-attr datetime 20251221-23:14:22
-attr datetimef 20251221-231422
+attr datetime 20251223-22:48:03
+attr datetimef 20251223-224803
 attr experiment General
 attr inifile omnetpp.ini
 attr iterationvars ""
@@ -11,7 +11,7 @@ attr iterationvarsd ""
 attr iterationvarsf ""
 attr measurement ""
 attr network clusteringmanet.simulations.ClusteringNetwork
-attr processid 9904
+attr processid 5008
 attr repetition 0
 attr replication #0
 attr resultdir results
@@ -19,11 +19,11 @@ attr runnumber 0
 attr seedset 0
 config image-path ../../inet-4.5.4/images
 config network clusteringmanet.simulations.ClusteringNetwork
-config sim-time-limit 200s
+config sim-time-limit 100s
 config *.host[*].numApps 1
 config *.host[*].app[0].typename GraphColoringClustering
 config *.host[*].hasUdp true
-config ClusteringNetwork.numHosts 2
+config ClusteringNetwork.numHosts 6
 config *.host[*].mobility.typename RandomWaypointMobility
 config *.host[*].mobility.initialZ 0m
 config *.host[*].mobility.initFromDisplayString false
@@ -45,6 +45,7 @@ config *.host[*].wlan[0].mac.bitrate 6Mbps
 config *.host[*].wlan[0].radio.receiver.bitrate 6Mbps
 config *.host[*].wlan[0].bitrate 6Mbps
 config *.host[*].app[0].helloInterval 0.5s
+config *.host[*].app[0].helloJitter 0.01s
 config *.host[*].app[0].neighborTimeout 2s
 config *.host[*].app[0].maintenanceInterval 0.5s
 config *.host[*].app[0].coloringJitter 0.7s
@@ -473,172 +474,1677 @@ attr interpolationmode none
 attr recordingmode vector(count)
 attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
 attr title "packets dropped (checksum error), count"
-0	22115 2083 25 6850 0.5 76 152 29 29 4408 127832
-1	24198 2083 25 6850 0.5 76 152 29 29 4408 127832
-4	26281 1971 0 6851 0 76 157 0 0 0 0
-5	28252 1971 0 6851 0 76 157 0 0 0 0
-6	30223 1931 26 6851 0.5 76 152 0 0 0 0
-7	32154 2235 26 6851 0.5 76 152 232 232 35264 8181248
-8	34389 10712 26 6851 0.1 76 760 0 2320 350320 812742400
-9	45101 2235 26 6851 0.5 76 152 232 232 35264 8181248
-10	47336 11472 26 6851 0.1 76 760 0 2320 350320 812742400
-15	58808 3429 619 6822 8.000076331038 75.500076325736 128 29 29 3712 107648
-16	62237 2235 26 6851 0.5 76 152 45 45 6840 307800
-17	64472 2235 26 6851 0.5 76 152 29 29 4408 127832
-18	66707 3429 619 6822 8.000076331038 75.500076325736 128 45 45 5760 259200
-22	70136 27 0 0 0 0 3 0 4 4 16
-23	70163 6637 0 6863 0 76.000000322988 258 1 3 516 1290
-24	76800 5067 0 6855 0 76 304 1 2 456 760
-35	81867 2082 21 6846 0.5 76 152 9 9 1368 12312
-36	83949 5384 33 6858 0.5 76 280 9 9 2520 22680
-37	89333 5845 0 6858 0 76 281 0 280 39340 7356580
-38	95178 9 0 0 0 0 1 0 0 0 0
-39	95187 9 0 0 0 0 1 0 0 0 0
-40	95196 2235 27 6852 0.5 76 152 29 29 4408 127832
-41	97431 2235 27 6852 0.5 76 152 29 29 4408 127832
-44	99666 2128 0 6853 0 76 157 0 0 0 0
-45	101794 2128 0 6853 0 76 157 0 0 0 0
-46	103922 2083 28 6853 0.5 76 152 0 0 0 0
-47	106005 2387 28 6853 0.5 76 152 232 232 35264 8181248
-48	108392 11472 28 6853 0.1 76 760 0 2320 350320 812742400
-49	119864 2387 28 6853 0.5 76 152 232 232 35264 8181248
-50	122251 11472 28 6853 0.1 76 760 0 2320 350320 812742400
-55	133723 3429 618 6821 8.000076331038 75.500076325736 128 29 29 3712 107648
-56	137152 2235 28 6853 0.5 76 152 45 45 6840 307800
-57	139387 2235 28 6853 0.5 76 152 29 29 4408 127832
-58	141622 3429 618 6821 8.000076331038 75.500076325736 128 45 45 5760 259200
-62	145051 27 0 0 0 0 3 0 4 4 16
-63	145078 6637 0 6862 0 76.000000322988 258 1 3 516 1290
-64	151715 5067 0 6857 0 76 304 1 2 456 760
-75	156782 2082 22 6847 0.5 76 152 9 9 1368 12312
-76	158864 5384 34 6859 0.5 76 280 9 9 2520 22680
-77	164248 5845 0 6859 0 76 281 0 280 39340 7356580
-78	170093 9 0 0 0 0 1 0 0 0 0
-79	170102 9 0 0 0 0 1 0 0 0 0
-0	170111 1646 6897 11750 76.5 131 110 29 29 3190 92510
-1	171757 1646 6897 11750 76.5 131 110 29 29 3190 92510
-4	173403 1536 6898 11751 76.5 131 110 0 0 0 0
-5	174939 1536 6898 11751 76.5 131 110 0 0 0 0
-6	176475 1536 6898 11751 76.5 131 110 0 0 0 0
-7	178011 1756 6898 11751 76.5 131 110 232 232 25520 5920640
-8	179767 8446 6898 11751 76.1 131 550 0 2320 255200 592064000
-9	188213 1756 6898 11751 76.5 131 110 232 232 25520 5920640
-10	189969 8996 6898 11751 76.1 131 550 0 2320 255200 592064000
-15	198965 2307 6869 10722 76.000076322988 117.500076332088 84 29 29 2436 70644
-16	201272 1756 6898 11751 76.5 131 110 45 45 4950 222750
-17	203028 1756 6898 11751 76.5 131 110 29 29 3190 92510
-18	204784 2307 6869 10722 76.000076322988 117.500076332088 84 45 45 3780 170100
-23	207091 4420 6867 10720 76.000076322988 117.500076332088 167 1 3 333 831
-24	211511 3950 6864 11755 76.000076 131 220 1 2 330 550
-35	215461 1646 6893 11746 76.5 131 110 9 9 990 8910
-36	217107 3869 6873 11758 76.000076322988 131 194 9 9 1746 15714
-37	220976 4257 6873 11758 76.000076322988 131 194 281 474 73235 28254645
-40	225233 1756 6899 11752 76.5 131 110 29 29 3190 92510
-41	226989 1756 6899 11752 76.5 131 110 29 29 3190 92510
-44	228745 1646 6900 11753 76.5 131 110 0 0 0 0
-45	230391 1646 6900 11753 76.5 131 110 0 0 0 0
-46	232037 1646 6900 11753 76.5 131 110 0 0 0 0
-47	233683 1866 6900 11753 76.5 131 110 232 232 25520 5920640
-48	235549 8996 6900 11753 76.1 131 550 0 2320 255200 592064000
-49	244545 1866 6900 11753 76.5 131 110 232 232 25520 5920640
-50	246411 8996 6900 11753 76.1 131 550 0 2320 255200 592064000
-55	255407 2307 6868 10721 76.000076322988 117.500076332088 84 29 29 2436 70644
-56	257714 1756 6900 11753 76.5 131 110 45 45 4950 222750
-57	259470 1756 6900 11753 76.5 131 110 29 29 3190 92510
-58	261226 2307 6868 10721 76.000076322988 117.500076332088 84 45 45 3780 170100
-63	263533 4420 6866 10719 76.000076322988 117.500076332088 167 1 3 333 831
-64	267953 3950 6865 11757 76.000076 131 220 1 2 330 550
-75	271903 1646 6894 11747 76.5 131 110 9 9 990 8910
-76	273549 3869 6872 11759 76.000076322988 131 194 9 9 1746 15714
-77	277418 4257 6872 11759 76.000076322988 131 194 281 474 73235 28254645
-0	281675 864 11787 13824 131.5 158 54 29 29 1566 45414
-1	282539 864 11787 13824 131.5 158 54 29 29 1566 45414
-4	283403 810 11788 13825 131.5 158 54 0 0 0 0
-5	284213 810 11788 13825 131.5 158 54 0 0 0 0
-6	285023 810 11788 13825 131.5 158 54 0 0 0 0
-7	285833 918 11788 13825 131.5 158 54 232 232 12528 2906496
-8	286751 4428 11788 13825 131.1 158 270 0 2320 125280 290649600
-9	291179 918 11788 13825 131.5 158 54 232 232 12528 2906496
-10	292097 4698 11788 13825 131.1 158 270 0 2320 125280 290649600
-16	296795 918 11788 13825 131.5 158 54 45 45 2430 109350
-17	297713 918 11788 13825 131.5 158 54 29 29 1566 45414
-24	298631 2052 11764 13829 131.000076 158 108 1 2 162 270
-35	300683 864 11783 13820 131.5 158 54 9 9 486 4374
-36	301547 864 11795 13832 131.5 158 54 9 9 486 4374
-37	302411 972 11795 13832 131.5 158 54 475 528 27081 13594239
-40	303383 918 11789 13826 131.5 158 54 29 29 1566 45414
-41	304301 918 11789 13826 131.5 158 54 29 29 1566 45414
-44	305219 864 11790 13827 131.5 158 54 0 0 0 0
-45	306083 864 11790 13827 131.5 158 54 0 0 0 0
-46	306947 864 11790 13827 131.5 158 54 0 0 0 0
-47	307811 972 11790 13827 131.5 158 54 232 232 12528 2906496
-48	308783 4698 11790 13827 131.1 158 270 0 2320 125280 290649600
-49	313481 972 11790 13827 131.5 158 54 232 232 12528 2906496
-50	314453 4698 11790 13827 131.1 158 270 0 2320 125280 290649600
-56	319151 918 11790 13827 131.5 158 54 45 45 2430 109350
-57	320069 918 11790 13827 131.5 158 54 29 29 1566 45414
-64	320987 2052 11765 13831 131.000076 158 108 1 2 162 270
-75	323039 864 11784 13821 131.5 158 54 9 9 486 4374
-76	323903 864 11796 13833 131.5 158 54 9 9 486 4374
-77	324767 972 11796 13833 131.5 158 54 475 528 27081 13594239
-0	325739 17 13863 13863 158.5 158.5 1 29 29 29 841
-1	325756 17 13863 13863 158.5 158.5 1 29 29 29 841
-4	325773 16 13864 13864 158.5 158.5 1 0 0 0 0
-5	325789 16 13864 13864 158.5 158.5 1 0 0 0 0
-6	325805 16 13864 13864 158.5 158.5 1 0 0 0 0
-7	325821 18 13864 13864 158.5 158.5 1 232 232 232 53824
-8	325839 83 13864 13864 158.1 158.5 5 0 2320 2320 5382400
-9	325922 18 13864 13864 158.5 158.5 1 232 232 232 53824
-10	325940 88 13864 13864 158.1 158.5 5 0 2320 2320 5382400
-16	326028 18 13864 13864 158.5 158.5 1 45 45 45 2025
-17	326046 18 13864 13864 158.5 158.5 1 29 29 29 841
-24	326064 39 13838 13868 158.000076 158.5 2 1 2 3 5
-35	326103 17 13859 13859 158.5 158.5 1 9 9 9 81
-36	326120 17 13871 13871 158.5 158.5 1 9 9 9 81
-37	326137 19 13871 13871 158.5 158.5 1 529 529 529 279841
-40	326156 18 13865 13865 158.5 158.5 1 29 29 29 841
-41	326174 18 13865 13865 158.5 158.5 1 29 29 29 841
-44	326192 17 13866 13866 158.5 158.5 1 0 0 0 0
-45	326209 17 13866 13866 158.5 158.5 1 0 0 0 0
-46	326226 17 13866 13866 158.5 158.5 1 0 0 0 0
-47	326243 19 13866 13866 158.5 158.5 1 232 232 232 53824
-48	326262 88 13866 13866 158.1 158.5 5 0 2320 2320 5382400
-49	326350 19 13866 13866 158.5 158.5 1 232 232 232 53824
-50	326369 88 13866 13866 158.1 158.5 5 0 2320 2320 5382400
-56	326457 18 13866 13866 158.5 158.5 1 45 45 45 2025
-57	326475 18 13866 13866 158.5 158.5 1 29 29 29 841
-64	326493 39 13839 13870 158.000076 158.5 2 1 2 3 5
-75	326532 17 13860 13860 158.5 158.5 1 9 9 9 81
-76	326549 17 13872 13872 158.5 158.5 1 9 9 9 81
-77	326566 19 13872 13872 158.5 158.5 1 529 529 529 279841
-0	326585 15 13902 13902 159 159 1 29 29 29 841
-1	326600 15 13902 13902 159 159 1 29 29 29 841
-4	326615 14 13903 13903 159 159 1 0 0 0 0
-5	326629 14 13903 13903 159 159 1 0 0 0 0
-6	326643 14 13903 13903 159 159 1 0 0 0 0
-7	326657 16 13903 13903 159 159 1 232 232 232 53824
-8	326673 81 13903 13903 158.6 159 5 0 2320 2320 5382400
-9	326754 16 13903 13903 159 159 1 232 232 232 53824
-10	326770 86 13903 13903 158.6 159 5 0 2320 2320 5382400
-16	326856 16 13903 13903 159 159 1 45 45 45 2025
-17	326872 16 13903 13903 159 159 1 29 29 29 841
-24	326888 59 13877 13916 158.500076 159.000076 3 1 2 4 6
-35	326947 15 13898 13898 159 159 1 9 9 9 81
-36	326962 15 13910 13910 159 159 1 9 9 9 81
-37	326977 17 13910 13910 159 159 1 530 530 530 280900
-40	326994 16 13904 13904 159 159 1 29 29 29 841
-41	327010 16 13904 13904 159 159 1 29 29 29 841
-44	327026 15 13905 13905 159 159 1 0 0 0 0
-45	327041 15 13905 13905 159 159 1 0 0 0 0
-46	327056 15 13905 13905 159 159 1 0 0 0 0
-47	327071 17 13905 13905 159 159 1 232 232 232 53824
-48	327088 86 13905 13905 158.6 159 5 0 2320 2320 5382400
-49	327174 17 13905 13905 159 159 1 232 232 232 53824
-50	327191 86 13905 13905 158.6 159 5 0 2320 2320 5382400
-56	327277 16 13905 13905 159 159 1 45 45 45 2025
-57	327293 16 13905 13905 159 159 1 29 29 29 841
-64	327309 59 13878 13917 158.500076 159.000076 3 1 2 4 6
-75	327368 15 13899 13899 159 159 1 9 9 9 81
-76	327383 15 13911 13911 159 159 1 9 9 9 81
-77	327398 17 13911 13911 159 159 1 530 530 530 280900
+vector 80 ClusteringNetwork.host[2].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromUpper
+attr title "packets received from higher layer, packetBytes"
+vector 81 ClusteringNetwork.host[2].lo[0].lo passedUpPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToUpper
+attr title "packets passed to higher layer, packetBytes"
+vector 82 ClusteringNetwork.host[2].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drops: interface down, packetBytes"
+vector 83 ClusteringNetwork.host[2].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoCarrier(packetDropped)
+attr title "packet drops: no carrier, packetBytes"
+vector 84 ClusteringNetwork.host[2].wlan[0].queue queueLength:vector ETV
+attr autoWarmupFilter false
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
+attr title "queue length"
+attr unit pk
+vector 85 ClusteringNetwork.host[2].wlan[0].queue queueBitLength:vector ETV
+attr autoWarmupFilter false
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
+attr title "queue bit length"
+attr unit b
+vector 86 ClusteringNetwork.host[2].wlan[0].queue queueingTime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source queueingTime(packetPulled)
+attr title "queueing times"
+attr unit s
+vector 87 ClusteringNetwork.host[2].wlan[0].queue incomingPacketLengths:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetPushStarted)
+attr title "incoming packet lengths"
+attr unit b
+vector 88 ClusteringNetwork.host[2].wlan[0].queue incomingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(packetPushStarted)
+attr title "incoming datarate"
+attr unit bps
+vector 89 ClusteringNetwork.host[2].wlan[0].queue outgoingPacketLengths:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetPulled)
+attr title "outgoing packet lengths"
+attr unit b
+vector 90 ClusteringNetwork.host[2].wlan[0].queue outgoingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(packetPulled)
+attr title "outgoing datarate"
+attr unit bps
+vector 91 ClusteringNetwork.host[2].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
+attr title "dropped packet lengths: queue overflow"
+attr unit b
+vector 92 ClusteringNetwork.host[2].wlan[0].queue flowQueueingTime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source queueingTime(demuxFlow(packetPulled))
+attr title "flow queueing times"
+attr unit s
+vector 93 ClusteringNetwork.host[2].wlan[0].queue flowIncomingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
+attr title "flow specific incoming data rate"
+attr unit bps
+vector 94 ClusteringNetwork.host[2].wlan[0].queue flowOutgoingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
+attr title "flow specific outgoing data rate"
+attr unit bps
+vector 95 ClusteringNetwork.host[2].wlan[0].mac passedUpPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToUpper
+attr title "packets passed to higher layer, packetBytes"
+vector 96 ClusteringNetwork.host[2].wlan[0].mac sentDownPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToLower
+attr title "packets sent to lower layer, packetBytes"
+vector 97 ClusteringNetwork.host[2].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromUpper
+attr title "packets received from higher layer, packetBytes"
+vector 98 ClusteringNetwork.host[2].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromLower
+attr title "packets received from lower layer, packetBytes"
+vector 99 ClusteringNetwork.host[2].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
+attr title "packet drop: incorrectly received, packetBytes"
+vector 100 ClusteringNetwork.host[2].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drop: interface down, packetBytes"
+vector 101 ClusteringNetwork.host[2].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNotAddressedToUs(packetDropped)
+attr title "packet drop: not addressed to us, packetBytes"
+vector 102 ClusteringNetwork.host[2].wlan[0].radio radioMode:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source radioModeChanged
+attr title "Radio mode"
+vector 103 ClusteringNetwork.host[2].wlan[0].radio receptionState:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source receptionStateChanged
+attr title "Radio reception state"
+vector 104 ClusteringNetwork.host[2].wlan[0].radio transmissionState:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source transmissionStateChanged
+attr title "Radio transmission state"
+vector 105 ClusteringNetwork.host[2].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drops: interface down, packetBytes"
+vector 106 ClusteringNetwork.host[2].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoCarrier(packetDropped)
+attr title "packet drops: no carrier, packetBytes"
+vector 107 ClusteringNetwork.host[2].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
+attr title "packet drop: address resolution failed, packetBytes"
+vector 108 ClusteringNetwork.host[2].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsHopLimitReached(packetDropped)
+attr title "packet drop: hop limit reached, packetBytes"
+vector 109 ClusteringNetwork.host[2].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsForwardingDisabled(packetDropped)
+attr title "packet drop: forwarding disabled, packetBytes"
+vector 110 ClusteringNetwork.host[2].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoInterfaceFound(packetDropped)
+attr title "packet drop: no interface found, packetBytes"
+vector 111 ClusteringNetwork.host[2].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoRouteFound(packetDropped)
+attr title "packet drop: no route found, packetBytes"
+vector 112 ClusteringNetwork.host[2].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsUndefined(packetDropped)
+attr title "packet drop: undefined, packetBytes"
+vector 113 ClusteringNetwork.host[2].ipv4.arp arpRequestSent:vector(packetBytes) ETV
+attr recordingmode vector(packetBytes)
+attr source arpRequestSent
+attr title "ARP request sent, packetBytes"
+vector 114 ClusteringNetwork.host[2].ipv4.arp arpReplySent:vector(packetBytes) ETV
+attr recordingmode vector(packetBytes)
+attr source arpReplySent
+attr title "ARP replies sent, packetBytes"
+vector 115 ClusteringNetwork.host[2].udp packetSent:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSent
+attr title "packets sent, packetBytes"
+vector 116 ClusteringNetwork.host[2].udp packetReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceived
+attr title "packets received, packetBytes"
+vector 117 ClusteringNetwork.host[2].udp passedUpPk:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetSentToUpper
+attr title "packets passed up, count"
+vector 118 ClusteringNetwork.host[2].udp droppedPkWrongPort:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetDropReasonIsNoPortFound(packetDropped)
+attr title "packets dropped (wrong port), count"
+vector 119 ClusteringNetwork.host[2].udp droppedPkBadChecksum:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
+attr title "packets dropped (checksum error), count"
+vector 120 ClusteringNetwork.host[3].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromUpper
+attr title "packets received from higher layer, packetBytes"
+vector 121 ClusteringNetwork.host[3].lo[0].lo passedUpPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToUpper
+attr title "packets passed to higher layer, packetBytes"
+vector 122 ClusteringNetwork.host[3].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drops: interface down, packetBytes"
+vector 123 ClusteringNetwork.host[3].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoCarrier(packetDropped)
+attr title "packet drops: no carrier, packetBytes"
+vector 124 ClusteringNetwork.host[3].wlan[0].queue queueLength:vector ETV
+attr autoWarmupFilter false
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
+attr title "queue length"
+attr unit pk
+vector 125 ClusteringNetwork.host[3].wlan[0].queue queueBitLength:vector ETV
+attr autoWarmupFilter false
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
+attr title "queue bit length"
+attr unit b
+vector 126 ClusteringNetwork.host[3].wlan[0].queue queueingTime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source queueingTime(packetPulled)
+attr title "queueing times"
+attr unit s
+vector 127 ClusteringNetwork.host[3].wlan[0].queue incomingPacketLengths:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetPushStarted)
+attr title "incoming packet lengths"
+attr unit b
+vector 128 ClusteringNetwork.host[3].wlan[0].queue incomingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(packetPushStarted)
+attr title "incoming datarate"
+attr unit bps
+vector 129 ClusteringNetwork.host[3].wlan[0].queue outgoingPacketLengths:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetPulled)
+attr title "outgoing packet lengths"
+attr unit b
+vector 130 ClusteringNetwork.host[3].wlan[0].queue outgoingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(packetPulled)
+attr title "outgoing datarate"
+attr unit bps
+vector 131 ClusteringNetwork.host[3].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
+attr title "dropped packet lengths: queue overflow"
+attr unit b
+vector 132 ClusteringNetwork.host[3].wlan[0].queue flowQueueingTime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source queueingTime(demuxFlow(packetPulled))
+attr title "flow queueing times"
+attr unit s
+vector 133 ClusteringNetwork.host[3].wlan[0].queue flowIncomingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
+attr title "flow specific incoming data rate"
+attr unit bps
+vector 134 ClusteringNetwork.host[3].wlan[0].queue flowOutgoingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
+attr title "flow specific outgoing data rate"
+attr unit bps
+vector 135 ClusteringNetwork.host[3].wlan[0].mac passedUpPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToUpper
+attr title "packets passed to higher layer, packetBytes"
+vector 136 ClusteringNetwork.host[3].wlan[0].mac sentDownPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToLower
+attr title "packets sent to lower layer, packetBytes"
+vector 137 ClusteringNetwork.host[3].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromUpper
+attr title "packets received from higher layer, packetBytes"
+vector 138 ClusteringNetwork.host[3].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromLower
+attr title "packets received from lower layer, packetBytes"
+vector 139 ClusteringNetwork.host[3].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
+attr title "packet drop: incorrectly received, packetBytes"
+vector 140 ClusteringNetwork.host[3].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drop: interface down, packetBytes"
+vector 141 ClusteringNetwork.host[3].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNotAddressedToUs(packetDropped)
+attr title "packet drop: not addressed to us, packetBytes"
+vector 142 ClusteringNetwork.host[3].wlan[0].radio radioMode:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source radioModeChanged
+attr title "Radio mode"
+vector 143 ClusteringNetwork.host[3].wlan[0].radio receptionState:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source receptionStateChanged
+attr title "Radio reception state"
+vector 144 ClusteringNetwork.host[3].wlan[0].radio transmissionState:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source transmissionStateChanged
+attr title "Radio transmission state"
+vector 145 ClusteringNetwork.host[3].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drops: interface down, packetBytes"
+vector 146 ClusteringNetwork.host[3].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoCarrier(packetDropped)
+attr title "packet drops: no carrier, packetBytes"
+vector 147 ClusteringNetwork.host[3].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
+attr title "packet drop: address resolution failed, packetBytes"
+vector 148 ClusteringNetwork.host[3].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsHopLimitReached(packetDropped)
+attr title "packet drop: hop limit reached, packetBytes"
+vector 149 ClusteringNetwork.host[3].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsForwardingDisabled(packetDropped)
+attr title "packet drop: forwarding disabled, packetBytes"
+vector 150 ClusteringNetwork.host[3].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoInterfaceFound(packetDropped)
+attr title "packet drop: no interface found, packetBytes"
+vector 151 ClusteringNetwork.host[3].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoRouteFound(packetDropped)
+attr title "packet drop: no route found, packetBytes"
+vector 152 ClusteringNetwork.host[3].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsUndefined(packetDropped)
+attr title "packet drop: undefined, packetBytes"
+vector 153 ClusteringNetwork.host[3].ipv4.arp arpRequestSent:vector(packetBytes) ETV
+attr recordingmode vector(packetBytes)
+attr source arpRequestSent
+attr title "ARP request sent, packetBytes"
+vector 154 ClusteringNetwork.host[3].ipv4.arp arpReplySent:vector(packetBytes) ETV
+attr recordingmode vector(packetBytes)
+attr source arpReplySent
+attr title "ARP replies sent, packetBytes"
+vector 155 ClusteringNetwork.host[3].udp packetSent:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSent
+attr title "packets sent, packetBytes"
+vector 156 ClusteringNetwork.host[3].udp packetReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceived
+attr title "packets received, packetBytes"
+vector 157 ClusteringNetwork.host[3].udp passedUpPk:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetSentToUpper
+attr title "packets passed up, count"
+vector 158 ClusteringNetwork.host[3].udp droppedPkWrongPort:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetDropReasonIsNoPortFound(packetDropped)
+attr title "packets dropped (wrong port), count"
+vector 159 ClusteringNetwork.host[3].udp droppedPkBadChecksum:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
+attr title "packets dropped (checksum error), count"
+vector 160 ClusteringNetwork.host[4].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromUpper
+attr title "packets received from higher layer, packetBytes"
+vector 161 ClusteringNetwork.host[4].lo[0].lo passedUpPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToUpper
+attr title "packets passed to higher layer, packetBytes"
+vector 162 ClusteringNetwork.host[4].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drops: interface down, packetBytes"
+vector 163 ClusteringNetwork.host[4].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoCarrier(packetDropped)
+attr title "packet drops: no carrier, packetBytes"
+vector 164 ClusteringNetwork.host[4].wlan[0].queue queueLength:vector ETV
+attr autoWarmupFilter false
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
+attr title "queue length"
+attr unit pk
+vector 165 ClusteringNetwork.host[4].wlan[0].queue queueBitLength:vector ETV
+attr autoWarmupFilter false
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
+attr title "queue bit length"
+attr unit b
+vector 166 ClusteringNetwork.host[4].wlan[0].queue queueingTime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source queueingTime(packetPulled)
+attr title "queueing times"
+attr unit s
+vector 167 ClusteringNetwork.host[4].wlan[0].queue incomingPacketLengths:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetPushStarted)
+attr title "incoming packet lengths"
+attr unit b
+vector 168 ClusteringNetwork.host[4].wlan[0].queue incomingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(packetPushStarted)
+attr title "incoming datarate"
+attr unit bps
+vector 169 ClusteringNetwork.host[4].wlan[0].queue outgoingPacketLengths:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetPulled)
+attr title "outgoing packet lengths"
+attr unit b
+vector 170 ClusteringNetwork.host[4].wlan[0].queue outgoingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(packetPulled)
+attr title "outgoing datarate"
+attr unit bps
+vector 171 ClusteringNetwork.host[4].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
+attr title "dropped packet lengths: queue overflow"
+attr unit b
+vector 172 ClusteringNetwork.host[4].wlan[0].queue flowQueueingTime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source queueingTime(demuxFlow(packetPulled))
+attr title "flow queueing times"
+attr unit s
+vector 173 ClusteringNetwork.host[4].wlan[0].queue flowIncomingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
+attr title "flow specific incoming data rate"
+attr unit bps
+vector 174 ClusteringNetwork.host[4].wlan[0].queue flowOutgoingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
+attr title "flow specific outgoing data rate"
+attr unit bps
+vector 175 ClusteringNetwork.host[4].wlan[0].mac passedUpPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToUpper
+attr title "packets passed to higher layer, packetBytes"
+vector 176 ClusteringNetwork.host[4].wlan[0].mac sentDownPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToLower
+attr title "packets sent to lower layer, packetBytes"
+vector 177 ClusteringNetwork.host[4].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromUpper
+attr title "packets received from higher layer, packetBytes"
+vector 178 ClusteringNetwork.host[4].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromLower
+attr title "packets received from lower layer, packetBytes"
+vector 179 ClusteringNetwork.host[4].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
+attr title "packet drop: incorrectly received, packetBytes"
+vector 180 ClusteringNetwork.host[4].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drop: interface down, packetBytes"
+vector 181 ClusteringNetwork.host[4].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNotAddressedToUs(packetDropped)
+attr title "packet drop: not addressed to us, packetBytes"
+vector 182 ClusteringNetwork.host[4].wlan[0].radio radioMode:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source radioModeChanged
+attr title "Radio mode"
+vector 183 ClusteringNetwork.host[4].wlan[0].radio receptionState:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source receptionStateChanged
+attr title "Radio reception state"
+vector 184 ClusteringNetwork.host[4].wlan[0].radio transmissionState:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source transmissionStateChanged
+attr title "Radio transmission state"
+vector 185 ClusteringNetwork.host[4].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drops: interface down, packetBytes"
+vector 186 ClusteringNetwork.host[4].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoCarrier(packetDropped)
+attr title "packet drops: no carrier, packetBytes"
+vector 187 ClusteringNetwork.host[4].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
+attr title "packet drop: address resolution failed, packetBytes"
+vector 188 ClusteringNetwork.host[4].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsHopLimitReached(packetDropped)
+attr title "packet drop: hop limit reached, packetBytes"
+vector 189 ClusteringNetwork.host[4].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsForwardingDisabled(packetDropped)
+attr title "packet drop: forwarding disabled, packetBytes"
+vector 190 ClusteringNetwork.host[4].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoInterfaceFound(packetDropped)
+attr title "packet drop: no interface found, packetBytes"
+vector 191 ClusteringNetwork.host[4].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoRouteFound(packetDropped)
+attr title "packet drop: no route found, packetBytes"
+vector 192 ClusteringNetwork.host[4].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsUndefined(packetDropped)
+attr title "packet drop: undefined, packetBytes"
+vector 193 ClusteringNetwork.host[4].ipv4.arp arpRequestSent:vector(packetBytes) ETV
+attr recordingmode vector(packetBytes)
+attr source arpRequestSent
+attr title "ARP request sent, packetBytes"
+vector 194 ClusteringNetwork.host[4].ipv4.arp arpReplySent:vector(packetBytes) ETV
+attr recordingmode vector(packetBytes)
+attr source arpReplySent
+attr title "ARP replies sent, packetBytes"
+vector 195 ClusteringNetwork.host[4].udp packetSent:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSent
+attr title "packets sent, packetBytes"
+vector 196 ClusteringNetwork.host[4].udp packetReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceived
+attr title "packets received, packetBytes"
+vector 197 ClusteringNetwork.host[4].udp passedUpPk:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetSentToUpper
+attr title "packets passed up, count"
+vector 198 ClusteringNetwork.host[4].udp droppedPkWrongPort:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetDropReasonIsNoPortFound(packetDropped)
+attr title "packets dropped (wrong port), count"
+vector 199 ClusteringNetwork.host[4].udp droppedPkBadChecksum:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
+attr title "packets dropped (checksum error), count"
+vector 200 ClusteringNetwork.host[5].lo[0].lo rcvdPkFromHl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromUpper
+attr title "packets received from higher layer, packetBytes"
+vector 201 ClusteringNetwork.host[5].lo[0].lo passedUpPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToUpper
+attr title "packets passed to higher layer, packetBytes"
+vector 202 ClusteringNetwork.host[5].lo[0] packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drops: interface down, packetBytes"
+vector 203 ClusteringNetwork.host[5].lo[0] packetDropNoCarrier:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoCarrier(packetDropped)
+attr title "packet drops: no carrier, packetBytes"
+vector 204 ClusteringNetwork.host[5].wlan[0].queue queueLength:vector ETV
+attr autoWarmupFilter false
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source "warmup(atomic(constant0(packetPushEnded) + count(packetPushStarted) - count(packetPulled) - count(packetRemoved) - count(packetDropped)))"
+attr title "queue length"
+attr unit pk
+vector 205 ClusteringNetwork.host[5].wlan[0].queue queueBitLength:vector ETV
+attr autoWarmupFilter false
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source "warmup(atomic(constant0(packetPushEnded) + sum(packetLength(packetPushStarted)) - sum(packetLength(packetPulled)) - sum(packetLength(packetRemoved)) - sum(packetLength(packetDropped))))"
+attr title "queue bit length"
+attr unit b
+vector 206 ClusteringNetwork.host[5].wlan[0].queue queueingTime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source queueingTime(packetPulled)
+attr title "queueing times"
+attr unit s
+vector 207 ClusteringNetwork.host[5].wlan[0].queue incomingPacketLengths:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetPushStarted)
+attr title "incoming packet lengths"
+attr unit b
+vector 208 ClusteringNetwork.host[5].wlan[0].queue incomingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(packetPushStarted)
+attr title "incoming datarate"
+attr unit bps
+vector 209 ClusteringNetwork.host[5].wlan[0].queue outgoingPacketLengths:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetPulled)
+attr title "outgoing packet lengths"
+attr unit b
+vector 210 ClusteringNetwork.host[5].wlan[0].queue outgoingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(packetPulled)
+attr title "outgoing datarate"
+attr unit bps
+vector 211 ClusteringNetwork.host[5].wlan[0].queue droppedPacketLengthsQueueOverflow:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source packetLength(packetDropReasonIsQueueOverflow(packetDropped))
+attr title "dropped packet lengths: queue overflow"
+attr unit b
+vector 212 ClusteringNetwork.host[5].wlan[0].queue flowQueueingTime:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source queueingTime(demuxFlow(packetPulled))
+attr title "flow queueing times"
+attr unit s
+vector 213 ClusteringNetwork.host[5].wlan[0].queue flowIncomingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(flowPacketLength(demuxFlow(packetPushStarted)))
+attr title "flow specific incoming data rate"
+attr unit bps
+vector 214 ClusteringNetwork.host[5].wlan[0].queue flowOutgoingDataRate:vector ETV
+attr interpolationmode linear
+attr recordingmode vector
+attr source throughput(flowPacketLength(demuxFlow(packetPulled)))
+attr title "flow specific outgoing data rate"
+attr unit bps
+vector 215 ClusteringNetwork.host[5].wlan[0].mac passedUpPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToUpper
+attr title "packets passed to higher layer, packetBytes"
+vector 216 ClusteringNetwork.host[5].wlan[0].mac sentDownPk:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSentToLower
+attr title "packets sent to lower layer, packetBytes"
+vector 217 ClusteringNetwork.host[5].wlan[0].mac rcvdPkFromHl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromUpper
+attr title "packets received from higher layer, packetBytes"
+vector 218 ClusteringNetwork.host[5].wlan[0].mac rcvdPkFromLl:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceivedFromLower
+attr title "packets received from lower layer, packetBytes"
+vector 219 ClusteringNetwork.host[5].wlan[0].mac packetDropIncorrectlyReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
+attr title "packet drop: incorrectly received, packetBytes"
+vector 220 ClusteringNetwork.host[5].wlan[0].mac packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drop: interface down, packetBytes"
+vector 221 ClusteringNetwork.host[5].wlan[0].mac packetDropNotAddressedToUs:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNotAddressedToUs(packetDropped)
+attr title "packet drop: not addressed to us, packetBytes"
+vector 222 ClusteringNetwork.host[5].wlan[0].radio radioMode:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source radioModeChanged
+attr title "Radio mode"
+vector 223 ClusteringNetwork.host[5].wlan[0].radio receptionState:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source receptionStateChanged
+attr title "Radio reception state"
+vector 224 ClusteringNetwork.host[5].wlan[0].radio transmissionState:vector ETV
+attr interpolationmode sample-hold
+attr recordingmode vector
+attr source transmissionStateChanged
+attr title "Radio transmission state"
+vector 225 ClusteringNetwork.host[5].wlan[0] packetDropInterfaceDown:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsInterfaceDown(packetDropped)
+attr title "packet drops: interface down, packetBytes"
+vector 226 ClusteringNetwork.host[5].wlan[0] packetDropNoCarrier:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoCarrier(packetDropped)
+attr title "packet drops: no carrier, packetBytes"
+vector 227 ClusteringNetwork.host[5].ipv4.ip packetDropAddressResolutionFailed:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsAddressResolutionFailed(packetDropped)
+attr title "packet drop: address resolution failed, packetBytes"
+vector 228 ClusteringNetwork.host[5].ipv4.ip packetDropHopLimitReached:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsHopLimitReached(packetDropped)
+attr title "packet drop: hop limit reached, packetBytes"
+vector 229 ClusteringNetwork.host[5].ipv4.ip packetDropForwardingDisabled:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsForwardingDisabled(packetDropped)
+attr title "packet drop: forwarding disabled, packetBytes"
+vector 230 ClusteringNetwork.host[5].ipv4.ip packetDropNoInterfaceFound:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoInterfaceFound(packetDropped)
+attr title "packet drop: no interface found, packetBytes"
+vector 231 ClusteringNetwork.host[5].ipv4.ip packetDropNoRouteFound:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsNoRouteFound(packetDropped)
+attr title "packet drop: no route found, packetBytes"
+vector 232 ClusteringNetwork.host[5].ipv4.ip packetDropUndefined:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetDropReasonIsUndefined(packetDropped)
+attr title "packet drop: undefined, packetBytes"
+vector 233 ClusteringNetwork.host[5].ipv4.arp arpRequestSent:vector(packetBytes) ETV
+attr recordingmode vector(packetBytes)
+attr source arpRequestSent
+attr title "ARP request sent, packetBytes"
+vector 234 ClusteringNetwork.host[5].ipv4.arp arpReplySent:vector(packetBytes) ETV
+attr recordingmode vector(packetBytes)
+attr source arpReplySent
+attr title "ARP replies sent, packetBytes"
+vector 235 ClusteringNetwork.host[5].udp packetSent:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetSent
+attr title "packets sent, packetBytes"
+vector 236 ClusteringNetwork.host[5].udp packetReceived:vector(packetBytes) ETV
+attr interpolationmode none
+attr recordingmode vector(packetBytes)
+attr source packetReceived
+attr title "packets received, packetBytes"
+vector 237 ClusteringNetwork.host[5].udp passedUpPk:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetSentToUpper
+attr title "packets passed up, count"
+vector 238 ClusteringNetwork.host[5].udp droppedPkWrongPort:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetDropReasonIsNoPortFound(packetDropped)
+attr title "packets dropped (wrong port), count"
+vector 239 ClusteringNetwork.host[5].udp droppedPkBadChecksum:vector(count) ETV
+attr interpolationmode none
+attr recordingmode vector(count)
+attr source packetDropReasonIsIncorrectlyReceived(packetDropped)
+attr title "packets dropped (checksum error), count"
+0	62545 150 58 2212 0.5 6 12 29 29 348 10092
+1	62695 150 58 2212 0.5 6 12 29 29 348 10092
+4	62845 178 0 2213 0 6 17 0 0 0 0
+5	63023 178 0 2213 0 6 17 0 0 0 0
+6	63201 138 59 2213 0.5 6 12 0 0 0 0
+7	63339 162 59 2213 0.5 6 12 232 232 2784 645888
+8	63501 771 59 2213 0.1 6 60 0 2320 25520 59206400
+9	64272 162 59 2213 0.5 6 12 232 232 2784 645888
+10	64434 831 59 2213 0.1 6 60 0 2320 25520 59206400
+15	65265 279 182 2188 0.540076218602 5.940076257102 11 29 29 319 9251
+16	65544 162 59 2213 0.5 6 12 45 45 540 24300
+17	65706 162 59 2213 0.5 6 12 29 29 348 10092
+18	65868 279 182 2188 0.540076218602 5.940076257102 11 45 45 495 22275
+22	66147 27 0 0 0 0 3 0 4 4 16
+23	66174 545 0 2187 0 5.940076257102 23 1 3 45 111
+24	66719 381 0 2223 0 6.000076 25 1 2 37 61
+35	67100 150 56 2210 0.5 6 12 9 9 108 972
+36	67250 418 62 2216 0.5 6 23 9 9 207 1863
+37	67668 441 0 2216 0 6 24 0 23 276 4324
+38	68109 9 0 0 0 0 1 0 0 0 0
+39	68118 9 0 0 0 0 1 0 0 0 0
+40	68127 185 82 2264 0.51 6.12 12 29 29 348 10092
+41	68312 185 82 2264 0.51 6.12 12 29 29 348 10092
+44	68497 218 0 2265 0 6.12 17 0 0 0 0
+45	68715 218 0 2265 0 6.12 17 0 0 0 0
+46	68933 173 83 2265 0.51 6.12 12 0 0 0 0
+47	69106 197 83 2265 0.51 6.12 12 232 232 2784 645888
+48	69303 845 83 2265 0.1 6.1 61 0 2320 25520 59206400
+49	70148 197 83 2265 0.51 6.12 12 232 232 2784 645888
+50	70345 845 83 2265 0.1 6.1 61 0 2320 25520 59206400
+55	71190 560 129 2158 0.520076186454 5.830076303552 22 29 29 638 18502
+56	71750 185 83 2265 0.51 6.12 12 45 45 540 24300
+57	71935 185 83 2265 0.51 6.12 12 29 29 348 10092
+58	72120 560 129 2158 0.520076186454 5.830076303552 22 45 45 990 44550
+62	72680 27 0 0 0 0 3 0 4 4 16
+63	72707 1110 0 2305 0 6.240000165495 46 1 3 92 230
+64	73817 404 0 2275 0 6.120076 25 1 2 37 61
+75	74221 173 80 2262 0.51 6.12 12 9 9 108 972
+76	74394 711 86 2268 0.51 6.12 34 9 9 306 2754
+77	75105 745 0 2268 0 6.12 35 0 34 595 13685
+78	75850 9 0 0 0 0 1 0 0 0 0
+79	75859 9 0 0 0 0 1 0 0 0 0
+80	75868 185 111 2299 0.52 6.24 12 29 29 348 10092
+81	76053 185 111 2299 0.52 6.24 12 29 29 348 10092
+84	76238 218 0 2300 0 6.24 17 0 0 0 0
+85	76456 218 0 2300 0 6.24 17 0 0 0 0
+86	76674 173 112 2300 0.52 6.24 12 0 0 0 0
+87	76847 197 112 2300 0.52 6.24 12 232 232 2784 645888
+88	77044 863 112 2300 0.1 6.2 62 0 2320 25520 59206400
+89	77907 197 112 2300 0.52 6.24 12 232 232 2784 645888
+90	78104 863 112 2300 0.1 6.2 62 0 2320 25520 59206400
+95	78967 581 95 2277 0.5100761865 6.12007616581 23 29 29 667 19343
+96	79548 185 112 2300 0.52 6.24 12 45 45 540 24300
+97	79733 185 112 2300 0.52 6.24 12 29 29 348 10092
+98	79918 581 95 2277 0.5100761865 6.12007616581 23 45 45 1035 46575
+102	80499 30 0 0 0 0 3 0 4 4 16
+103	80529 1172 0 2276 0 6.12007616581 47 1 3 93 231
+104	81701 410 0 2302 0 6.24 24 1 2 36 60
+115	82111 185 109 2297 0.52 6.24 12 9 9 108 972
+116	82296 766 97 2303 0.5100761865 6.24 35 9 9 315 2835
+117	83062 802 0 2303 0 6.24 36 0 35 630 14910
+118	83864 10 0 0 0 0 1 0 0 0 0
+119	83874 10 0 0 0 0 1 0 0 0 0
+120	83884 181 140 2140 0.53 5.83 11 29 29 319 9251
+121	84065 181 140 2140 0.53 5.83 11 29 29 319 9251
+124	84246 220 0 2141 0 5.83 16 0 0 0 0
+125	84466 220 0 2141 0 5.83 16 0 0 0 0
+126	84686 170 141 2141 0.53 5.83 11 0 0 0 0
+127	84856 192 141 2141 0.53 5.83 11 232 232 2552 592064
+128	85048 864 141 2141 0.1 5.8 58 0 2320 23200 53824000
+129	85912 192 141 2141 0.53 5.83 11 232 232 2552 592064
+130	86104 864 141 2141 0.1 5.8 58 0 2320 23200 53824000
+135	86968 609 100 2282 0.510076285646 6.120076304607 23 29 29 667 19343
+136	87577 181 141 2141 0.53 5.83 11 45 45 495 22275
+137	87758 181 141 2141 0.53 5.83 11 29 29 319 9251
+138	87939 609 100 2282 0.510076285646 6.120076304607 23 45 45 1035 46575
+142	88548 30 0 0 0 0 3 0 4 4 16
+143	88578 1206 0 2306 0 6.240000177779 48 1 3 96 240
+144	89784 395 0 2151 0 5.830076 23 1 2 34 56
+155	90179 170 138 2138 0.53 5.83 11 9 9 99 891
+156	90349 756 102 2284 0.510076285646 6.120076304607 34 9 9 306 2754
+157	91105 791 0 2284 0 6.120076304607 35 0 34 595 13685
+158	91896 10 0 0 0 0 1 0 0 0 0
+159	91906 10 0 0 0 0 1 0 0 0 0
+160	91916 180 169 2175 0.54 5.94 11 29 29 319 9251
+161	92096 180 169 2175 0.54 5.94 11 29 29 319 9251
+164	92276 219 0 2176 0 5.94 16 0 0 0 0
+165	92495 219 0 2176 0 5.94 16 0 0 0 0
+166	92714 169 170 2176 0.54 5.94 11 0 0 0 0
+167	92883 191 170 2176 0.54 5.94 11 232 232 2552 592064
+168	93074 878 170 2176 0.1 5.9 59 0 2320 23200 53824000
+169	93952 191 170 2176 0.54 5.94 11 232 232 2552 592064
+170	94143 878 170 2176 0.1 5.9 59 0 2320 23200 53824000
+175	95021 317 71 2225 0.500076218329 6.000076257546 12 29 29 348 10092
+176	95338 180 170 2176 0.54 5.94 11 45 45 495 22275
+177	95518 180 170 2176 0.54 5.94 11 29 29 319 9251
+178	95698 317 71 2225 0.500076218329 6.000076257546 12 45 45 540 24300
+182	96015 30 0 0 0 0 3 0 4 4 16
+183	96045 620 0 2224 0 6.000076257546 25 1 3 49 121
+184	96665 394 0 2186 0 5.940076 23 1 2 34 56
+195	97059 169 167 2173 0.54 5.94 11 9 9 99 891
+196	97228 474 73 2227 0.500076218329 6.000076257546 23 9 9 207 1863
+197	97702 498 0 2227 0 6.000076257546 24 0 23 276 4324
+198	98200 10 0 0 0 0 1 0 0 0 0
+199	98210 10 0 0 0 0 1 0 0 0 0
+200	98220 177 194 2237 0.55 6.05 11 29 29 319 9251
+201	98397 177 194 2237 0.55 6.05 11 29 29 319 9251
+204	98574 216 0 2238 0 6.05 16 0 0 0 0
+205	98790 216 0 2238 0 6.05 16 0 0 0 0
+206	99006 166 195 2238 0.55 6.05 11 0 0 0 0
+207	99172 188 195 2238 0.55 6.05 11 232 232 2552 592064
+208	99360 891 195 2238 0.1 6 60 0 2320 23200 53824000
+209	100251 188 195 2238 0.55 6.05 11 232 232 2552 592064
+210	100439 891 195 2238 0.1 6 60 0 2320 23200 53824000
+216	101330 177 195 2238 0.55 6.05 11 45 45 495 22275
+217	101507 177 195 2238 0.55 6.05 11 29 29 319 9251
+222	101684 30 0 0 0 0 3 0 4 4 16
+223	101714 10 0 0 0 0 1 1 1 1 1
+224	101724 392 0 2248 0 6.050076 23 1 2 34 56
+235	102116 166 192 2235 0.55 6.05 11 9 9 99 891
+236	102282 166 198 2241 0.55 6.05 11 9 9 99 891
+237	102448 178 0 2241 0 6.05 12 0 11 66 506
+238	102626 10 0 0 0 0 1 0 0 0 0
+239	102636 10 0 0 0 0 1 0 0 0 0
+0	102646 26 2412 2595 6.5 7 2 29 29 58 1682
+1	102672 26 2412 2595 6.5 7 2 29 29 58 1682
+4	102698 24 2413 2596 6.5 7 2 0 0 0 0
+5	102722 24 2413 2596 6.5 7 2 0 0 0 0
+6	102746 24 2413 2596 6.5 7 2 0 0 0 0
+7	102770 28 2413 2596 6.5 7 2 232 232 464 107648
+8	102798 134 2413 2596 6.1 7 10 0 2320 4640 10764800
+9	102932 28 2413 2596 6.5 7 2 232 232 464 107648
+10	102960 144 2413 2596 6.1 7 10 0 2320 4640 10764800
+15	103104 51 2388 2460 6.480076261105 6.60007633161 2 29 29 58 1682
+16	103155 28 2413 2596 6.5 7 2 45 45 90 4050
+17	103183 28 2413 2596 6.5 7 2 29 29 58 1682
+18	103211 51 2388 2460 6.480076261105 6.60007633161 2 45 45 90 4050
+23	103262 98 2381 2459 6.480000261105 6.60007633161 4 1 3 8 20
+24	103360 64 2415 2606 6.5 7.000076 4 1 2 6 10
+35	103424 26 2410 2593 6.5 7 2 9 9 18 162
+36	103450 75 2390 2599 6.480076261105 7 4 9 9 36 324
+37	103525 79 2390 2599 6.480076261105 7 4 24 27 102 2606
+40	103604 16 2472 2472 6.63 6.63 1 29 29 29 841
+41	103620 16 2472 2472 6.63 6.63 1 29 29 29 841
+44	103636 15 2473 2473 6.63 6.63 1 0 0 0 0
+45	103651 15 2473 2473 6.63 6.63 1 0 0 0 0
+46	103666 15 2473 2473 6.63 6.63 1 0 0 0 0
+47	103681 17 2473 2473 6.63 6.63 1 232 232 232 53824
+48	103698 73 2473 2473 6.2 6.6 5 0 2320 2320 5382400
+49	103771 17 2473 2473 6.63 6.63 1 232 232 232 53824
+50	103788 73 2473 2473 6.2 6.6 5 0 2320 2320 5382400
+55	103861 104 2312 2560 6.240076165495 6.890076307444 4 29 29 116 3364
+56	103965 16 2473 2473 6.63 6.63 1 45 45 45 2025
+57	103981 16 2473 2473 6.63 6.63 1 29 29 29 841
+58	103997 104 2312 2560 6.240076165495 6.890076307444 4 45 45 180 8100
+63	104101 175 2311 2559 6.240076165495 6.890076307444 7 1 3 13 31
+64	104276 34 2475 2483 6.63 6.630076 2 1 2 3 5
+75	104310 15 2470 2470 6.63 6.63 1 9 9 9 81
+76	104325 115 2314 2562 6.240076165495 6.890076307444 5 9 9 45 405
+77	104440 120 2314 2562 6.240076165495 6.890076307444 5 35 39 185 6855
+80	104560 16 2507 2507 6.76 6.76 1 29 29 29 841
+81	104576 16 2507 2507 6.76 6.76 1 29 29 29 841
+84	104592 15 2508 2508 6.76 6.76 1 0 0 0 0
+85	104607 15 2508 2508 6.76 6.76 1 0 0 0 0
+86	104622 15 2508 2508 6.76 6.76 1 0 0 0 0
+87	104637 17 2508 2508 6.76 6.76 1 232 232 232 53824
+88	104654 73 2508 2508 6.3 6.7 5 0 2320 2320 5382400
+89	104727 17 2508 2508 6.76 6.76 1 232 232 232 53824
+90	104744 73 2508 2508 6.3 6.7 5 0 2320 2320 5382400
+95	104817 78 2353 2555 6.360076179441 6.890076186813 3 29 29 87 2523
+96	104895 16 2508 2508 6.76 6.76 1 45 45 45 2025
+97	104911 16 2508 2508 6.76 6.76 1 29 29 29 841
+98	104927 78 2353 2555 6.360076179441 6.890076186813 3 45 45 135 6075
+103	105005 156 2346 2554 6.360000179441 6.890076186813 6 1 3 12 30
+104	105161 56 2310 2518 6.240076 6.760076 3 1 2 4 6
+115	105217 16 2505 2505 6.76 6.76 1 9 9 9 81
+116	105233 94 2355 2557 6.360076179441 6.890076186813 4 9 9 36 324
+117	105327 98 2355 2557 6.360076179441 6.890076186813 4 36 39 150 5630
+120	105425 34 2340 2542 6.36 6.89 2 29 29 58 1682
+121	105459 34 2340 2542 6.36 6.89 2 29 29 58 1682
+124	105493 32 2341 2543 6.36 6.89 2 0 0 0 0
+125	105525 32 2341 2543 6.36 6.89 2 0 0 0 0
+126	105557 32 2341 2543 6.36 6.89 2 0 0 0 0
+127	105589 36 2341 2543 6.36 6.89 2 232 232 464 107648
+128	105625 154 2341 2543 5.9 6.8 10 0 2320 4640 10764800
+129	105779 36 2341 2543 6.36 6.89 2 232 232 464 107648
+130	105815 154 2341 2543 5.9 6.8 10 0 2320 4640 10764800
+135	105969 80 2317 2525 6.240076177779 6.760076185001 3 29 29 87 2523
+136	106049 34 2341 2543 6.36 6.89 2 45 45 90 4050
+137	106083 34 2341 2543 6.36 6.89 2 29 29 58 1682
+138	106117 80 2317 2525 6.240076177779 6.760076185001 3 45 45 135 6075
+143	106197 128 2316 2524 6.240076177779 6.760076185001 5 1 3 9 21
+144	106325 72 2343 2553 6.36 6.890076 4 1 2 6 10
+155	106397 32 2338 2540 6.36 6.89 2 9 9 18 162
+156	106429 109 2319 2546 6.240076177779 6.89 5 9 9 45 405
+157	106538 114 2319 2546 6.240076177779 6.89 5 35 39 185 6855
+160	106652 17 2375 2375 6.48 6.48 1 29 29 29 841
+161	106669 17 2375 2375 6.48 6.48 1 29 29 29 841
+164	106686 16 2376 2376 6.48 6.48 1 0 0 0 0
+165	106702 16 2376 2376 6.48 6.48 1 0 0 0 0
+166	106718 16 2376 2376 6.48 6.48 1 0 0 0 0
+167	106734 18 2376 2376 6.48 6.48 1 232 232 232 53824
+168	106752 76 2376 2376 6 6.4 5 0 2320 2320 5382400
+169	106828 18 2376 2376 6.48 6.48 1 232 232 232 53824
+170	106846 76 2376 2376 6 6.4 5 0 2320 2320 5382400
+175	106922 27 2425 2425 6.500076261254 6.500076261254 1 29 29 29 841
+176	106949 17 2376 2376 6.48 6.48 1 45 45 45 2025
+177	106966 17 2376 2376 6.48 6.48 1 29 29 29 841
+178	106983 27 2425 2425 6.500076261254 6.500076261254 1 45 45 45 2025
+183	107010 78 2418 2601 6.500000261254 7.000000264981 3 1 3 7 19
+184	107088 36 2378 2386 6.48 6.480076 2 1 2 3 5
+195	107124 16 2373 2373 6.48 6.48 1 9 9 9 81
+196	107140 42 2379 2427 6.48 6.500076261254 2 9 9 18 162
+197	107182 44 2379 2427 6.48 6.500076261254 2 24 25 49 1201
+200	107226 16 2447 2447 6.6 6.6 1 29 29 29 841
+201	107242 16 2447 2447 6.6 6.6 1 29 29 29 841
+204	107258 15 2448 2448 6.6 6.6 1 0 0 0 0
+205	107273 15 2448 2448 6.6 6.6 1 0 0 0 0
+206	107288 15 2448 2448 6.6 6.6 1 0 0 0 0
+207	107303 17 2448 2448 6.6 6.6 1 232 232 232 53824
+208	107320 93 2448 2448 6.1 6.6 6 0 2320 2320 5382400
+209	107413 17 2448 2448 6.6 6.6 1 232 232 232 53824
+210	107430 93 2448 2448 6.1 6.6 6 0 2320 2320 5382400
+215	107523 27 2430 2430 6.500076332236 6.500076332236 1 29 29 29 841
+216	107550 16 2448 2448 6.6 6.6 1 45 45 45 2025
+217	107566 16 2448 2448 6.6 6.6 1 29 29 29 841
+218	107582 27 2430 2430 6.500076332236 6.500076332236 1 45 45 45 2025
+223	107609 78 2419 2602 6.500000332236 7.000000329164 3 1 3 7 19
+224	107687 35 2450 2458 6.6 6.600076 2 1 2 3 5
+235	107722 15 2445 2445 6.6 6.6 1 9 9 9 81
+236	107737 41 2432 2451 6.500076332236 6.6 2 9 9 18 162
+237	107778 43 2432 2451 6.500076332236 6.6 2 12 13 25 313
+15	107821 51 2637 2696 7.02007626513 7.150076328271 2 29 29 58 1682
+18	107872 51 2637 2696 7.02007626513 7.150076328271 2 45 45 90 4050
+23	107923 98 2630 2695 7.02000026513 7.150076328271 4 1 3 8 20
+36	108021 49 2639 2698 7.02007626513 7.150076328271 2 9 9 18 162
+37	108070 51 2639 2698 7.02007626513 7.150076328271 2 28 29 57 1625
+40	108121 16 2655 2655 7.14 7.14 1 29 29 29 841
+41	108137 16 2655 2655 7.14 7.14 1 29 29 29 841
+44	108153 15 2656 2656 7.14 7.14 1 0 0 0 0
+45	108168 15 2656 2656 7.14 7.14 1 0 0 0 0
+46	108183 15 2656 2656 7.14 7.14 1 0 0 0 0
+47	108198 17 2656 2656 7.14 7.14 1 232 232 232 53824
+48	108215 71 2656 2656 6.7 7.1 5 0 2320 2320 5382400
+49	108286 17 2656 2656 7.14 7.14 1 232 232 232 53824
+50	108303 71 2656 2656 6.7 7.1 5 0 2320 2320 5382400
+56	108374 16 2656 2656 7.14 7.14 1 45 45 45 2025
+57	108390 16 2656 2656 7.14 7.14 1 29 29 29 841
+63	108406 25 2721 2721 7.280000163018 7.280000163018 1 3 3 3 9
+64	108431 34 2658 2666 7.14 7.140076 2 1 2 3 5
+75	108465 15 2653 2653 7.14 7.14 1 9 9 9 81
+76	108480 15 2659 2659 7.14 7.14 1 9 9 9 81
+77	108495 16 2659 2659 7.14 7.14 1 40 40 40 1600
+80	108511 16 2715 2715 7.28 7.28 1 29 29 29 841
+81	108527 16 2715 2715 7.28 7.28 1 29 29 29 841
+84	108543 15 2716 2716 7.28 7.28 1 0 0 0 0
+85	108558 15 2716 2716 7.28 7.28 1 0 0 0 0
+86	108573 15 2716 2716 7.28 7.28 1 0 0 0 0
+87	108588 17 2716 2716 7.28 7.28 1 232 232 232 53824
+88	108605 71 2716 2716 6.8 7.2 5 0 2320 2320 5382400
+89	108676 17 2716 2716 7.28 7.28 1 232 232 232 53824
+90	108693 71 2716 2716 6.8 7.2 5 0 2320 2320 5382400
+95	108764 26 2668 2668 7.140076163324 7.140076163324 1 29 29 29 841
+96	108790 16 2716 2716 7.28 7.28 1 45 45 45 2025
+97	108806 16 2716 2716 7.28 7.28 1 29 29 29 841
+98	108822 26 2668 2668 7.140076163324 7.140076163324 1 45 45 45 2025
+103	108848 52 2661 2667 7.140000163324 7.140076163324 2 1 3 4 10
+104	108900 16 2718 2718 7.28 7.28 1 2 2 2 4
+115	108916 16 2713 2713 7.28 7.28 1 9 9 9 81
+116	108932 42 2670 2719 7.140076163324 7.28 2 9 9 18 162
+117	108974 44 2670 2719 7.140076163324 7.28 2 40 41 81 3281
+135	109018 27 2673 2673 7.140076308377 7.140076308377 1 29 29 29 841
+138	109045 27 2673 2673 7.140076308377 7.140076308377 1 45 45 45 2025
+143	109072 78 2662 2722 7.140000308377 7.280000192267 3 1 3 7 19
+156	109150 26 2675 2675 7.140076308377 7.140076308377 1 9 9 9 81
+157	109176 27 2675 2675 7.140076308377 7.140076308377 1 40 40 40 1600
+160	109203 17 2624 2624 7.02 7.02 1 29 29 29 841
+161	109220 17 2624 2624 7.02 7.02 1 29 29 29 841
+164	109237 16 2625 2625 7.02 7.02 1 0 0 0 0
+165	109253 16 2625 2625 7.02 7.02 1 0 0 0 0
+166	109269 16 2625 2625 7.02 7.02 1 0 0 0 0
+167	109285 18 2625 2625 7.02 7.02 1 232 232 232 53824
+168	109303 91 2625 2625 6.5 7 6 0 2320 2320 5382400
+169	109394 18 2625 2625 7.02 7.02 1 232 232 232 53824
+170	109412 91 2625 2625 6.5 7 6 0 2320 2320 5382400
+175	109503 27 2608 2608 7.000076264981 7.000076264981 1 29 29 29 841
+176	109530 17 2625 2625 7.02 7.02 1 45 45 45 2025
+177	109547 17 2625 2625 7.02 7.02 1 29 29 29 841
+178	109564 27 2608 2608 7.000076264981 7.000076264981 1 45 45 45 2025
+183	109591 26 2607 2607 7.000076264981 7.000076264981 1 1 1 1 1
+184	109617 36 2627 2635 7.02 7.020076 2 1 2 3 5
+195	109653 16 2622 2622 7.02 7.02 1 9 9 9 81
+196	109669 42 2610 2628 7.000076264981 7.02 2 9 9 18 162
+197	109711 44 2610 2628 7.000076264981 7.02 2 26 27 53 1405
+200	109755 17 2683 2683 7.15 7.15 1 29 29 29 841
+201	109772 17 2683 2683 7.15 7.15 1 29 29 29 841
+204	109789 16 2684 2684 7.15 7.15 1 0 0 0 0
+205	109805 16 2684 2684 7.15 7.15 1 0 0 0 0
+206	109821 16 2684 2684 7.15 7.15 1 0 0 0 0
+207	109837 18 2684 2684 7.15 7.15 1 232 232 232 53824
+208	109855 76 2684 2684 6.7 7.1 5 0 2320 2320 5382400
+209	109931 18 2684 2684 7.15 7.15 1 232 232 232 53824
+210	109949 76 2684 2684 6.7 7.1 5 0 2320 2320 5382400
+215	110025 27 2613 2613 7.000076329164 7.000076329164 1 29 29 29 841
+216	110052 17 2684 2684 7.15 7.15 1 45 45 45 2025
+217	110069 17 2684 2684 7.15 7.15 1 29 29 29 841
+218	110086 27 2613 2613 7.000076329164 7.000076329164 1 45 45 45 2025
+223	110113 26 2612 2612 7.000076329164 7.000076329164 1 1 1 1 1
+224	110139 36 2686 2694 7.15 7.150076 2 1 2 3 5
+235	110175 16 2681 2681 7.15 7.15 1 9 9 9 81
+236	110191 42 2615 2687 7.000076329164 7.15 2 9 9 18 162
+237	110233 44 2615 2687 7.000076329164 7.15 2 14 15 29 421
+55	110277 26 2728 2728 7.280076163018 7.280076163018 1 29 29 29 841
+58	110303 26 2728 2728 7.280076163018 7.280076163018 1 45 45 45 2025
+63	110329 25 2727 2727 7.280076163018 7.280076163018 1 1 1 1 1
+76	110354 25 2730 2730 7.280076163018 7.280076163018 1 9 9 9 81
+77	110379 26 2730 2730 7.280076163018 7.280076163018 1 41 41 41 1681
+104	110405 20 2726 2726 7.280076 7.280076 1 1 1 1 1
+120	110425 17 2756 2756 7.42 7.42 1 29 29 29 841
+121	110442 17 2756 2756 7.42 7.42 1 29 29 29 841
+124	110459 16 2757 2757 7.42 7.42 1 0 0 0 0
+125	110475 16 2757 2757 7.42 7.42 1 0 0 0 0
+126	110491 16 2757 2757 7.42 7.42 1 0 0 0 0
+127	110507 18 2757 2757 7.42 7.42 1 232 232 232 53824
+128	110525 91 2757 2757 6.9 7.4 6 0 2320 2320 5382400
+129	110616 18 2757 2757 7.42 7.42 1 232 232 232 53824
+130	110634 91 2757 2757 6.9 7.4 6 0 2320 2320 5382400
+135	110725 27 2733 2733 7.280076192267 7.280076192267 1 29 29 29 841
+136	110752 17 2757 2757 7.42 7.42 1 45 45 45 2025
+137	110769 17 2757 2757 7.42 7.42 1 29 29 29 841
+138	110786 27 2733 2733 7.280076192267 7.280076192267 1 45 45 45 2025
+143	110813 26 2732 2732 7.280076192267 7.280076192267 1 1 1 1 1
+144	110839 16 2759 2759 7.42 7.42 1 2 2 2 4
+155	110855 16 2754 2754 7.42 7.42 1 9 9 9 81
+156	110871 42 2735 2760 7.280076192267 7.42 2 9 9 18 162
+157	110913 44 2735 2760 7.280076192267 7.42 2 41 42 83 3445
+63	110957 25 2763 2763 7.420000309428 7.420000309428 1 3 3 3 9
+103	110982 25 2762 2762 7.42000019423 7.42000019423 1 3 3 3 9
+55	111007 26 2774 2774 7.420076309428 7.420076309428 1 29 29 29 841
+58	111033 26 2774 2774 7.420076309428 7.420076309428 1 45 45 45 2025
+63	111059 25 2773 2773 7.420076309428 7.420076309428 1 1 1 1 1
+76	111084 25 2776 2776 7.420076309428 7.420076309428 1 9 9 9 81
+77	111109 26 2776 2776 7.420076309428 7.420076309428 1 42 42 42 1764
+95	111135 25 2769 2769 7.42007619423 7.42007619423 1 29 29 29 841
+98	111160 25 2769 2769 7.42007619423 7.42007619423 1 45 45 45 2025
+103	111185 25 2768 2768 7.42007619423 7.42007619423 1 1 1 1 1
+116	111210 25 2771 2771 7.42007619423 7.42007619423 1 9 9 9 81
+117	111235 26 2771 2771 7.42007619423 7.42007619423 1 42 42 42 1764
+144	111261 20 2767 2767 7.420076 7.420076 1 1 1 1 1
+0	111281 14 2797 2797 7.5 7.5 1 29 29 29 841
+1	111295 14 2797 2797 7.5 7.5 1 29 29 29 841
+4	111309 13 2798 2798 7.5 7.5 1 0 0 0 0
+5	111322 13 2798 2798 7.5 7.5 1 0 0 0 0
+6	111335 13 2798 2798 7.5 7.5 1 0 0 0 0
+7	111348 15 2798 2798 7.5 7.5 1 232 232 232 53824
+8	111363 68 2798 2798 7.1 7.5 5 0 2320 2320 5382400
+9	111431 15 2798 2798 7.5 7.5 1 232 232 232 53824
+10	111446 73 2798 2798 7.1 7.5 5 0 2320 2320 5382400
+16	111519 15 2798 2798 7.5 7.5 1 45 45 45 2025
+17	111534 15 2798 2798 7.5 7.5 1 29 29 29 841
+24	111549 33 2800 2808 7.5 7.500076 2 1 2 3 5
+35	111582 14 2795 2795 7.5 7.5 1 9 9 9 81
+36	111596 14 2801 2801 7.5 7.5 1 9 9 9 81
+37	111610 15 2801 2801 7.5 7.5 1 30 30 30 900
+175	111625 27 2810 2810 7.500076268727 7.500076268727 1 29 29 29 841
+178	111652 27 2810 2810 7.500076268727 7.500076268727 1 45 45 45 2025
+183	111679 52 2803 2809 7.500000268727 7.500076268727 2 1 3 4 10
+196	111731 26 2812 2812 7.500076268727 7.500076268727 1 9 9 9 81
+197	111757 27 2812 2812 7.500076268727 7.500076268727 1 28 28 28 784
+215	111784 27 2815 2815 7.500076326237 7.500076326237 1 29 29 29 841
+218	111811 27 2815 2815 7.500076326237 7.500076326237 1 45 45 45 2025
+223	111838 52 2804 2814 7.500000326237 7.500076326237 2 1 3 4 10
+236	111890 26 2817 2817 7.500076326237 7.500076326237 1 9 9 9 81
+237	111916 27 2817 2817 7.500076326237 7.500076326237 1 16 16 16 256
+160	111943 17 2826 2826 7.56 7.56 1 29 29 29 841
+161	111960 17 2826 2826 7.56 7.56 1 29 29 29 841
+195	111977 16 2824 2824 7.56 7.56 1 9 9 9 81
+0	111993 80 3005 4034 8 10.5 6 29 29 174 5046
+1	112073 80 3005 4034 8 10.5 6 29 29 174 5046
+4	112153 74 3006 4035 8 10.5 6 0 0 0 0
+5	112227 74 3006 4035 8 10.5 6 0 0 0 0
+6	112301 74 3006 4035 8 10.5 6 0 0 0 0
+7	112375 86 3006 4035 8 10.5 6 232 232 1392 322944
+8	112461 408 3006 4035 7.6 10.5 30 0 2320 13920 32294400
+9	112869 86 3006 4035 8 10.5 6 232 232 1392 322944
+10	112955 438 3006 4035 7.6 10.5 30 0 2320 13920 32294400
+15	113393 447 2839 4160 7.560076269178 10.800076293868 17 29 29 493 14297
+16	113840 86 3006 4035 8 10.5 6 45 45 270 12150
+17	113926 86 3006 4035 8 10.5 6 29 29 174 5046
+18	114012 447 2839 4160 7.560076269178 10.800076293868 17 45 45 765 34425
+23	114459 860 2832 4159 7.560000269178 10.800076293868 34 1 3 68 170
+24	115319 196 3008 4045 8 10.500076 12 1 2 18 30
+35	115515 80 3003 4032 8 10.5 6 9 9 54 486
+36	115595 510 2841 4162 7.560076269178 10.800076293868 23 9 9 207 1863
+37	116105 533 2841 4162 7.560076269178 10.800076293868 23 31 53 966 41584
+40	116638 113 2857 4112 7.65 10.71 7 29 29 203 5887
+41	116751 113 2857 4112 7.65 10.71 7 29 29 203 5887
+44	116864 106 2858 4113 7.65 10.71 7 0 0 0 0
+45	116970 106 2858 4113 7.65 10.71 7 0 0 0 0
+46	117076 106 2858 4113 7.65 10.71 7 0 0 0 0
+47	117182 120 2858 4113 7.65 10.71 7 232 232 1624 376768
+48	117302 527 2858 4113 7.2 10.7 36 0 2320 16240 37676800
+49	117829 120 2858 4113 7.65 10.71 7 232 232 1624 376768
+50	117949 527 2858 4113 7.2 10.7 36 0 2320 16240 37676800
+55	118476 313 2942 4096 7.800076161953 10.60007632182 12 29 29 348 10092
+56	118789 113 2858 4113 7.65 10.71 7 45 45 315 14175
+57	118902 113 2858 4113 7.65 10.71 7 29 29 203 5887
+58	119015 313 2942 4096 7.800076161953 10.60007632182 12 45 45 540 24300
+63	119328 628 2935 4184 7.800000161953 10.920000158127 25 1 3 51 129
+64	119956 241 2860 4123 7.65 10.710076 14 1 2 21 35
+75	120197 106 2855 4110 7.65 10.71 7 9 9 63 567
+76	120303 407 2861 4116 7.65 10.71 19 9 9 171 1539
+77	120710 426 2861 4116 7.65 10.71 19 43 61 988 51946
+80	121136 112 2929 4178 7.8 10.92 7 29 29 203 5887
+81	121248 112 2929 4178 7.8 10.92 7 29 29 203 5887
+84	121360 105 2930 4179 7.8 10.92 7 0 0 0 0
+85	121465 105 2930 4179 7.8 10.92 7 0 0 0 0
+86	121570 105 2930 4179 7.8 10.92 7 0 0 0 0
+87	121675 119 2930 4179 7.8 10.92 7 232 232 1624 376768
+88	121794 543 2930 4179 7.3 10.9 37 0 2320 16240 37676800
+89	122337 119 2930 4179 7.8 10.92 7 232 232 1624 376768
+90	122456 543 2930 4179 7.3 10.9 37 0 2320 16240 37676800
+95	122999 339 2870 4125 7.650076162248 10.710076158243 13 29 29 377 10933
+96	123338 112 2930 4179 7.8 10.92 7 45 45 315 14175
+97	123450 112 2930 4179 7.8 10.92 7 29 29 203 5887
+98	123562 339 2870 4125 7.650076162248 10.710076158243 13 45 45 585 26325
+103	123901 678 2863 4124 7.650000162248 10.710076158243 26 1 3 52 130
+104	124579 233 2932 4181 7.8 10.92 13 1 2 20 34
+115	124812 112 2927 4176 7.8 10.92 7 9 9 63 567
+116	124924 451 2872 4182 7.650076162248 10.92 20 9 9 180 1620
+117	125375 471 2872 4182 7.650076162248 10.92 20 43 62 1050 55790
+120	125846 103 2964 4073 7.95 10.6 6 29 29 174 5046
+121	125949 103 2964 4073 7.95 10.6 6 29 29 174 5046
+124	126052 97 2965 4074 7.95 10.6 6 0 0 0 0
+125	126149 97 2965 4074 7.95 10.6 6 0 0 0 0
+126	126246 97 2965 4074 7.95 10.6 6 0 0 0 0
+127	126343 109 2965 4074 7.95 10.6 6 232 232 1392 322944
+128	126452 499 2965 4074 7.5 10.6 32 0 2320 13920 32294400
+129	126951 109 2965 4074 7.95 10.6 6 232 232 1392 322944
+130	127060 499 2965 4074 7.5 10.6 32 0 2320 13920 32294400
+135	127559 461 2875 4130 7.650076310296 10.710076322263 17 29 29 493 14297
+136	128020 103 2965 4074 7.95 10.6 6 45 45 270 12150
+137	128123 103 2965 4074 7.95 10.6 6 29 29 174 5046
+138	128226 461 2875 4130 7.650076310296 10.710076322263 17 45 45 765 34425
+143	128687 888 2864 4129 7.650000310296 10.710076322263 34 1 3 68 170
+144	129575 219 2967 4084 7.95 10.600076 12 1 2 18 30
+155	129794 97 2962 4071 7.95 10.6 6 9 9 54 486
+156	129891 541 2877 4132 7.650076310296 10.710076322263 23 9 9 207 1863
+157	130432 564 2877 4132 7.650076310296 10.710076322263 23 43 65 1242 68080
+160	130996 102 3040 4147 8.1 10.8 6 29 29 174 5046
+161	131098 102 3040 4147 8.1 10.8 6 29 29 174 5046
+164	131200 112 2827 4148 7.56 10.8 7 0 0 0 0
+165	131312 112 2827 4148 7.56 10.8 7 0 0 0 0
+166	131424 112 2827 4148 7.56 10.8 7 0 0 0 0
+167	131536 126 2827 4148 7.56 10.8 7 232 232 1624 376768
+168	131662 594 2827 4148 7.1 10.8 38 0 2320 16240 37676800
+169	132256 126 2827 4148 7.56 10.8 7 232 232 1624 376768
+170	132382 594 2827 4148 7.1 10.8 38 0 2320 16240 37676800
+175	132976 164 3018 4047 8.000076272491 10.500076291555 6 29 29 174 5046
+176	133140 119 2827 4148 7.56 10.8 7 45 45 315 14175
+177	133259 119 2827 4148 7.56 10.8 7 29 29 203 5887
+178	133378 164 3018 4047 8.000076272491 10.500076291555 6 45 45 270 12150
+183	133542 316 3011 4046 8.000000272491 10.500076291555 12 1 3 24 60
+184	133858 254 2829 4158 7.56 10.800076 14 1 2 21 35
+195	134112 96 3038 4145 8.1 10.8 6 9 9 54 486
+196	134208 270 2830 4151 7.56 10.8 13 9 9 117 1053
+197	134478 283 2830 4151 7.56 10.8 13 29 41 455 16107
+200	134761 100 2898 3991 7.7 10.45 6 29 29 174 5046
+201	134861 100 2898 3991 7.7 10.45 6 29 29 174 5046
+204	134961 94 2899 3992 7.7 10.45 6 0 0 0 0
+205	135055 94 2899 3992 7.7 10.45 6 0 0 0 0
+206	135149 94 2899 3992 7.7 10.45 6 0 0 0 0
+207	135243 106 2899 3992 7.7 10.45 6 232 232 1392 322944
+208	135349 512 2899 3992 7.2 10.4 33 0 2320 13920 32294400
+209	135861 106 2899 3992 7.7 10.45 6 232 232 1392 322944
+210	135967 512 2899 3992 7.2 10.4 33 0 2320 13920 32294400
+215	136479 163 3023 4052 8.000076323459 10.500076311931 6 29 29 174 5046
+216	136642 100 2899 3992 7.7 10.45 6 45 45 270 12150
+217	136742 100 2899 3992 7.7 10.45 6 29 29 174 5046
+218	136842 163 3023 4052 8.000076323459 10.500076311931 6 45 45 270 12150
+223	137005 314 3012 4051 8.000000323459 10.500076311931 12 1 3 24 60
+224	137319 215 2901 4002 7.7 10.450076 12 1 2 18 30
+235	137534 94 2896 3989 7.7 10.45 6 9 9 54 486
+236	137628 251 2902 4054 7.7 10.500076311931 12 9 9 108 972
+237	137879 263 2902 4054 7.7 10.500076311931 12 17 28 270 6218
+0	138142 13 4224 4224 11 11 1 29 29 29 841
+1	138155 13 4224 4224 11 11 1 29 29 29 841
+4	138168 12 4225 4225 11 11 1 0 0 0 0
+5	138180 12 4225 4225 11 11 1 0 0 0 0
+6	138192 12 4225 4225 11 11 1 0 0 0 0
+7	138204 14 4225 4225 11 11 1 232 232 232 53824
+8	138218 71 4225 4225 10.6 11 5 0 2320 2320 5382400
+9	138289 14 4225 4225 11 11 1 232 232 232 53824
+10	138303 76 4225 4225 10.6 11 5 0 2320 2320 5382400
+15	138379 54 4258 4300 11.000076310122 11.130076306366 2 29 29 58 1682
+16	138433 14 4225 4225 11 11 1 45 45 45 2025
+17	138447 14 4225 4225 11 11 1 29 29 29 841
+18	138461 54 4258 4300 11.000076310122 11.130076306366 2 45 45 90 4050
+23	138515 130 4236 4368 11.000000310122 11.340000298043 5 1 3 11 29
+24	138645 33 4229 4245 11 11.000076 2 1 2 3 5
+35	138678 13 4219 4219 11 11 1 9 9 9 81
+36	138691 65 4231 4302 11 11.130076306366 3 9 9 27 243
+37	138756 68 4231 4302 11 11.130076306366 3 54 56 165 9077
+40	138824 17 4327 4327 11.22 11.22 1 29 29 29 841
+41	138841 17 4327 4327 11.22 11.22 1 29 29 29 841
+44	138858 16 4328 4328 11.22 11.22 1 0 0 0 0
+45	138874 16 4328 4328 11.22 11.22 1 0 0 0 0
+46	138890 16 4328 4328 11.22 11.22 1 0 0 0 0
+47	138906 18 4328 4328 11.22 11.22 1 232 232 232 53824
+48	138924 76 4328 4328 10.8 11.2 5 0 2320 2320 5382400
+49	139000 18 4328 4328 11.22 11.22 1 232 232 232 53824
+50	139018 76 4328 4328 10.8 11.2 5 0 2320 2320 5382400
+55	139094 54 4191 4305 10.920076158127 11.130076323963 2 29 29 58 1682
+56	139148 17 4328 4328 11.22 11.22 1 45 45 45 2025
+57	139165 17 4328 4328 11.22 11.22 1 29 29 29 841
+58	139182 54 4191 4305 10.920076158127 11.130076323963 2 45 45 90 4050
+63	139236 78 4190 4304 10.920076158127 11.130076323963 3 1 3 5 11
+64	139314 36 4330 4338 11.22 11.220076 2 1 2 3 5
+75	139350 16 4325 4325 11.22 11.22 1 9 9 9 81
+76	139366 68 4193 4331 10.920076158127 11.22 3 9 9 27 243
+77	139434 71 4193 4331 10.920076158127 11.22 3 62 64 189 11909
+95	139505 54 4295 4340 11.130076247064 11.220076157998 2 29 29 58 1682
+98	139559 54 4295 4340 11.130076247064 11.220076157998 2 45 45 90 4050
+103	139613 108 4288 4339 11.130000247064 11.220076157998 4 1 3 8 20
+104	139721 21 4189 4189 10.920076 10.920076 1 1 1 1 1
+116	139742 54 4297 4342 11.130076247064 11.220076157998 2 9 9 18 162
+117	139796 56 4297 4342 11.130076247064 11.220076157998 2 63 64 127 8065
+120	139852 18 4282 4282 11.13 11.13 1 29 29 29 841
+121	139870 18 4282 4282 11.13 11.13 1 29 29 29 841
+124	139888 17 4283 4283 11.13 11.13 1 0 0 0 0
+125	139905 17 4283 4283 11.13 11.13 1 0 0 0 0
+126	139922 17 4283 4283 11.13 11.13 1 0 0 0 0
+127	139939 19 4283 4283 11.13 11.13 1 232 232 232 53824
+128	139958 81 4283 4283 10.7 11.1 5 0 2320 2320 5382400
+129	140039 19 4283 4283 11.13 11.13 1 232 232 232 53824
+130	140058 81 4283 4283 10.7 11.1 5 0 2320 2320 5382400
+135	140139 83 4196 4345 10.92007624404 11.220076324329 3 29 29 87 2523
+136	140222 18 4283 4283 11.13 11.13 1 45 45 45 2025
+137	140240 18 4283 4283 11.13 11.13 1 29 29 29 841
+138	140258 83 4196 4345 10.92007624404 11.220076324329 3 45 45 135 6075
+143	140341 160 4185 4344 10.92000024404 11.220076324329 6 1 3 12 30
+144	140501 38 4285 4293 11.13 11.130076 2 1 2 3 5
+155	140539 17 4280 4280 11.13 11.13 1 9 9 9 81
+156	140556 97 4198 4347 10.92007624404 11.220076324329 4 9 9 36 324
+157	140653 101 4198 4347 10.92007624404 11.220076324329 4 66 69 270 18230
+160	140754 18 4362 4362 11.34 11.34 1 29 29 29 841
+161	140772 18 4362 4362 11.34 11.34 1 29 29 29 841
+164	140790 17 4363 4363 11.34 11.34 1 0 0 0 0
+165	140807 17 4363 4363 11.34 11.34 1 0 0 0 0
+166	140824 17 4363 4363 11.34 11.34 1 0 0 0 0
+167	140841 19 4363 4363 11.34 11.34 1 232 232 232 53824
+168	140860 81 4363 4363 10.9 11.3 5 0 2320 2320 5382400
+169	140941 19 4363 4363 11.34 11.34 1 232 232 232 53824
+170	140960 81 4363 4363 10.9 11.3 5 0 2320 2320 5382400
+175	141041 28 4247 4247 11.000076295412 11.000076295412 1 29 29 29 841
+176	141069 18 4363 4363 11.34 11.34 1 45 45 45 2025
+177	141087 18 4363 4363 11.34 11.34 1 29 29 29 841
+178	141105 28 4247 4247 11.000076295412 11.000076295412 1 45 45 45 2025
+183	141133 54 4234 4246 11.000000295412 11.000076295412 2 1 3 4 10
+184	141187 17 4365 4365 11.34 11.34 1 2 2 2 4
+195	141204 17 4360 4360 11.34 11.34 1 9 9 9 81
+196	141221 44 4249 4366 11.000076295412 11.34 2 9 9 18 162
+197	141265 46 4249 4366 11.000076295412 11.34 2 42 43 85 3613
+200	141311 15 4222 4222 11 11 1 29 29 29 841
+201	141326 15 4222 4222 11 11 1 29 29 29 841
+204	141341 14 4223 4223 11 11 1 0 0 0 0
+205	141355 14 4223 4223 11 11 1 0 0 0 0
+206	141369 14 4223 4223 11 11 1 0 0 0 0
+207	141383 16 4223 4223 11 11 1 232 232 232 53824
+208	141399 97 4223 4223 10.5 11 6 0 2320 2320 5382400
+209	141496 16 4223 4223 11 11 1 232 232 232 53824
+210	141512 97 4223 4223 10.5 11 6 0 2320 2320 5382400
+215	141609 28 4259 4259 11.000076310122 11.000076310122 1 29 29 29 841
+216	141637 15 4223 4223 11 11 1 45 45 45 2025
+217	141652 15 4223 4223 11 11 1 29 29 29 841
+218	141667 28 4259 4259 11.000076310122 11.000076310122 1 45 45 45 2025
+223	141695 54 4237 4257 11.000000310122 11.000076310122 2 1 3 4 10
+224	141749 35 4227 4244 11 11.000076 2 1 2 3 5
+235	141784 14 4218 4218 11 11 1 9 9 9 81
+236	141798 41 4230 4263 11 11.000076310122 2 9 9 18 162
+237	141839 43 4230 4263 11 11.000076310122 2 29 30 59 1741
+0	141882 15 4434 4434 11.5 11.5 1 29 29 29 841
+1	141897 15 4434 4434 11.5 11.5 1 29 29 29 841
+4	141912 14 4435 4435 11.5 11.5 1 0 0 0 0
+5	141926 14 4435 4435 11.5 11.5 1 0 0 0 0
+6	141940 14 4435 4435 11.5 11.5 1 0 0 0 0
+7	141954 16 4435 4435 11.5 11.5 1 232 232 232 53824
+8	141970 73 4435 4435 11.1 11.5 5 0 2320 2320 5382400
+9	142043 16 4435 4435 11.5 11.5 1 232 232 232 53824
+10	142059 78 4435 4435 11.1 11.5 5 0 2320 2320 5382400
+15	142137 81 4375 4516 11.340076298043 11.660076300805 3 29 29 87 2523
+16	142218 16 4435 4435 11.5 11.5 1 45 45 45 2025
+17	142234 16 4435 4435 11.5 11.5 1 29 29 29 841
+18	142250 81 4375 4516 11.340076298043 11.660076300805 3 45 45 135 6075
+23	142331 130 4374 4515 11.340076298043 11.660076300805 5 1 3 9 21
+24	142461 35 4437 4445 11.5 11.500076 2 1 2 3 5
+35	142496 15 4432 4432 11.5 11.5 1 9 9 9 81
+36	142511 93 4377 4518 11.340076298043 11.660076300805 4 9 9 36 324
+37	142604 97 4377 4518 11.340076298043 11.660076300805 4 57 60 234 13694
+40	142701 17 4537 4537 11.73 11.73 1 29 29 29 841
+41	142718 17 4537 4537 11.73 11.73 1 29 29 29 841
+44	142735 16 4538 4538 11.73 11.73 1 0 0 0 0
+45	142751 16 4538 4538 11.73 11.73 1 0 0 0 0
+46	142767 16 4538 4538 11.73 11.73 1 0 0 0 0
+47	142783 18 4538 4538 11.73 11.73 1 232 232 232 53824
+48	142801 78 4538 4538 11.3 11.7 5 0 2320 2320 5382400
+49	142879 18 4538 4538 11.73 11.73 1 232 232 232 53824
+50	142897 78 4538 4538 11.3 11.7 5 0 2320 2320 5382400
+55	142975 54 4406 4521 11.440076157931 11.660076326127 2 29 29 58 1682
+56	143029 17 4538 4538 11.73 11.73 1 45 45 45 2025
+57	143046 17 4538 4538 11.73 11.73 1 29 29 29 841
+58	143063 54 4406 4521 11.440076157931 11.660076326127 2 45 45 90 4050
+63	143117 104 4399 4520 11.440000157931 11.660076326127 4 1 3 8 20
+64	143221 16 4540 4540 11.73 11.73 1 2 2 2 4
+75	143237 16 4535 4535 11.73 11.73 1 9 9 9 81
+76	143253 68 4408 4541 11.440076157931 11.73 3 9 9 27 243
+77	143321 71 4408 4541 11.440076157931 11.73 3 65 67 198 13070
+80	143392 17 4393 4393 11.44 11.44 1 29 29 29 841
+81	143409 17 4393 4393 11.44 11.44 1 29 29 29 841
+84	143426 16 4394 4394 11.44 11.44 1 0 0 0 0
+85	143442 16 4394 4394 11.44 11.44 1 0 0 0 0
+86	143458 16 4394 4394 11.44 11.44 1 0 0 0 0
+87	143474 18 4394 4394 11.44 11.44 1 232 232 232 53824
+88	143492 76 4394 4394 11 11.4 5 0 2320 2320 5382400
+89	143568 18 4394 4394 11.44 11.44 1 232 232 232 53824
+90	143586 76 4394 4394 11 11.4 5 0 2320 2320 5382400
+95	143662 27 4511 4511 11.660076254707 11.660076254707 1 29 29 29 841
+96	143689 17 4394 4394 11.44 11.44 1 45 45 45 2025
+97	143706 17 4394 4394 11.44 11.44 1 29 29 29 841
+98	143723 27 4511 4511 11.660076254707 11.660076254707 1 45 45 45 2025
+103	143750 81 4504 4543 11.660000254707 11.730000157877 3 1 3 7 19
+104	143831 38 4396 4404 11.44 11.440076 2 1 2 3 5
+115	143869 17 4391 4391 11.44 11.44 1 9 9 9 81
+116	143886 44 4397 4513 11.44 11.660076254707 2 9 9 18 162
+117	143930 46 4397 4513 11.44 11.660076254707 2 65 66 131 8581
+120	143976 18 4498 4498 11.66 11.66 1 29 29 29 841
+121	143994 18 4498 4498 11.66 11.66 1 29 29 29 841
+124	144012 17 4499 4499 11.66 11.66 1 0 0 0 0
+125	144029 17 4499 4499 11.66 11.66 1 0 0 0 0
+126	144046 17 4499 4499 11.66 11.66 1 0 0 0 0
+127	144063 19 4499 4499 11.66 11.66 1 232 232 232 53824
+128	144082 83 4499 4499 11.2 11.6 5 0 2320 2320 5382400
+129	144165 19 4499 4499 11.66 11.66 1 232 232 232 53824
+130	144184 83 4499 4499 11.2 11.6 5 0 2320 2320 5382400
+135	144267 56 4411 4452 11.440076251532 11.500076302483 2 29 29 58 1682
+136	144323 18 4499 4499 11.66 11.66 1 45 45 45 2025
+137	144341 18 4499 4499 11.66 11.66 1 29 29 29 841
+138	144359 56 4411 4452 11.440076251532 11.500076302483 2 45 45 90 4050
+143	144415 108 4400 4451 11.440000251532 11.500076302483 4 1 3 8 20
+144	144523 38 4501 4509 11.66 11.660076 2 1 2 3 5
+155	144561 17 4496 4496 11.66 11.66 1 9 9 9 81
+156	144578 71 4413 4502 11.440076251532 11.66 3 9 9 27 243
+157	144649 74 4413 4502 11.440076251532 11.66 3 70 72 213 15125
+175	144723 28 4447 4447 11.500076299283 11.500076299283 1 29 29 29 841
+178	144751 28 4447 4447 11.500076299283 11.500076299283 1 45 45 45 2025
+183	144779 54 4440 4446 11.500000299283 11.500076299283 2 1 3 4 10
+184	144833 21 4373 4373 11.340076 11.340076 1 1 1 1 1
+196	144854 27 4449 4449 11.500076299283 11.500076299283 1 9 9 9 81
+197	144881 28 4449 4449 11.500076299283 11.500076299283 1 44 44 44 1936
+200	144909 18 4467 4467 11.55 11.55 1 29 29 29 841
+201	144927 18 4467 4467 11.55 11.55 1 29 29 29 841
+204	144945 17 4468 4468 11.55 11.55 1 0 0 0 0
+205	144962 17 4468 4468 11.55 11.55 1 0 0 0 0
+206	144979 17 4468 4468 11.55 11.55 1 0 0 0 0
+207	144996 19 4468 4468 11.55 11.55 1 232 232 232 53824
+208	145015 83 4468 4468 11.1 11.5 5 0 2320 2320 5382400
+209	145098 19 4468 4468 11.55 11.55 1 232 232 232 53824
+210	145117 83 4468 4468 11.1 11.5 5 0 2320 2320 5382400
+215	145200 28 4457 4457 11.500076308486 11.500076308486 1 29 29 29 841
+216	145228 18 4468 4468 11.55 11.55 1 45 45 45 2025
+217	145246 18 4468 4468 11.55 11.55 1 29 29 29 841
+218	145264 28 4457 4457 11.500076308486 11.500076308486 1 45 45 45 2025
+223	145292 54 4442 4456 11.500000308486 11.500076308486 2 1 3 4 10
+224	145346 38 4470 4478 11.55 11.550076 2 1 2 3 5
+235	145384 17 4465 4465 11.55 11.55 1 9 9 9 81
+236	145401 44 4459 4471 11.500076308486 11.55 2 9 9 18 162
+237	145445 46 4459 4471 11.500076308486 11.55 2 31 32 63 1985
+0	145491 112 4650 6055 12 15.5 8 29 29 232 6728
+1	145603 112 4650 6055 12 15.5 8 29 29 232 6728
+4	145715 104 4651 6056 12 15.5 8 0 0 0 0
+5	145819 104 4651 6056 12 15.5 8 0 0 0 0
+6	145923 104 4651 6056 12 15.5 8 0 0 0 0
+7	146027 120 4651 6056 12 15.5 8 232 232 1856 430592
+8	146147 576 4651 6056 11.6 15.5 40 0 2320 18560 43059200
+9	146723 120 4651 6056 12 15.5 8 232 232 1856 430592
+10	146843 616 4651 6056 11.6 15.5 40 0 2320 18560 43059200
+15	147459 566 4585 6031 11.880076302234 15.400076301922 21 29 29 609 17661
+16	148025 120 4651 6056 12 15.5 8 45 45 360 16200
+17	148145 120 4651 6056 12 15.5 8 29 29 232 6728
+18	148265 566 4585 6031 11.880076302234 15.400076301922 21 45 45 945 42525
+23	148831 1116 4578 6129 11.880000302234 15.660000331948 43 1 3 87 219
+24	149947 272 4653 6066 12 15.500076 16 1 2 24 40
+35	150219 112 4648 6053 12 15.5 8 9 9 72 648
+36	150331 657 4587 6059 11.880076302234 15.5 29 9 9 261 2349
+37	150988 686 4587 6059 11.880076302234 15.5 29 61 89 2175 165155
+40	151674 118 4753 5952 12.24 15.3 7 29 29 203 5887
+41	151792 118 4753 5952 12.24 15.3 7 29 29 203 5887
+44	151910 111 4754 5953 12.24 15.3 7 0 0 0 0
+45	152021 111 4754 5953 12.24 15.3 7 0 0 0 0
+46	152132 111 4754 5953 12.24 15.3 7 0 0 0 0
+47	152243 125 4754 5953 12.24 15.3 7 232 232 1624 376768
+48	152368 553 4754 5953 11.8 15.3 36 0 2320 16240 37676800
+49	152921 125 4754 5953 12.24 15.3 7 232 232 1624 376768
+50	153046 553 4754 5953 11.8 15.3 36 0 2320 16240 37676800
+55	153599 297 4622 6107 11.960076157863 15.600076160953 11 29 29 319 9251
+56	153896 118 4754 5953 12.24 15.3 7 45 45 315 14175
+57	154014 118 4754 5953 12.24 15.3 7 29 29 203 5887
+58	154132 297 4622 6107 11.960076157863 15.600076160953 11 45 45 495 22275
+63	154429 572 4615 6106 11.960000157863 15.600076160953 22 1 3 44 110
+64	155001 271 4548 5963 11.730076 15.300076 15 1 2 22 36
+75	155272 111 4751 5950 12.24 15.3 7 9 9 63 567
+76	155383 397 4624 6109 11.960076157863 15.600076160953 18 9 9 162 1458
+77	155780 415 4624 6109 11.960076157863 15.600076160953 18 68 85 1377 105825
+80	156195 132 4609 6094 11.96 15.6 8 29 29 232 6728
+81	156327 132 4609 6094 11.96 15.6 8 29 29 232 6728
+84	156459 124 4610 6095 11.96 15.6 8 0 0 0 0
+85	156583 124 4610 6095 11.96 15.6 8 0 0 0 0
+86	156707 124 4610 6095 11.96 15.6 8 0 0 0 0
+87	156831 140 4610 6095 11.96 15.6 8 232 232 1856 430592
+88	156971 646 4610 6095 11.5 15.6 42 0 2320 18560 43059200
+89	157617 140 4610 6095 11.96 15.6 8 232 232 1856 430592
+90	157757 646 4610 6095 11.5 15.6 42 0 2320 18560 43059200
+95	158403 405 4550 5995 11.730076157877 15.370076308633 15 29 29 435 12615
+96	158808 132 4610 6095 11.96 15.6 8 45 45 360 16200
+97	158940 132 4610 6095 11.96 15.6 8 29 29 232 6728
+98	159072 405 4550 5995 11.730076157877 15.370076308633 15 45 45 675 30375
+103	159477 783 4549 5994 11.730076157877 15.370076308633 29 1 3 57 141
+104	160260 300 4612 6105 11.96 15.600076 16 1 2 24 40
+115	160560 132 4607 6092 11.96 15.6 8 9 9 72 648
+116	160692 537 4552 6098 11.730076157877 15.6 23 9 9 207 1863
+117	161229 560 4552 6098 11.730076157877 15.6 23 67 89 1794 140944
+120	161789 126 4714 5977 12.19 15.37 7 29 29 203 5887
+121	161915 126 4714 5977 12.19 15.37 7 29 29 203 5887
+124	162041 119 4715 5978 12.19 15.37 7 0 0 0 0
+125	162160 119 4715 5978 12.19 15.37 7 0 0 0 0
+126	162279 119 4715 5978 12.19 15.37 7 0 0 0 0
+127	162398 133 4715 5978 12.19 15.37 7 232 232 1624 376768
+128	162531 605 4715 5978 11.7 15.3 37 0 2320 16240 37676800
+129	163136 133 4715 5978 12.19 15.37 7 232 232 1624 376768
+130	163269 605 4715 5978 11.7 15.3 37 0 2320 16240 37676800
+135	163874 503 4555 6112 11.730076326414 15.600076311995 18 29 29 522 15138
+136	164377 126 4715 5978 12.19 15.37 7 45 45 315 14175
+137	164503 126 4715 5978 12.19 15.37 7 29 29 203 5887
+138	164629 531 4555 6112 11.730076326414 15.600076311995 19 45 45 855 38475
+139	165160 28 5080 5080 13.000076274108 13.000076274108 1 45 45 45 2025
+143	165188 1050 4544 6111 11.730000326414 15.600076311995 39 1 3 78 194
+144	166238 266 4717 5988 12.19 15.370076 14 1 2 21 35
+155	166504 119 4712 5975 12.19 15.37 7 9 9 63 567
+156	166623 604 4557 6114 11.730076326414 15.600076311995 25 9 9 225 2025
+157	167227 629 4557 6114 11.730076326414 15.600076311995 25 73 97 2125 181925
+160	167856 143 4572 6123 11.88 15.66 8 29 29 232 6728
+161	167999 143 4572 6123 11.88 15.66 8 29 29 232 6728
+164	168142 135 4573 6124 11.88 15.66 8 0 0 0 0
+165	168277 135 4573 6124 11.88 15.66 8 0 0 0 0
+166	168412 135 4573 6124 11.88 15.66 8 0 0 0 0
+167	168547 151 4573 6124 11.88 15.66 8 232 232 1856 430592
+168	168698 704 4573 6124 11.4 15.6 43 0 2320 18560 43059200
+169	169402 151 4573 6124 11.88 15.66 8 232 232 1856 430592
+170	169553 704 4573 6124 11.4 15.6 43 0 2320 18560 43059200
+175	170257 224 4668 6078 12.000076303167 15.500076330678 8 29 29 232 6728
+176	170481 143 4573 6124 11.88 15.66 8 45 45 360 16200
+177	170624 143 4573 6124 11.88 15.66 8 29 29 232 6728
+178	170767 224 4668 6078 12.000076303167 15.500076330678 8 45 45 360 16200
+183	170991 432 4657 6077 12.000000303167 15.500076330678 16 1 3 32 80
+184	171423 282 4575 6126 11.88 15.66 15 1 2 23 39
+195	171705 135 4570 6121 11.88 15.66 8 9 9 72 648
+196	171840 351 4576 6127 11.88 15.66 16 9 9 144 1296
+197	172191 367 4576 6127 11.88 15.66 16 45 60 840 44440
+200	172558 122 4689 6018 12.1 15.4 7 29 29 203 5887
+201	172680 122 4689 6018 12.1 15.4 7 29 29 203 5887
+204	172802 115 4690 6019 12.1 15.4 7 0 0 0 0
+205	172917 115 4690 6019 12.1 15.4 7 0 0 0 0
+206	173032 115 4690 6019 12.1 15.4 7 0 0 0 0
+207	173147 129 4690 6019 12.1 15.4 7 232 232 1624 376768
+208	173276 637 4690 6019 11.6 15.4 39 0 2320 16240 37676800
+209	173913 129 4690 6019 12.1 15.4 7 232 232 1624 376768
+210	174042 637 4690 6019 11.6 15.4 39 0 2320 16240 37676800
+215	174679 223 4673 6073 12.000076307025 15.500076301902 8 29 29 232 6728
+216	174902 122 4690 6019 12.1 15.4 7 45 45 315 14175
+217	175024 122 4690 6019 12.1 15.4 7 29 29 203 5887
+218	175146 223 4673 6073 12.000076307025 15.500076301902 8 45 45 360 16200
+223	175369 430 4658 6072 12.000000307025 15.500076301902 16 1 3 32 80
+224	175799 262 4692 6029 12.1 15.400076 14 1 2 21 35
+235	176061 115 4687 6016 12.1 15.4 7 9 9 63 567
+236	176176 330 4675 6075 12.000076307025 15.500076301902 15 9 9 135 1215
+237	176506 345 4675 6075 12.000076307025 15.500076301902 15 33 47 600 24280
+15	176851 27 6136 6136 15.660076331948 15.660076331948 1 29 29 29 841
+18	176878 27 6136 6136 15.660076331948 15.660076331948 1 45 45 45 2025
+23	176905 26 6135 6135 15.660076331948 15.660076331948 1 1 1 1 1
+36	176931 26 6138 6138 15.660076331948 15.660076331948 1 9 9 9 81
+37	176957 27 6138 6138 15.660076331948 15.660076331948 1 90 90 90 8100
+40	176984 17 6160 6160 15.81 15.81 1 29 29 29 841
+41	177001 17 6160 6160 15.81 15.81 1 29 29 29 841
+44	177018 16 6161 6161 15.81 15.81 1 0 0 0 0
+45	177034 16 6161 6161 15.81 15.81 1 0 0 0 0
+46	177050 16 6161 6161 15.81 15.81 1 0 0 0 0
+47	177066 18 6161 6161 15.81 15.81 1 232 232 232 53824
+48	177084 78 6161 6161 15.4 15.8 5 0 2320 2320 5382400
+49	177162 18 6161 6161 15.81 15.81 1 232 232 232 53824
+50	177180 78 6161 6161 15.4 15.8 5 0 2320 2320 5382400
+56	177258 17 6161 6161 15.81 15.81 1 45 45 45 2025
+57	177275 17 6161 6161 15.81 15.81 1 29 29 29 841
+64	177292 36 6163 6171 15.81 15.810076 2 1 2 3 5
+75	177328 16 6158 6158 15.81 15.81 1 9 9 9 81
+76	177344 16 6164 6164 15.81 15.81 1 9 9 9 81
+77	177360 17 6164 6164 15.81 15.81 1 86 86 86 7396
+95	177377 27 6173 6173 15.810076161317 15.810076161317 1 29 29 29 841
+98	177404 27 6173 6173 15.810076161317 15.810076161317 1 45 45 45 2025
+103	177431 54 6166 6172 15.810000161317 15.810076161317 2 1 3 4 10
+116	177485 27 6175 6175 15.810076161317 15.810076161317 1 9 9 9 81
+117	177512 28 6175 6175 15.810076161317 15.810076161317 1 90 90 90 8100
+184	177540 21 6134 6134 15.660076 15.660076 1 1 1 1 1
+120	177561 17 6191 6191 15.9 15.9 1 29 29 29 841
+121	177578 17 6191 6191 15.9 15.9 1 29 29 29 841
+124	177595 16 6192 6192 15.9 15.9 1 0 0 0 0
+125	177611 16 6192 6192 15.9 15.9 1 0 0 0 0
+126	177627 16 6192 6192 15.9 15.9 1 0 0 0 0
+127	177643 18 6192 6192 15.9 15.9 1 232 232 232 53824
+128	177661 99 6192 6192 15.4 15.9 6 0 2320 2320 5382400
+129	177760 18 6192 6192 15.9 15.9 1 232 232 232 53824
+130	177778 99 6192 6192 15.4 15.9 6 0 2320 2320 5382400
+136	177877 17 6192 6192 15.9 15.9 1 45 45 45 2025
+137	177894 17 6192 6192 15.9 15.9 1 29 29 29 841
+155	177911 16 6189 6189 15.9 15.9 1 9 9 9 81
+144	177927 16 6194 6194 15.9 15.9 1 2 2 2 4
+156	177943 16 6195 6195 15.9 15.9 1 9 9 9 81
+157	177959 17 6195 6195 15.9 15.9 1 98 98 98 9604
+23	177976 26 6197 6197 15.900000256632 15.900000256632 1 3 3 3 9
+103	178002 27 6198 6198 15.900000316384 15.900000316384 1 3 3 3 9
 

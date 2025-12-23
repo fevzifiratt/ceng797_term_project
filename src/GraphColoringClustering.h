@@ -41,6 +41,7 @@ class GraphColoringClustering : public omnetpp::cSimpleModule, public inet::UdpS
 
     // --- timing parameters ---
     omnetpp::simtime_t helloInterval;
+    omnetpp::simtime_t helloJitter;
     omnetpp::simtime_t neighborTimeout;
     omnetpp::simtime_t maintenanceInterval;
     omnetpp::simtime_t coloringJitter;
