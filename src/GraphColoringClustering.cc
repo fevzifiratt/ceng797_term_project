@@ -8,8 +8,8 @@ using namespace inet;
 Define_Module(GraphColoringClustering);
 
 // simple mapping: colorId -> color string
-static const char *COLOR_MAP[] = { "red", "green", "blue", "yellow", "orange",
-        "gray", "magenta", "cyan", "black", "white" };
+static const char *COLOR_MAP[] = { "red", "green", "blue", "yellow", "white",
+        "orange", "black", "gray", "magenta", "cyan"};
 static const int NUM_COLORS = sizeof(COLOR_MAP) / sizeof(COLOR_MAP[0]);
 
 //----------------------------------------------------------
@@ -72,7 +72,7 @@ void GraphColoringClustering::initialize(int stage) {
         //scheduleAt(simTime() + helloInterval + uniform(0, helloJitter), helloTimer);
 
         // First coloring: after coloringJitter (0s means "immediately")
-        scheduleAt(simTime() + 2 * coloringJitter, colorTimer);
+        scheduleAt(simTime() + coloringJitter, colorTimer);
 
         // First maintenance: after maintenanceInterval
         scheduleAt(simTime() + maintenanceInterval, maintenanceTimer);
@@ -137,7 +137,7 @@ void GraphColoringClustering::handleHelloTimer() {
     pk->addPar("clusterId") = clusterId;
 
     // add a small dummy payload so UDP doesn't see an EmptyChunk
-    const auto& payload = makeShared<inet::ByteCountChunk>(inet::B(1)); // 1 byte is enough
+    const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(1)); // 1 byte is enough
     pk->insertAtBack(payload);
 
     socket.sendTo(pk, destAddress, destPort);
@@ -180,15 +180,28 @@ void GraphColoringClustering::handleColorTimer() {
     }
     // CH recovery: if nobody around uses color 0, try to become CH.
     // Any clashes are resolved next rounds by the "smaller nodeId wins" rule.
-    else if (!neighborTable.empty() && usedColors.find(0) == usedColors.end() && currentColor != 0) {
+    else if (!neighborTable.empty() && usedColors.find(0) == usedColors.end()
+            && currentColor != 0) {
         newColor = 0;
     }
 
     if (newColor != currentColor) {
         EV_INFO << "Node " << nodeId << " changes color from " << currentColor
-                << " to " << newColor << "\n";
+                       << " to " << newColor << "\n";
         currentColor = newColor;
         updateDisplayColor();
+    }
+
+    // NEW: Color compaction for non-CH nodes (do NOT steal color 0 here)
+    // if a node with lower color id leaves!
+    else if (currentColor > 0) {
+        int candidate = 1; // start from 1 so CH color(0) stays special
+        while (usedColors.find(candidate) != usedColors.end())
+            ++candidate;
+
+        // Only move "down" (compaction), not up
+        if (candidate < currentColor)
+            newColor = candidate;
     }
 
     // Decide CH/MEMBER/GATEWAY using the *new* clustering semantics:
@@ -201,10 +214,22 @@ void GraphColoringClustering::handleColorTimer() {
 
 void GraphColoringClustering::handleMaintenanceTimer() {
     // Remove neighbors that timed out
+    bool changed = pruneNeighbors();
     pruneNeighbors();
 
     // Topology changes may affect roles
     recomputeRole();
+
+    // If neighbors changed, trigger a near-immediate recolor to compact colors
+    /*if (changed) {
+        // small deterministic jitter to avoid synchronized recoloring
+        simtime_t j = SimTime(nodeId * 0.001); // 1ms per node
+        simtime_t t = simTime() + j;
+
+        if (!colorTimer->isScheduled() || colorTimer->getArrivalTime() > t) {
+            scheduleAt(t, colorTimer);
+        }
+    }*/
 
     scheduleAt(simTime() + maintenanceInterval, maintenanceTimer);
 }
@@ -240,10 +265,9 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
     delete pk;
 }
 
-void GraphColoringClustering::socketDataArrived(UdpSocket *socket, Packet *pk)
-{
+void GraphColoringClustering::socketDataArrived(UdpSocket *socket, Packet *pk) {
     EV_INFO << "Node " << nodeId << " received packet " << pk->getName()
-            << " of length " << pk->getByteLength() << " bytes\n";
+                   << " of length " << pk->getByteLength() << " bytes\n";
 
     // reuse your existing logic
     handleUdpPacket(pk);
@@ -270,7 +294,7 @@ int GraphColoringClustering::chooseGreedyColor() const {
     return candidate;
 }
 
-void GraphColoringClustering::pruneNeighbors() {
+bool GraphColoringClustering::pruneNeighbors() {
     simtime_t now = simTime();
     std::vector<int> toRemove;
 
@@ -285,6 +309,7 @@ void GraphColoringClustering::pruneNeighbors() {
                        << "\n";
         neighborTable.erase(id);
     }
+    return !toRemove.empty();
 }
 
 void GraphColoringClustering::updateDisplayColor() {
@@ -356,17 +381,15 @@ void GraphColoringClustering::recomputeRole() {
     if (currentColor < 0) {
         role = UNDECIDED;
         clusterId = -1;
-    }
-    else if (currentColor == 0) {
+    } else if (currentColor == 0) {
         role = CLUSTER_HEAD;
         clusterId = nodeId;
-    }
-    else {
+    } else {
         // Join a CH we can hear (strict 1-hop attachment)
         int chosenChId = -1;
         for (const auto &entry : neighborTable) {
             const NeighborInfo &n = entry.second;
-            if (n.neighborId == nodeId) continue;
+            //if (n.neighborId == nodeId) continue;
             if (n.color == 0) { // CH candidate under our rule
                 if (chosenChId < 0 || n.neighborId < chosenChId)
                     chosenChId = n.neighborId;
@@ -383,7 +406,7 @@ void GraphColoringClustering::recomputeRole() {
             bool hearsOtherCluster = false;
             for (const auto &entry : neighborTable) {
                 const NeighborInfo &n = entry.second;
-                if (n.neighborId == nodeId) continue;
+                //if (n.neighborId == nodeId) continue;
                 if (n.clusterId >= 0 && n.clusterId != clusterId) {
                     hearsOtherCluster = true;
                     break;
@@ -394,10 +417,10 @@ void GraphColoringClustering::recomputeRole() {
     }
 
     if (role != oldRole || clusterId != oldClusterId) {
-        EV_INFO << "Node " << nodeId
-                << " updates state: role " << oldRole << " -> " << role
-                << ", clusterId " << oldClusterId << " -> " << clusterId
-                << " (color=" << currentColor << ")\n";
+        EV_INFO << "Node " << nodeId << " updates state: role " << oldRole
+                       << " -> " << role << ", clusterId " << oldClusterId
+                       << " -> " << clusterId << " (color=" << currentColor
+                       << ")\n";
     }
 }
 

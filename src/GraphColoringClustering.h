@@ -93,7 +93,7 @@ class GraphColoringClustering : public omnetpp::cSimpleModule, public inet::UdpS
 
     // clustering helpers
     int  chooseGreedyColor() const;
-    void pruneNeighbors();
+    bool pruneNeighbors();
     void updateDisplayColor();
 
     void recomputeRole();

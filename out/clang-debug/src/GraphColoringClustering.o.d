@@ -1,10 +1,10 @@
-../out/clang-release/src/GraphColoringClustering.o: \
+../out/clang-debug/src/GraphColoringClustering.o: \
   GraphColoringClustering.cc GraphColoringClustering.h \
   /home/opp_env/default_workspace/omnetpp-6.2.0/include/omnetpp.h \
   ../../inet-4.5.4/src/inet/common/InitStages.h \
   ../../inet-4.5.4/src/inet/common/InitStageRegistry.h \
   ../../inet-4.5.4/src/inet/common/INETDefs.h \
-  ../../inet-4.5.4/src/inet/common/precompiled_release.h \
+  ../../inet-4.5.4/src/inet/common/precompiled_debug.h \
   ../../inet-4.5.4/src/inet/common/precompiled.h \
   ../../inet-4.5.4/src/inet/opp_defines.h \
   ../../inet-4.5.4/src/inet/features.h \
@@ -67,7 +67,7 @@ GraphColoringClustering.h:
 ../../inet-4.5.4/src/inet/common/InitStages.h:
 ../../inet-4.5.4/src/inet/common/InitStageRegistry.h:
 ../../inet-4.5.4/src/inet/common/INETDefs.h:
-../../inet-4.5.4/src/inet/common/precompiled_release.h:
+../../inet-4.5.4/src/inet/common/precompiled_debug.h:
 ../../inet-4.5.4/src/inet/common/precompiled.h:
 ../../inet-4.5.4/src/inet/opp_defines.h:
 ../../inet-4.5.4/src/inet/features.h:
