@@ -99,27 +99,6 @@ void GraphColoringClustering::handleMessage(cMessage *msg) {
         // IMPORTANT: hand all incoming UDP/indication messages to UdpSocket
         socket.processMessage(msg);
     }
-    //OLD!!!!
-    /*if (msg->isSelfMessage()) {
-     if (msg == helloTimer)
-     handleHelloTimer();
-     else if (msg == colorTimer)
-     handleColorTimer();
-     else if (msg == maintenanceTimer)
-     handleMaintenanceTimer();
-     else {
-     EV_WARN << "Unknown self-message " << msg->getName()
-     << ", deleting.\n";
-     delete msg;
-     }
-     } else if (msg->arrivedOn("socketIn")) {
-     EV_INFO << "message arrived!!!!!!!!!" << "\n";
-     auto *pk = check_and_cast<Packet*>(msg);
-     handleUdpPacket(pk);
-     } else {
-     EV_WARN << "Message arrived on unexpected gate, deleting.\n";
-     delete msg;
-     }*/
 }
 
 //----------------------------------------------------------
@@ -235,7 +214,9 @@ void GraphColoringClustering::handleMaintenanceTimer() {
     scheduleAt(simTime() + maintenanceInterval, maintenanceTimer);
 }
 
-// new helper
+//----------------------------------------------------------
+// UDP recieve
+//----------------------------------------------------------
 void GraphColoringClustering::handleUdpPacket(Packet *pk) {
     int sender = (int) pk->par("senderId");
     int neighCol = (int) pk->par("color");
@@ -266,6 +247,9 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
     delete pk;
 }
 
+//----------------------------------------------------------
+// UdpSocket callbacks
+//----------------------------------------------------------
 void GraphColoringClustering::socketDataArrived(UdpSocket *socket, Packet *pk) {
     EV_INFO << "Node " << nodeId << " received packet " << pk->getName()
                    << " of length " << pk->getByteLength() << " bytes\n";
@@ -277,23 +261,6 @@ void GraphColoringClustering::socketDataArrived(UdpSocket *socket, Packet *pk) {
 //----------------------------------------------------------
 // Coloring & neighbor maintenance
 //----------------------------------------------------------
-int GraphColoringClustering::chooseGreedyColor() const {
-    // Collect neighbor colors
-    std::set<int> usedColors;
-    for (const auto &entry : neighborTable) {
-        int c = entry.second.color;
-        if (c >= 0) {
-            usedColors.insert(c);
-        }
-    }
-
-    // Greedy: smallest non-used integer >= 0
-    int candidate = 0;
-    while (usedColors.find(candidate) != usedColors.end()) {
-        ++candidate;
-    }
-    return candidate;
-}
 
 bool GraphColoringClustering::pruneNeighbors() {
     simtime_t now = simTime();
@@ -335,37 +302,6 @@ void GraphColoringClustering::updateDisplayColor() {
 
     // tint the icon
     ds.setTagArg("i", 1, col);
-
-    // (optional) also color the background instead/too:
-    // ds.setTagArg("b", 0, col);
-    // ds.setTagArg("b", 1, "oval");
-}
-
-// Minimum color among this node + its neighbors
-int GraphColoringClustering::computeLocalMinColor() const {
-    int minColor = -1;
-
-    if (currentColor >= 0)
-        minColor = currentColor;
-
-    for (const auto &entry : neighborTable) {
-        int c = entry.second.color;
-        if (c < 0)
-            continue;
-        if (minColor < 0 || c < minColor)
-            minColor = c;
-    }
-
-    return minColor;
-}
-
-bool GraphColoringClustering::hasSmallerIdSameColor() const {
-    for (const auto &entry : neighborTable) {
-        const NeighborInfo &n = entry.second;
-        if (n.color == currentColor && n.neighborId < nodeId)
-            return true;
-    }
-    return false;
 }
 
 // Decide role (CH / MEMBER / GATEWAY) based on colors and neighbors
@@ -430,4 +366,3 @@ void GraphColoringClustering::finish() {
     cancelAndDelete(colorTimer);
     cancelAndDelete(maintenanceTimer);
 }
-

@@ -1,8 +1,8 @@
 version 3
-run General-0-20251224-23:50:39-18905
+run General-0-20251225-00:12:55-28142
 attr configname General
-attr datetime 20251224-23:50:39
-attr datetimef 20251224-235039
+attr datetime 20251225-00:12:55
+attr datetimef 20251225-001255
 attr experiment General
 attr inifile omnetpp.ini
 attr iterationvars ""
@@ -10,7 +10,7 @@ attr iterationvarsd ""
 attr iterationvarsf ""
 attr measurement ""
 attr network clusteringmanet.simulations.ClusteringNetwork
-attr processid 18905
+attr processid 28142
 attr repetition 0
 attr replication #0
 attr resultdir results

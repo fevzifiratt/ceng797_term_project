@@ -92,14 +92,9 @@ class GraphColoringClustering : public omnetpp::cSimpleModule, public inet::UdpS
        virtual void socketClosed(inet::UdpSocket *socket) override {}
 
     // clustering helpers
-    int  chooseGreedyColor() const;
     bool pruneNeighbors();
     void updateDisplayColor();
-
     void recomputeRole();
-    int  computeLocalMinColor() const;
-    //bool hearsMultipleClusterHeads() const;   UNUSED
-    bool hasSmallerIdSameColor() const;
 };
 
 #endif /* __CLUSTERINGMANET_GRAPHCOLORINGCLUSTERING_H_ */
