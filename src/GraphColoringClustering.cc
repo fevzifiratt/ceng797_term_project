@@ -9,7 +9,7 @@ Define_Module(GraphColoringClustering);
 
 // simple mapping: colorId -> color string
 static const char *COLOR_MAP[] = { "red", "green", "blue", "yellow", "white",
-        "orange", "black", "gray", "magenta", "cyan"};
+        "orange", "black", "gray", "magenta", "cyan" };
 static const int NUM_COLORS = sizeof(COLOR_MAP) / sizeof(COLOR_MAP[0]);
 
 //----------------------------------------------------------
@@ -185,23 +185,23 @@ void GraphColoringClustering::handleColorTimer() {
         newColor = 0;
     }
 
-    if (newColor != currentColor) {
-        EV_INFO << "Node " << nodeId << " changes color from " << currentColor
-                       << " to " << newColor << "\n";
-        currentColor = newColor;
-        updateDisplayColor();
-    }
-
     // NEW: Color compaction for non-CH nodes (do NOT steal color 0 here)
     // if a node with lower color id leaves!
     else if (currentColor > 0) {
         int candidate = 1; // start from 1 so CH color(0) stays special
-        while (usedColors.find(candidate) != usedColors.end())
+        while (usedColors.count(candidate))
             ++candidate;
 
         // Only move "down" (compaction), not up
         if (candidate < currentColor)
             newColor = candidate;
+    }
+
+    if (newColor != currentColor) {
+        EV_INFO << "Node " << nodeId << " changes color from " << currentColor
+                       << " to " << newColor << "\n";
+        currentColor = newColor;
+        updateDisplayColor();
     }
 
     // Decide CH/MEMBER/GATEWAY using the *new* clustering semantics:
@@ -222,14 +222,14 @@ void GraphColoringClustering::handleMaintenanceTimer() {
 
     // If neighbors changed, trigger a near-immediate recolor to compact colors
     /*if (changed) {
-        // small deterministic jitter to avoid synchronized recoloring
-        simtime_t j = SimTime(nodeId * 0.001); // 1ms per node
-        simtime_t t = simTime() + j;
+     // small deterministic jitter to avoid synchronized recoloring
+     simtime_t j = SimTime(nodeId * 0.001); // 1ms per node
+     simtime_t t = simTime() + j;
 
-        if (!colorTimer->isScheduled() || colorTimer->getArrivalTime() > t) {
-            scheduleAt(t, colorTimer);
-        }
-    }*/
+     if (!colorTimer->isScheduled() || colorTimer->getArrivalTime() > t) {
+     scheduleAt(t, colorTimer);
+     }
+     }*/
 
     scheduleAt(simTime() + maintenanceInterval, maintenanceTimer);
 }
