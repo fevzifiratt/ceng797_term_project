@@ -201,6 +201,7 @@ void GraphColoringClustering::handleColorTimer() {
         EV_INFO << "Node " << nodeId << " changes color from " << currentColor
                        << " to " << newColor << "\n";
         currentColor = newColor;
+
         updateDisplayColor();
     }
 
