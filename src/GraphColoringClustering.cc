@@ -380,13 +380,9 @@ bool GraphColoringClustering::pruneNeighbors() {
 }
 
 void GraphColoringClustering::updateDisplayColor() {
+    //2ND IMPLEMENTATION DENSE COLORS
     if (!hasGUI())
-        return;  // skip in Cmdenv
-
-    if (currentColor == lastDisplayColor)
-        return;  // nothing to do
-
-    lastDisplayColor = currentColor;
+        return;
 
     cModule *host = getParentModule();
     if (!host)
@@ -394,18 +390,73 @@ void GraphColoringClustering::updateDisplayColor() {
 
     omnetpp::cDisplayString &ds = host->getDisplayString();
 
+    // --- 1. Update Color (Existing Logic) ---
+    // If color is -1 (invalid), remove tint. Otherwise, use the map.
     if (currentColor < 0) {
-            if (lastDisplayColor != -1) {
-                ds.setTagArg("i", 1, ""); // "" removes the color tint
-                lastDisplayColor = -1;    // Update state to match visual
-            }
-            return;  // uncolored
-        }
+        ds.setTagArg("i", 1, "");
+    } else {
+        const char *col = COLOR_MAP[currentColor % NUM_COLORS];
+        ds.setTagArg("i", 1, col);
+    }
 
-    const char *col = COLOR_MAP[currentColor % NUM_COLORS];
+    // --- 2. Update Size based on Role (New Logic) ---
+    // The 'i' tag arguments are: i=<icon>,<color>,<percentage>
+    // We set index 2 (the 3rd argument) to control size percentage.
 
-    // tint the icon
-    ds.setTagArg("i", 1, col);
+    const char *sizeStr = "100"; // Default size (100%)
+
+    switch (role) {
+    case CLUSTER_HEAD:
+        sizeStr = "160"; // Very large (Backbone Leader)
+        break;
+    case GATEWAY:
+        sizeStr = "130"; // Medium-Large (Backbone Bridge)
+        break;
+    case MEMBER:
+        sizeStr = "80";  // Small (Leaf node)
+        break;
+    case UNDECIDED:
+        sizeStr = "60";  // Tiny (Not part of network yet)
+        break;
+    default:
+        sizeStr = "100";
+        break;
+    }
+
+    ds.setTagArg("i", 2, sizeStr);
+
+    // Optional: Save state to avoid redundant updates next time,
+    // though purely visual updates are cheap enough to do every time
+    // for small networks.
+    lastDisplayColor = currentColor;
+
+    //OLDEST IMPLEMETATION
+    /*if (!hasGUI())
+     return;  // skip in Cmdenv
+
+     if (currentColor == lastDisplayColor)
+     return;  // nothing to do
+
+     lastDisplayColor = currentColor;
+
+     cModule *host = getParentModule();
+     if (!host)
+     return;
+
+     omnetpp::cDisplayString &ds = host->getDisplayString();
+
+     if (currentColor < 0) {
+     if (lastDisplayColor != -1) {
+     ds.setTagArg("i", 1, ""); // "" removes the color tint
+     lastDisplayColor = -1;    // Update state to match visual
+     }
+     return;  // uncolored
+     }
+
+     const char *col = COLOR_MAP[currentColor % NUM_COLORS];
+
+     // tint the icon
+     ds.setTagArg("i", 1, col);*/
 }
 
 // Decide role (CH / MEMBER / GATEWAY) based on colors and neighbors
