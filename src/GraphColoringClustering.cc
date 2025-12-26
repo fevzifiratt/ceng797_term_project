@@ -12,6 +12,9 @@ static const char *COLOR_MAP[] = { "red", "green", "blue", "yellow", "white",
         "orange", "black", "gray", "magenta", "cyan" };
 static const int NUM_COLORS = sizeof(COLOR_MAP) / sizeof(COLOR_MAP[0]);
 
+// A specific ID to mark packets we are holding back for jitter
+const int KIND_DELAYED_FORWARD = 999;
+
 //----------------------------------------------------------
 // Initialization (multi-stage)
 //----------------------------------------------------------
@@ -91,6 +94,20 @@ void GraphColoringClustering::initialize(int stage) {
 //----------------------------------------------------------
 void GraphColoringClustering::handleMessage(cMessage *msg) {
     if (msg->isSelfMessage()) {
+        // --- NEW BLOCK START ---
+        if (msg->getKind() == KIND_DELAYED_FORWARD) {
+            // This is a packet we scheduled earlier. Now we send it.
+            // We must cast it back to a Packet*
+            Packet *pk = check_and_cast<Packet*>(msg);
+
+            EV_INFO << "Node " << nodeId << " processing DELAYED forward for "
+                           << pk->getName() << "\n";
+
+            // Send it to the multicast address
+            socket.sendTo(pk, destAddress, destPort);
+            return;
+        }
+        // --- NEW BLOCK END ---
         if (msg == helloTimer)
             handleHelloTimer();
         else if (msg == colorTimer)
@@ -293,7 +310,37 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
         }
 
         // 4. Forwarding (I am CH or Gateway)
-        EV_INFO
+            EV_INFO << "   -> FORWARD: I am Backbone (CH/GW). Scheduling forward with jitter.\n";
+
+            Packet *forwardPk = new Packet("DATA");
+
+            // Copy parameters
+            forwardPk->addPar("srcId") = src;
+            forwardPk->addPar("seqNum") = seq;
+            forwardPk->addPar("ttl").setLongValue(ttl - 1);
+
+            // Add payload
+            const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(100));
+            forwardPk->insertAtBack(payload);
+
+            // --- NEW LOGIC: JITTER ---
+
+            // 1. Mark this packet so handleMessage knows it's a forward
+            forwardPk->setKind(KIND_DELAYED_FORWARD);
+
+            // 2. Pick a random delay (e.g., between 0ms and 10ms)
+            // 10ms (0.01s) is usually enough to let the MAC layer breathe
+            simtime_t forwardJitter = uniform(0, 0.01);
+
+            // 3. Schedule the packet to "arrive" at ourselves after the delay
+            scheduleAt(simTime() + forwardJitter, forwardPk);
+
+            delete pk; // Delete the incoming packet as usual
+            return;
+
+        // OLD BEFORE RETRANSMISSION COLLISION!!!
+        // 4. Forwarding (I am CH or Gateway)
+        /*EV_INFO
                        << "   -> FORWARD: I am Backbone (CH/GW). Relaying to neighbors.\n";
         // Packet *forwardPk = pk->dup();
         // forwardPk->par("ttl").setLongValue(ttl - 1); // Fixed the .setIntValue error
@@ -311,7 +358,7 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
         socket.sendTo(forwardPk, destAddress, destPort);
 
         delete pk;
-        return;
+        return;*/
     }
 
     // --- CASE 2: HELLO PACKET (Your existing code) ---
