@@ -29,7 +29,9 @@ void GraphColoringClustering::initialize(int stage) {
         helloJitter = par("helloJitter");
         neighborTimeout = par("neighborTimeout");
         maintenanceInterval = par("maintenanceInterval");
-        coloringJitter = par("coloringJitter");
+        coloringInterval = par("coloringInterval");
+        dataInterval = par("dataInterval");
+        dataJitter = par("dataJitter");
 
         localPort = par("localPort");
         destPort = par("destPort");
@@ -41,13 +43,14 @@ void GraphColoringClustering::initialize(int stage) {
         if (maintenanceInterval <= SIMTIME_ZERO)
             throw cRuntimeError("maintenanceInterval must be > 0s (is %s)",
                     maintenanceInterval.str().c_str());
-        if (coloringJitter < SIMTIME_ZERO)
-            throw cRuntimeError("coloringJitter must be >= 0s (is %s)",
-                    coloringJitter.str().c_str());
+        if (coloringInterval < SIMTIME_ZERO)
+            throw cRuntimeError("coloringInterval must be >= 0s (is %s)",
+                    coloringInterval.str().c_str());
 
         helloTimer = new cMessage("helloTimer");
         colorTimer = new cMessage("colorTimer");
         maintenanceTimer = new cMessage("maintenanceTimer");
+        dataTimer = new cMessage("dataTimer");
         lastDisplayColor = -1;
 
     } else if (stage == INITSTAGE_APPLICATION_LAYER) {
@@ -67,15 +70,19 @@ void GraphColoringClustering::initialize(int stage) {
 
         // --- schedule timers (NO uniform(), no invalid ranges) ---
         // First HELLO: after helloInterval (can be 0s if you want it at t=0)
-        simtime_t jitter = nodeId * helloJitter;
-        scheduleAt(simTime() + helloInterval + jitter, helloTimer);
+        simtime_t smallHelloJitter = nodeId * helloJitter;
+        scheduleAt(simTime() + helloInterval + smallHelloJitter, helloTimer);
         //scheduleAt(simTime() + helloInterval + uniform(0, helloJitter), helloTimer);
 
         // First coloring: after coloringJitter (0s means "immediately")
-        scheduleAt(simTime() + coloringJitter, colorTimer);
+        scheduleAt(simTime() + coloringInterval, colorTimer);
 
         // First maintenance: after maintenanceInterval
         scheduleAt(simTime() + maintenanceInterval, maintenanceTimer);
+
+        // First data packet: after dataInterval * 2 (can make it 10s)
+        simtime_t smallDataJitter = nodeId * dataJitter;
+        scheduleAt(simTime() + dataInterval * 2 + smallDataJitter, dataTimer);
     }
 }
 
@@ -90,6 +97,8 @@ void GraphColoringClustering::handleMessage(cMessage *msg) {
             handleColorTimer();
         else if (msg == maintenanceTimer)
             handleMaintenanceTimer();
+        else if (msg == dataTimer)
+            handleDataTimer();
         else {
             EV_WARN << "Unknown self-message " << msg->getName()
                            << ", deleting.\n";
@@ -189,7 +198,7 @@ void GraphColoringClustering::handleColorTimer() {
     recomputeRole();
 
     // Periodic recoloring is required for self-healing under mobility/CH loss.
-    scheduleAt(simTime() + coloringJitter, colorTimer);
+    scheduleAt(simTime() + coloringInterval, colorTimer);
 }
 
 void GraphColoringClustering::handleMaintenanceTimer() {
@@ -214,37 +223,127 @@ void GraphColoringClustering::handleMaintenanceTimer() {
     scheduleAt(simTime() + maintenanceInterval, maintenanceTimer);
 }
 
+void GraphColoringClustering::handleDataTimer() {
+    // 1. Create generic packet
+    auto *pk = new Packet("DATA");
+
+    // 2. Add parameters manually
+    pk->addPar("srcId") = nodeId;
+    pk->addPar("seqNum") = mySeqNum;
+    pk->addPar("ttl") = 5;
+
+    // 3. Mark as seen
+    seenDataPackets.insert( { nodeId, mySeqNum });
+    mySeqNum++;
+
+    // add a small dummy payload so UDP doesn't see an EmptyChunk
+    const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(100)); // 1 byte is enough
+    pk->insertAtBack(payload);
+
+    // 4. Send Broadcast
+    socket.sendTo(pk, destAddress, destPort);
+
+    EV_INFO << "Node " << nodeId << " generated DATA packet seq "
+                   << (mySeqNum - 1) << "\n";
+
+    // 5. Schedule NEXT packet using dataInterval
+    simtime_t jitter = nodeId * dataJitter;
+    scheduleAt(simTime() + dataInterval + jitter, dataTimer); // <--- Reschedule renamed timer
+}
+
 //----------------------------------------------------------
 // UDP recieve
 //----------------------------------------------------------
 void GraphColoringClustering::handleUdpPacket(Packet *pk) {
-    int sender = (int) pk->par("senderId");
-    int neighCol = (int) pk->par("color");
-    int neighRole = (int) pk->par("role");
-    int neighCid = (int) pk->par("clusterId");
+    // --- CASE 1: DATA PACKET (The Forwarding Filter) ---
+    if (strcmp(pk->getName(), "DATA") == 0) {
+        int src = pk->par("srcId");
+        int seq = pk->par("seqNum");
+        int ttl = pk->par("ttl");
 
-    //if (sender == nodeId) {
-    //    delete pk;
-    //    return;
-    //}
+        // 1. Duplicate Check
+        if (seenDataPackets.find( { src, seq }) != seenDataPackets.end()) {
+            // Optional: Log duplicates if you want to see how "noisy" the network is
+            EV_DETAIL << "Node " << nodeId << " dropped DUPLICATE Data from "
+                             << src << " (Seq " << seq << ")\n";
+            delete pk;
+            return;
+        }
+        seenDataPackets.insert( { src, seq });
 
-    EV_INFO << "Node " << nodeId << " received HELLO from " << sender
-                   << " (color=" << neighCol << ", role=" << neighRole
-                   << ", clusterId=" << neighCid << ")\n";
+        // --- ENHANCED LOGGING HERE ---
+        // Shows: Who I am (ID, Role, Cluster), Who sent it, and Packet Details
+        EV_INFO << "Node " << nodeId << " [Role=" << role << ", Cluster="
+                       << clusterId << "]" << " RECEIVED Data from Node " << src
+                       << " (Seq=" << seq << ", TTL=" << ttl << ")\n";
 
-    NeighborInfo info;
-    info.neighborId = sender;
-    info.color = neighCol;
-    info.role = neighRole;
-    info.clusterId = neighCid;
-    info.lastHeard = simTime();
+        // 2. THE FILTER: MEMBERS STOP HERE
+        if (role == MEMBER || role == UNDECIDED) {
+            EV_INFO
+                           << "   -> STOP: I am a MEMBER/UNDECIDED. Consumed packet. NOT forwarding.\n";
+            delete pk;
+            return;
+        }
 
-    neighborTable[sender] = info;
+        // 3. TTL Check
+        if (ttl <= 0) {
+            EV_WARN << "   -> DROP: TTL expired.\n";
+            delete pk;
+            return;
+        }
 
-    // New info may change our role
-    recomputeRole();
+        // 4. Forwarding (I am CH or Gateway)
+        EV_INFO
+                       << "   -> FORWARD: I am Backbone (CH/GW). Relaying to neighbors.\n";
+        // Packet *forwardPk = pk->dup();
+        // forwardPk->par("ttl").setLongValue(ttl - 1); // Fixed the .setIntValue error
+        Packet *forwardPk = new Packet("DATA");
 
-    delete pk;
+        // 2. Copy the parameters (addPar style)
+        // Note: We use the *new* TTL values here
+        forwardPk->addPar("srcId") = src;
+        forwardPk->addPar("seqNum") = seq;
+        forwardPk->addPar("ttl").setLongValue(ttl - 1);
+        // add a small dummy payload so UDP doesn't see an EmptyChunk
+        const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(100)); // 100 bytes is enough
+        forwardPk->insertAtBack(payload);
+
+        socket.sendTo(forwardPk, destAddress, destPort);
+
+        delete pk;
+        return;
+    }
+
+    // --- CASE 2: HELLO PACKET (Your existing code) ---
+    else {
+        int sender = (int) pk->par("senderId");
+        int neighCol = (int) pk->par("color");
+        int neighRole = (int) pk->par("role");
+        int neighCid = (int) pk->par("clusterId");
+
+        //if (sender == nodeId) {
+        //    delete pk;
+        //    return;
+        //}
+
+        EV_INFO << "Node " << nodeId << " received HELLO from " << sender
+                       << " (color=" << neighCol << ", role=" << neighRole
+                       << ", clusterId=" << neighCid << ")\n";
+
+        NeighborInfo info;
+        info.neighborId = sender;
+        info.color = neighCol;
+        info.role = neighRole;
+        info.clusterId = neighCid;
+        info.lastHeard = simTime();
+
+        neighborTable[sender] = info;
+
+        // New info may change our role
+        recomputeRole();
+
+        delete pk;
+    }
 }
 
 //----------------------------------------------------------
@@ -284,9 +383,6 @@ void GraphColoringClustering::updateDisplayColor() {
     if (!hasGUI())
         return;  // skip in Cmdenv
 
-    if (currentColor < 0)
-        return;  // uncolored
-
     if (currentColor == lastDisplayColor)
         return;  // nothing to do
 
@@ -297,6 +393,14 @@ void GraphColoringClustering::updateDisplayColor() {
         return;
 
     omnetpp::cDisplayString &ds = host->getDisplayString();
+
+    if (currentColor < 0) {
+            if (lastDisplayColor != -1) {
+                ds.setTagArg("i", 1, ""); // "" removes the color tint
+                lastDisplayColor = -1;    // Update state to match visual
+            }
+            return;  // uncolored
+        }
 
     const char *col = COLOR_MAP[currentColor % NUM_COLORS];
 
@@ -365,4 +469,5 @@ void GraphColoringClustering::finish() {
     cancelAndDelete(helloTimer);
     cancelAndDelete(colorTimer);
     cancelAndDelete(maintenanceTimer);
+    cancelAndDelete(dataTimer);
 }

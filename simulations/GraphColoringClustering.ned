@@ -29,7 +29,9 @@ simple GraphColoringClustering like IApp
         double helloJitter @unit(s);
         double neighborTimeout @unit(s);
         double maintenanceInterval @unit(s);
-        double coloringJitter @unit(s);
+        double coloringInterval @unit(s);
+        double dataInterval @unit(s);
+        double dataJitter @unit(s);
 		// NEW: UDP parameters
         int localPort = default(5000);
         int destPort = default(5000);

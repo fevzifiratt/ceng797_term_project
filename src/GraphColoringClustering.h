@@ -44,12 +44,15 @@ class GraphColoringClustering : public omnetpp::cSimpleModule, public inet::UdpS
     omnetpp::simtime_t helloJitter;
     omnetpp::simtime_t neighborTimeout;
     omnetpp::simtime_t maintenanceInterval;
-    omnetpp::simtime_t coloringJitter;
+    omnetpp::simtime_t coloringInterval;
+    omnetpp::simtime_t dataInterval;
+    omnetpp::simtime_t dataJitter;
 
     // --- self messages ---
     omnetpp::cMessage *helloTimer = nullptr;
     omnetpp::cMessage *colorTimer = nullptr;
     omnetpp::cMessage *maintenanceTimer = nullptr;
+    omnetpp::cMessage *dataTimer = nullptr;     // Timer to trigger data sending
 
     // --- UDP state ---
     inet::UdpSocket socket;
@@ -71,6 +74,10 @@ class GraphColoringClustering : public omnetpp::cSimpleModule, public inet::UdpS
 
     std::map<int, NeighborInfo> neighborTable;
 
+    // --- Forwarding Filter Memory ---
+    std::set<std::pair<int, int>> seenDataPackets; // Stores <srcId, seqNum>
+    int mySeqNum = 0;                              // Counter for my own packets
+
   protected:
     // multi-stage initialization (INET style)
     virtual int numInitStages() const override { return inet::NUM_INIT_STAGES; }
@@ -82,6 +89,7 @@ class GraphColoringClustering : public omnetpp::cSimpleModule, public inet::UdpS
     void handleHelloTimer();
     void handleColorTimer();
     void handleMaintenanceTimer();
+    void handleDataTimer();
 
     // UDP receive
     void handleUdpPacket(inet::Packet *pk);
