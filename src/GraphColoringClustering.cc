@@ -51,7 +51,7 @@ void GraphColoringClustering::initialize(int stage) {
                     coloringInterval.str().c_str());
 
         helloTimer = new cMessage("helloTimer");
-        colorTimer = new cMessage("colorTimer");
+        //colorTimer = new cMessage("colorTimer");
         maintenanceTimer = new cMessage("maintenanceTimer");
         dataTimer = new cMessage("dataTimer");
         lastDisplayColor = -1;
@@ -78,7 +78,7 @@ void GraphColoringClustering::initialize(int stage) {
         //scheduleAt(simTime() + helloInterval + uniform(0, helloJitter), helloTimer);
 
         // First coloring: after coloringJitter (0s means "immediately")
-        scheduleAt(simTime() + coloringInterval, colorTimer);
+        //scheduleAt(simTime() + coloringInterval, colorTimer);
 
         // First maintenance: after maintenanceInterval
         scheduleAt(simTime() + maintenanceInterval, maintenanceTimer);
@@ -110,8 +110,7 @@ void GraphColoringClustering::handleMessage(cMessage *msg) {
         // --- NEW BLOCK END ---
         if (msg == helloTimer)
             handleHelloTimer();
-        else if (msg == colorTimer)
-            handleColorTimer();
+        //else if (msg == colorTimer) handleColorTimer();
         else if (msg == maintenanceTimer)
             handleMaintenanceTimer();
         else if (msg == dataTimer)
@@ -212,10 +211,10 @@ void GraphColoringClustering::handleColorTimer() {
 
     // Decide CH/MEMBER/GATEWAY using the *new* clustering semantics:
     // CH <=> color==0, clusterId = CH id, gateway by clusterId mismatch.
-    recomputeRole();
+    //recomputeRole();
 
     // Periodic recoloring is required for self-healing under mobility/CH loss.
-    scheduleAt(simTime() + coloringInterval, colorTimer);
+    //scheduleAt(simTime() + coloringInterval, colorTimer);
 }
 
 void GraphColoringClustering::handleMaintenanceTimer() {
@@ -224,7 +223,9 @@ void GraphColoringClustering::handleMaintenanceTimer() {
     pruneNeighbors();
 
     // Topology changes may affect roles
+    handleColorTimer();
     recomputeRole();
+
 
     // If neighbors changed, trigger a near-immediate recolor to compact colors
     /*if (changed) {
@@ -269,7 +270,7 @@ void GraphColoringClustering::handleDataTimer() {
 }
 
 //----------------------------------------------------------
-// UDP recieve
+// UDP Recieve
 //----------------------------------------------------------
 void GraphColoringClustering::handleUdpPacket(Packet *pk) {
     // --- CASE 1: DATA PACKET (The Forwarding Filter) ---
@@ -310,55 +311,56 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
         }
 
         // 4. Forwarding (I am CH or Gateway)
-            EV_INFO << "   -> FORWARD: I am Backbone (CH/GW). Scheduling forward with jitter.\n";
+        EV_INFO
+                       << "   -> FORWARD: I am Backbone (CH/GW). Scheduling forward with jitter.\n";
 
-            Packet *forwardPk = new Packet("DATA");
+        Packet *forwardPk = new Packet("DATA");
 
-            // Copy parameters
-            forwardPk->addPar("srcId") = src;
-            forwardPk->addPar("seqNum") = seq;
-            forwardPk->addPar("ttl").setLongValue(ttl - 1);
+        // Copy parameters
+        forwardPk->addPar("srcId") = src;
+        forwardPk->addPar("seqNum") = seq;
+        forwardPk->addPar("ttl").setLongValue(ttl - 1);
 
-            // Add payload
-            const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(100));
-            forwardPk->insertAtBack(payload);
+        // Add payload
+        const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(100));
+        forwardPk->insertAtBack(payload);
 
-            // --- NEW LOGIC: JITTER ---
+        // --- NEW LOGIC: JITTER ---
 
-            // 1. Mark this packet so handleMessage knows it's a forward
-            forwardPk->setKind(KIND_DELAYED_FORWARD);
+        // 1. Mark this packet so handleMessage knows it's a forward
+        forwardPk->setKind(KIND_DELAYED_FORWARD);
 
-            // 2. Pick a random delay (e.g., between 0ms and 10ms)
-            // 10ms (0.01s) is usually enough to let the MAC layer breathe
-            simtime_t forwardJitter = uniform(0, 0.01);
+        // 2. Pick a random delay (e.g., between 0ms and 10ms)
+        // 10ms (0.01s) is usually enough to let the MAC layer breathe
+        simtime_t forwardJitter = uniform(0, 0.01);
 
-            // 3. Schedule the packet to "arrive" at ourselves after the delay
-            scheduleAt(simTime() + forwardJitter, forwardPk);
+        // 3. Schedule the packet to "arrive" at ourselves after the delay
+        scheduleAt(simTime() + forwardJitter, forwardPk);
 
-            delete pk; // Delete the incoming packet as usual
-            return;
+        delete pk; // Delete the incoming packet as usual
+        return;
 
         // OLD BEFORE RETRANSMISSION COLLISION!!!
         // 4. Forwarding (I am CH or Gateway)
         /*EV_INFO
-                       << "   -> FORWARD: I am Backbone (CH/GW). Relaying to neighbors.\n";
-        // Packet *forwardPk = pk->dup();
-        // forwardPk->par("ttl").setLongValue(ttl - 1); // Fixed the .setIntValue error
-        Packet *forwardPk = new Packet("DATA");
+         << "   -> FORWARD: I am Backbone (CH/GW). Relaying to neighbors.\n";
+         // Packet *forwardPk = pk->dup();
+         // forwardPk->par("ttl").setLongValue(ttl - 1); // Fixed the .setIntValue error
+         Packet *forwardPk = new Packet("DATA");
 
-        // 2. Copy the parameters (addPar style)
-        // Note: We use the *new* TTL values here
-        forwardPk->addPar("srcId") = src;
-        forwardPk->addPar("seqNum") = seq;
-        forwardPk->addPar("ttl").setLongValue(ttl - 1);
-        // add a small dummy payload so UDP doesn't see an EmptyChunk
-        const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(100)); // 100 bytes is enough
-        forwardPk->insertAtBack(payload);
+         // 2. Copy the parameters (addPar style)
+         // Note: We use the *new* TTL values here
+         forwardPk->addPar("srcId") = src;
+         forwardPk->addPar("seqNum") = seq;
+         forwardPk->addPar("ttl").setLongValue(ttl - 1);
+         // add a small dummy payload so UDP doesn't see an EmptyChunk
+         const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(100)); // 100 bytes is enough
+         forwardPk->insertAtBack(payload);
 
-        socket.sendTo(forwardPk, destAddress, destPort);
+         socket.sendTo(forwardPk, destAddress, destPort);
 
-        delete pk;
-        return;*/
+         delete pk;
+         return;*/
     }
 
     // --- CASE 2: HELLO PACKET (Your existing code) ---
@@ -394,7 +396,7 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
 }
 
 //----------------------------------------------------------
-// UdpSocket callbacks
+// UdpSocket Callbacks
 //----------------------------------------------------------
 void GraphColoringClustering::socketDataArrived(UdpSocket *socket, Packet *pk) {
     EV_INFO << "Node " << nodeId << " received packet " << pk->getName()
@@ -428,63 +430,9 @@ bool GraphColoringClustering::pruneNeighbors() {
 
 void GraphColoringClustering::updateDisplayColor() {
     //2ND IMPLEMENTATION DENSE COLORS
-    if (!hasGUI())
-        return;
-
-    cModule *host = getParentModule();
-    if (!host)
-        return;
-
-    omnetpp::cDisplayString &ds = host->getDisplayString();
-
-    // --- 1. Update Color (Existing Logic) ---
-    // If color is -1 (invalid), remove tint. Otherwise, use the map.
-    if (currentColor < 0) {
-        ds.setTagArg("i", 1, "");
-    } else {
-        const char *col = COLOR_MAP[currentColor % NUM_COLORS];
-        ds.setTagArg("i", 1, col);
-    }
-
-    // --- 2. Update Size based on Role (New Logic) ---
-    // The 'i' tag arguments are: i=<icon>,<color>,<percentage>
-    // We set index 2 (the 3rd argument) to control size percentage.
-
-    const char *sizeStr = "100"; // Default size (100%)
-
-    switch (role) {
-    case CLUSTER_HEAD:
-        sizeStr = "160"; // Very large (Backbone Leader)
-        break;
-    case GATEWAY:
-        sizeStr = "130"; // Medium-Large (Backbone Bridge)
-        break;
-    case MEMBER:
-        sizeStr = "80";  // Small (Leaf node)
-        break;
-    case UNDECIDED:
-        sizeStr = "60";  // Tiny (Not part of network yet)
-        break;
-    default:
-        sizeStr = "100";
-        break;
-    }
-
-    ds.setTagArg("i", 2, sizeStr);
-
-    // Optional: Save state to avoid redundant updates next time,
-    // though purely visual updates are cheap enough to do every time
-    // for small networks.
-    lastDisplayColor = currentColor;
-
-    //OLDEST IMPLEMETATION
+    // NOT USED SINCE IF 1ST COLOR IS BACK, WEIRD COLOR???
     /*if (!hasGUI())
-     return;  // skip in Cmdenv
-
-     if (currentColor == lastDisplayColor)
-     return;  // nothing to do
-
-     lastDisplayColor = currentColor;
+     return;
 
      cModule *host = getParentModule();
      if (!host)
@@ -492,18 +440,73 @@ void GraphColoringClustering::updateDisplayColor() {
 
      omnetpp::cDisplayString &ds = host->getDisplayString();
 
+     // --- 1. Update Color (Existing Logic) ---
+     // If color is -1 (invalid), remove tint. Otherwise, use the map.
      if (currentColor < 0) {
-     if (lastDisplayColor != -1) {
-     ds.setTagArg("i", 1, ""); // "" removes the color tint
-     lastDisplayColor = -1;    // Update state to match visual
-     }
-     return;  // uncolored
-     }
-
+     ds.setTagArg("i", 1, "");
+     } else {
      const char *col = COLOR_MAP[currentColor % NUM_COLORS];
+     ds.setTagArg("i", 1, col);
+     }
 
-     // tint the icon
-     ds.setTagArg("i", 1, col);*/
+     // --- 2. Update Size based on Role (New Logic) ---
+     // The 'i' tag arguments are: i=<icon>,<color>,<percentage>
+     // We set index 2 (the 3rd argument) to control size percentage.
+
+     const char *sizeStr = "100"; // Default size (100%)
+
+     switch (role) {
+     case CLUSTER_HEAD:
+     sizeStr = "160"; // Very large (Backbone Leader)
+     break;
+     case GATEWAY:
+     sizeStr = "130"; // Medium-Large (Backbone Bridge)
+     break;
+     case MEMBER:
+     sizeStr = "80";  // Small (Leaf node)
+     break;
+     case UNDECIDED:
+     sizeStr = "60";  // Tiny (Not part of network yet)
+     break;
+     default:
+     sizeStr = "100";
+     break;
+     }
+
+     ds.setTagArg("i", 2, sizeStr);
+
+     // Optional: Save state to avoid redundant updates next time,
+     // though purely visual updates are cheap enough to do every time
+     // for small networks.
+     lastDisplayColor = currentColor;*/
+
+    //OLDEST IMPLEMETATION
+    if (!hasGUI())
+        return;  // skip in Cmdenv
+
+    if (currentColor == lastDisplayColor)
+        return;  // nothing to do
+
+    lastDisplayColor = currentColor;
+
+    cModule *host = getParentModule();
+    if (!host)
+        return;
+
+    omnetpp::cDisplayString &ds = host->getDisplayString();
+
+    if (currentColor < 0) {
+        if (lastDisplayColor != -1) {
+            ds.setTagArg("i", 1, ""); // "" removes the color tint
+            lastDisplayColor = -1;    // Update state to match visual
+        }
+        return;  // uncolored
+    }
+
+    const char *col = COLOR_MAP[currentColor % NUM_COLORS];
+
+    // tint the icon
+    ds.setTagArg("i", 1, col);
 }
 
 // Decide role (CH / MEMBER / GATEWAY) based on colors and neighbors
@@ -565,7 +568,7 @@ void GraphColoringClustering::recomputeRole() {
 
 void GraphColoringClustering::finish() {
     cancelAndDelete(helloTimer);
-    cancelAndDelete(colorTimer);
+    //cancelAndDelete(colorTimer);
     cancelAndDelete(maintenanceTimer);
     cancelAndDelete(dataTimer);
 }
