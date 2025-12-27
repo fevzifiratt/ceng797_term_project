@@ -15,6 +15,8 @@ static const int NUM_COLORS = sizeof(COLOR_MAP) / sizeof(COLOR_MAP[0]);
 // A specific ID to mark packets we are holding back for jitter
 const int KIND_DELAYED_FORWARD = 999;
 
+static const char *ROLE_NAMES[] = { "U", "CH", "M", "GW" };
+
 //----------------------------------------------------------
 // Initialization (multi-stage)
 //----------------------------------------------------------
@@ -205,9 +207,9 @@ void GraphColoringClustering::handleColorTimer() {
         EV_INFO << "Node " << nodeId << " changes color from " << currentColor
                        << " to " << newColor << "\n";
         currentColor = newColor;
-
-        updateDisplayColor();
     }
+
+    updateDisplayColor();
 
     // Decide CH/MEMBER/GATEWAY using the *new* clustering semantics:
     // CH <=> color==0, clusterId = CH id, gateway by clusterId mismatch.
@@ -219,13 +221,12 @@ void GraphColoringClustering::handleColorTimer() {
 
 void GraphColoringClustering::handleMaintenanceTimer() {
     // Remove neighbors that timed out
-    bool changed = pruneNeighbors();
+    //bool changed = pruneNeighbors();
     pruneNeighbors();
 
     // Topology changes may affect roles
     handleColorTimer();
     recomputeRole();
-
 
     // If neighbors changed, trigger a near-immediate recolor to compact colors
     /*if (changed) {
@@ -429,58 +430,6 @@ bool GraphColoringClustering::pruneNeighbors() {
 }
 
 void GraphColoringClustering::updateDisplayColor() {
-    //2ND IMPLEMENTATION DENSE COLORS
-    // NOT USED SINCE IF 1ST COLOR IS BACK, WEIRD COLOR???
-    /*if (!hasGUI())
-     return;
-
-     cModule *host = getParentModule();
-     if (!host)
-     return;
-
-     omnetpp::cDisplayString &ds = host->getDisplayString();
-
-     // --- 1. Update Color (Existing Logic) ---
-     // If color is -1 (invalid), remove tint. Otherwise, use the map.
-     if (currentColor < 0) {
-     ds.setTagArg("i", 1, "");
-     } else {
-     const char *col = COLOR_MAP[currentColor % NUM_COLORS];
-     ds.setTagArg("i", 1, col);
-     }
-
-     // --- 2. Update Size based on Role (New Logic) ---
-     // The 'i' tag arguments are: i=<icon>,<color>,<percentage>
-     // We set index 2 (the 3rd argument) to control size percentage.
-
-     const char *sizeStr = "100"; // Default size (100%)
-
-     switch (role) {
-     case CLUSTER_HEAD:
-     sizeStr = "160"; // Very large (Backbone Leader)
-     break;
-     case GATEWAY:
-     sizeStr = "130"; // Medium-Large (Backbone Bridge)
-     break;
-     case MEMBER:
-     sizeStr = "80";  // Small (Leaf node)
-     break;
-     case UNDECIDED:
-     sizeStr = "60";  // Tiny (Not part of network yet)
-     break;
-     default:
-     sizeStr = "100";
-     break;
-     }
-
-     ds.setTagArg("i", 2, sizeStr);
-
-     // Optional: Save state to avoid redundant updates next time,
-     // though purely visual updates are cheap enough to do every time
-     // for small networks.
-     lastDisplayColor = currentColor;*/
-
-    //OLDEST IMPLEMETATION
     if (!hasGUI())
         return;  // skip in Cmdenv
 
@@ -495,21 +444,25 @@ void GraphColoringClustering::updateDisplayColor() {
 
     omnetpp::cDisplayString &ds = host->getDisplayString();
 
+    // 1. Update Color (Your existing logic)
     if (currentColor < 0) {
-        if (lastDisplayColor != -1) {
-            ds.setTagArg("i", 1, ""); // "" removes the color tint
-            lastDisplayColor = -1;    // Update state to match visual
-        }
-        return;  // uncolored
+        ds.setTagArg("i", 1, "");
+    } else {
+        const char *col = COLOR_MAP[currentColor % NUM_COLORS];
+        ds.setTagArg("i", 1, col);
     }
 
-    const char *col = COLOR_MAP[currentColor % NUM_COLORS];
+    // 2. Update Text Label (Role)
+    /*const char *roleStr = ROLE_NAMES[role];
 
-    // tint the icon
-    ds.setTagArg("i", 1, col);
+    ds.setTagArg("t", 0, roleStr);
+    ds.setTagArg("t", 2, "black");
+    ds.parse(ds.str());*/
 }
 
+//----------------------------------------------------------
 // Decide role (CH / MEMBER / GATEWAY) based on colors and neighbors
+//----------------------------------------------------------
 void GraphColoringClustering::recomputeRole() {
     int oldRole = role;
 
