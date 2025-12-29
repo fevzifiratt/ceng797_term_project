@@ -76,6 +76,9 @@ class GraphColoringClustering : public omnetpp::cSimpleModule, public inet::UdpS
     };
 
     std::map<int, NeighborInfo> neighborTable;
+    // --- NEW: Backbone Routing Table ---
+        // Maps Final_Dest_ID -> Next_Hop_Gateway_ID
+        std::map<int, int> backboneRoutingTable;
 
     // --- Forwarding Filter Memory ---
     std::set<std::pair<int, int>> seenDataPackets; // Stores <srcId, seqNum>

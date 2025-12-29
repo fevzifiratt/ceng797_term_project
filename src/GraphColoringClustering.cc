@@ -26,10 +26,10 @@ void GraphColoringClustering::initialize(int stage) {
     if (stage == INITSTAGE_LOCAL) {
 
         // 1. Get a pointer to the Top-Level Network Module (ClusteringNetwork)
-                cModule *network = getSimulation()->getSystemModule();
+        cModule *network = getSimulation()->getSystemModule();
 
-                // 2. Read the parameter from that module
-                numHosts = network->par("numHosts").intValue();
+        // 2. Read the parameter from that module
+        numHosts = network->par("numHosts").intValue();
 
         // basic state & parameters
         nodeId = getParentModule() ? getParentModule()->getIndex() : getId();
@@ -84,7 +84,8 @@ void GraphColoringClustering::initialize(int stage) {
         // First HELLO: after helloInterval (can be 0s if you want it at t=0)
         simtime_t smallHelloJitter = nodeId * helloJitter;
         //scheduleAt(simTime() + helloInterval + smallHelloJitter, helloTimer);
-        scheduleAt(simTime() + helloInterval + uniform(0, helloJitter.dbl()), helloTimer);
+        scheduleAt(simTime() + helloInterval + uniform(0, helloJitter.dbl()),
+                helloTimer);
 
         // First coloring: after coloringJitter (0s means "immediately")
         //scheduleAt(simTime() + coloringInterval, colorTimer);
@@ -94,7 +95,8 @@ void GraphColoringClustering::initialize(int stage) {
 
         // First data packet: after dataInterval * 2 (can make it 10s)
         simtime_t smallDataJitter = nodeId * dataJitter;
-        scheduleAt(simTime() + dataInterval * 2 + uniform(0, dataJitter.dbl()), dataTimer);
+        scheduleAt(simTime() + dataInterval * 2 + uniform(0, dataJitter.dbl()),
+                dataTimer);
     }
 }
 
@@ -103,20 +105,31 @@ void GraphColoringClustering::initialize(int stage) {
 //----------------------------------------------------------
 void GraphColoringClustering::handleMessage(cMessage *msg) {
     if (msg->isSelfMessage()) {
-        // --- NEW BLOCK START ---
+        // --- UPDATED DELAYED FORWARDING LOGIC ---
         if (msg->getKind() == KIND_DELAYED_FORWARD) {
-            // This is a packet we scheduled earlier. Now we send it.
-            // We must cast it back to a Packet*
             Packet *pk = check_and_cast<Packet*>(msg);
 
-            EV_INFO << "Node " << nodeId << " processing DELAYED forward for "
-                           << pk->getName() << "\n";
+            // 1. Recover the intended destination from the parameter we set
+            int nextHop = pk->par("nextHopId");
 
-            // Send it to the multicast address
-            socket.sendTo(pk, destAddress, destPort);
+            // 2. Look up the IP address again (in case it changed, though unlikely in 10ms)
+            auto it = neighborTable.find(nextHop);
+
+            if (it != neighborTable.end()) {
+                EV_INFO << "Node " << nodeId
+                               << " processing DELAYED forward to " << nextHop
+                               << " (" << it->second.ipAddress << ")\n";
+
+                socket.sendTo(pk, it->second.ipAddress, destPort);
+            } else {
+                EV_WARN << "Node " << nodeId
+                               << " delayed packet dropped. Neighbor "
+                               << nextHop << " is no longer in table.\n";
+                delete pk;
+            }
             return;
         }
-        // --- NEW BLOCK END ---
+        // ----------------------------------------
         if (msg == helloTimer)
             handleHelloTimer();
         //else if (msg == colorTimer) handleColorTimer();
@@ -157,7 +170,8 @@ void GraphColoringClustering::handleHelloTimer() {
 
     // Periodic HELLO
     simtime_t jitter = nodeId * helloJitter;
-    scheduleAt(simTime() + helloInterval + uniform(0, helloJitter.dbl()), helloTimer);
+    scheduleAt(simTime() + helloInterval + uniform(0, helloJitter.dbl()),
+            helloTimer);
     // scheduleAt(simTime() + helloInterval + uniform(0, helloJitter), helloTimer);
 }
 
@@ -251,140 +265,155 @@ void GraphColoringClustering::handleMaintenanceTimer() {
 
 void GraphColoringClustering::handleDataTimer() {
     // ---------------------------------------------------------
-        // 1. SELECT TARGET (Dynamic based on numHosts)
-        // ---------------------------------------------------------
+    // 1. SELECT TARGET (Dynamic based on numHosts)
+    // ---------------------------------------------------------
 
-        // Safety check: need at least 2 nodes to send data
-        if (numHosts <= 1) {
-            EV_WARN << "Node " << nodeId << ": Not enough hosts to send data.\n";
-            // Reschedule anyway to keep the timer alive for later
-            simtime_t jitter = nodeId * dataJitter;
-            scheduleAt(simTime() + dataInterval + jitter, dataTimer);
-            return;
-        }
+    // Safety check: need at least 2 nodes to send data
+    if (numHosts <= 1) {
+        EV_WARN << "Node " << nodeId << ": Not enough hosts to send data.\n";
+        // Reschedule to keep the timer alive
+        simtime_t jitter = nodeId * dataJitter;
+        scheduleAt(simTime() + dataInterval + jitter, dataTimer);
+        return;
+    }
 
-        // Pick a random target between 0 and numHosts-1
-        int targetNode = intuniform(0, numHosts - 1);
+    // Pick a random target between 0 and numHosts-1
+    int targetNode = intuniform(0, numHosts - 1);
 
-        // Make sure we don't send to ourselves
-        while (targetNode == nodeId) {
-            targetNode = intuniform(0, numHosts - 1);
-        }
+    // Make sure we don't send to ourselves
+    while (targetNode == nodeId) {
+        targetNode = intuniform(0, numHosts - 1);
+    }
 
-        // ---------------------------------------------------------
-        // 2. CREATE PACKET
-        // ---------------------------------------------------------
-        auto *pk = new Packet("DATA");
+    // ---------------------------------------------------------
+    // 2. CREATE PACKET
+    // ---------------------------------------------------------
+    auto *pk = new Packet("DATA");
 
-        // Standard Parameters
-        pk->addPar("srcId") = nodeId;
-        pk->addPar("seqNum") = mySeqNum;
-        pk->addPar("ttl") = 6;           // Max hops
-        pk->addPar("destNodeId") = targetNode; // FINAL Destination
+    // Standard Parameters
+    pk->addPar("srcId") = nodeId;
+    pk->addPar("seqNum") = mySeqNum;
+    pk->addPar("ttl") = 6;                 // Max hops
+    pk->addPar("destNodeId") = targetNode; // FINAL Destination
 
-        // Add payload (100 bytes)
-        const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(100));
-        pk->insertAtBack(payload);
+    // Add payload (100 bytes)
+    const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(100));
+    pk->insertAtBack(payload);
 
-        // ---------------------------------------------------------
-        // 3. SENDING LOGIC (Uplink vs. Search)
-        // ---------------------------------------------------------
-        bool sent = false;
+    // ---------------------------------------------------------
+    // 3. SENDING LOGIC (Pure Unicast Hierarchy)
+    // ---------------------------------------------------------
+    bool sent = false;
 
-        // --- CASE A: I am a Simple MEMBER ---
-        // I should send this ONLY to my Cluster Head (Uplink).
-        if (role == MEMBER && clusterId != -1) {
+    // --- CASE A: I am a MEMBER or GATEWAY (Source) ---
+    // If I generate data, I send it to my CH (Uplink) so they can route it.
+    // (Gateways act like Members when they are the *Source* of the data).
+    if (role == MEMBER || role == GATEWAY) {
 
-            // Look up my CH in the neighbor table to find their IP
+        // 1. Check if I have a valid CH
+        if (clusterId != -1) {
             auto it = neighborTable.find(clusterId);
 
             if (it != neighborTable.end()) {
                 inet::L3Address chIp = it->second.ipAddress;
 
-                // Logical Tag: "This is for my CH"
+                // Tag: "This is for my CH"
                 pk->addPar("nextHopId") = clusterId;
 
-                EV_INFO << "Node " << nodeId << " (Member) sending UNICAST UPLINK to CH "
-                        << clusterId << " (" << chIp << ") for Target " << targetNode << "\n";
+                EV_INFO << "Node " << nodeId << " ("
+                               << (role == MEMBER ? "Member" : "Gateway")
+                               << ") sending UNICAST UPLINK to CH " << clusterId
+                               << " (" << chIp << ") for Target " << targetNode
+                               << "\n";
 
-                // Send Unicast to CH's IP
                 socket.sendTo(pk, chIp, destPort);
                 sent = true;
-            }
-            else {
-                // Error: I have a clusterId, but I don't see the CH in my table anymore
-                EV_WARN << "Node " << nodeId << " (Member) cannot find IP for CH "
-                        << clusterId << ". Dropping packet.\n";
+            } else {
+                EV_WARN << "Node " << nodeId << " has clusterId " << clusterId
+                               << " but CH not in neighbor table. Dropping.\n";
                 delete pk;
+                pk = nullptr;
+                sent = false;
+            }
+        } else {
+            EV_WARN << "Node " << nodeId
+                           << " is Orphaned (No CH). Dropping packet.\n";
+            delete pk;
+            pk = nullptr;
+            sent = false;
+        }
+    }
+    // --- CASE B: I am a CLUSTER HEAD (Source) ---
+    else if (role == CLUSTER_HEAD) {
+
+        // 1. Check if the target is already my neighbor (Local Delivery)
+        auto it = neighborTable.find(targetNode);
+
+        if (it != neighborTable.end()) {
+            // Found it locally! Direct delivery.
+            pk->addPar("nextHopId") = targetNode;
+            socket.sendTo(pk, it->second.ipAddress, destPort);
+            sent = true;
+
+            EV_INFO << "Node " << nodeId << " (CH) found Target " << targetNode
+                           << " locally. Sending DIRECT UNICAST.\n";
+        }
+        // 2. Not local? Send to ALL my Gateways (Backbone Search)
+        else {
+            EV_INFO << "From node " << nodeId << " (CH) target " << targetNode
+                           << " not local. Unicasting to Gateways.\n";
+
+            int gwCount = 0;
+            // Iterate over neighbors to find Gateways
+            for (auto &entry : neighborTable) {
+                if (entry.second.role == GATEWAY) {
+                    // We must COPY the packet for each Gateway
+                    Packet *gwPk = pk->dup();
+                    gwPk->addPar("nextHopId") = entry.first; // Tag for specific GW
+
+                    socket.sendTo(gwPk, entry.second.ipAddress, destPort);
+                    gwCount++;
+
+                    EV_DETAIL << "   -> Sent copy to Gateway Neighbor "
+                                     << entry.first << "\n";
+                }
+            }
+
+            if (gwCount > 0) {
+                sent = true;
+                // We sent copies, so we delete the original template
+                delete pk;
+                pk = nullptr;
+            } else {
+                EV_WARN << "Node " << nodeId
+                               << " (CH) has NO Gateways! Packet dropped.\n";
+                delete pk;
+                pk = nullptr;
                 sent = false;
             }
         }
-        // --- CASE B: I am a CLUSTER HEAD ---
-            else if (role == CLUSTER_HEAD) {
-                // OPTIMIZATION: Check if the target is already my neighbor!
-                auto it = neighborTable.find(targetNode);
+    }
+    // --- CASE C: UNDECIDED ---
+    else {
+        EV_WARN << "Node " << nodeId << " is UNDECIDED. Cannot send data.\n";
+        delete pk;
+        pk = nullptr;
+        sent = false;
+    }
 
-                if (it != neighborTable.end()) {
-                    // Found it locally! Direct delivery.
-                    pk->addPar("nextHopId") = targetNode;
-                    socket.sendTo(pk, it->second.ipAddress, destPort); // Unicast Downlink
-                    sent = true;
-                    EV_INFO << "Node " << nodeId << " (CH) found Target " << targetNode
-                            << " locally. Sending DIRECT UNICAST.\n";
-                } else {
-                    // Not found. Start Backbone Search.
-                    pk->addPar("nextHopId") = -1;
-                    socket.sendTo(pk, destAddress, destPort); // Multicast Search
-                    sent = true;
-                    EV_INFO << "Node " << nodeId << " (CH) of target Node " << targetNode << " not local. Flooding Backbone.\n";
-                }
-            }
-            // --- CASE C: GATEWAY / UNDECIDED ---
-            else {
-                // Gateways just start the search immediately
-                pk->addPar("nextHopId") = -1;
-                socket.sendTo(pk, destAddress, destPort);
-                sent = true;
-            }
+    // ---------------------------------------------------------
+    // 4. BOOKKEEPING & RESCHEDULE
+    // ---------------------------------------------------------
+    if (sent) {
+        // Log this packet so I don't process my own echo (if that were possible)
+        seenDataPackets.insert( { nodeId, mySeqNum });
+        mySeqNum++;
+    }
 
-        // ---------------------------------------------------------
-        // 4. BOOKKEEPING & RESCHEDULE
-        // ---------------------------------------------------------
-        if (sent) {
-            // Log this packet so I don't process my own echo
-            seenDataPackets.insert( { nodeId, mySeqNum });
-            mySeqNum++;
-        }
-
-        // Schedule the NEXT data packet
-        simtime_t jitter = nodeId * dataJitter;
-        scheduleAt(simTime() + dataInterval * 2 + uniform(0, dataJitter.dbl()), dataTimer);
-    //OLD IMPLEMENTATION
-    /*// 1. Create generic packet
-    auto *pk = new Packet("DATA");
-
-    // 2. Add parameters manually
-    pk->addPar("srcId") = nodeId;
-    pk->addPar("seqNum") = mySeqNum;
-    pk->addPar("ttl") = 5;
-
-    // 3. Mark as seen
-    seenDataPackets.insert( { nodeId, mySeqNum });
-    mySeqNum++;
-
-    // add a small dummy payload so UDP doesn't see an EmptyChunk
-    const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(100)); // 1 byte is enough
-    pk->insertAtBack(payload);
-
-    // 4. Send Broadcast
-    socket.sendTo(pk, destAddress, destPort);
-
-    EV_INFO << "Node " << nodeId << " generated DATA packet seq "
-                   << (mySeqNum - 1) << "\n";
-
-    // 5. Schedule NEXT packet using dataInterval
+    // Schedule the NEXT data packet
     simtime_t jitter = nodeId * dataJitter;
-    scheduleAt(simTime() + dataInterval + jitter, dataTimer); // <--- Reschedule renamed timer*/
+    scheduleAt(simTime() + dataInterval + uniform(0, dataJitter.dbl()),
+            dataTimer);
 }
 
 //----------------------------------------------------------
@@ -392,200 +421,202 @@ void GraphColoringClustering::handleDataTimer() {
 //----------------------------------------------------------
 void GraphColoringClustering::handleUdpPacket(Packet *pk) {
     // ---------------------------------------------------------
-        // CASE 1: DATA PACKET HANDLING
-        // ---------------------------------------------------------
-        if (strcmp(pk->getName(), "DATA") == 0) {
-            int src = pk->par("srcId");
-            int seq = pk->par("seqNum");
-            int ttl = pk->par("ttl");
-            int targetNode = pk->par("destNodeId");
-            int nextHop = pk->par("nextHopId"); // The "To:" field on the envelope
-
-            // --- DEBUGGING LOG ---
-                    EV_INFO << "DATA_DEBUG: Node " << nodeId << " received packet: "
-                            << " [Src=" << src
-                            << " -> Dest=" << targetNode << "]"
-                            << " (TTL=" << ttl << ")"
-                            << " (NextHop=" << nextHop << ")\n";
-                    // ---------------------
-
-            // 1. FILTER: Is this packet meant for someone else?
-            // If nextHop is specific (not -1) and it is NOT me, I ignore it.
-            if (nextHop != -1 && nextHop != nodeId) {
-                EV_DETAIL << "   -> DROP: Packet meant for Node " << nextHop << ", not me.\n";
-                 delete pk;
-                 return;
-            }
-
-            // 2. DUPLICATE CHECK: Have I processed this before?
-            if (seenDataPackets.find({src, seq}) != seenDataPackets.end()) {
-                EV_DETAIL << "   -> DROP: Duplicate packet.\n";
-                delete pk;
-                return;
-            }
-            seenDataPackets.insert({src, seq});
-
-            // 3. DELIVERY CHECK: Am I the Final Destination?
-            if (nodeId == targetNode) {
-                EV_INFO << "Node " << nodeId << " (Target) RECEIVED DATA from Node " << src
-                        << ". DELIVERY SUCCESSFUL!\n";
-                delete pk;
-                return;
-            }
-
-            // 4. MEMBER CHECK: Members do not route traffic.
-            // If I am a Member and I wasn't the target (checked above), I drop it.
-            if (role == MEMBER) {
-                EV_DETAIL << "   -> DROP: Member node ignores non-target packet.\n";
-                delete pk;
-                return;
-            }
-
-            // 5. ROUTING LOGIC (Cluster Head or Gateway)
-            if (ttl <= 0) {
-                EV_WARN << "Node " << nodeId << ": TTL expired. Dropping packet.\n";
-                delete pk;
-                return;
-            }
-
-            // Create the packet to forward
-            Packet *forwardPk = new Packet("DATA");
-            forwardPk->addPar("srcId") = src;
-            forwardPk->addPar("seqNum") = seq;
-            forwardPk->addPar("ttl").setLongValue(ttl - 1);
-            forwardPk->addPar("destNodeId") = targetNode;
-            forwardPk->insertAtBack(makeShared<inet::ByteCountChunk>(inet::B(100)));
-
-            bool shouldForward = false;
-            inet::L3Address forwardIp = destAddress; // Default to Multicast (224.0.0.1)
-
-            // --- ROLE SPECIFIC LOGIC ---
-
-            if (role == CLUSTER_HEAD) {
-                // CHECK: Is the target in my local neighbor table?
-                auto it = neighborTable.find(targetNode);
-
-                if (it != neighborTable.end()) {
-                    // FOUND LOCALLY -> UNICAST DOWNLINK
-                    inet::L3Address targetIp = it->second.ipAddress;
-
-                    forwardPk->addPar("nextHopId") = targetNode; // Tag specifically for target
-                    forwardIp = targetIp;                        // Use Real IP Unicast
-                    shouldForward = true;
-
-                    EV_INFO << "Node " << nodeId << " (CH) found Target " << targetNode
-                            << " locally. Sending UNICAST to " << targetIp << "\n";
-                }
-                else {
-                    // NOT FOUND -> BACKBONE FLOOD
-                    forwardPk->addPar("nextHopId") = -1; // -1 = Search Mode
-                    forwardIp = destAddress;             // Multicast
-                    shouldForward = true;
-
-                    EV_INFO << "Node " << nodeId << " (CH) target not here. Flooding Backbone.\n";
-                }
-            }
-            else if (role == GATEWAY) {
-                // GATEWAY -> RELAY THE SEARCH
-                forwardPk->addPar("nextHopId") = -1; // Keep it as Search
-                forwardIp = destAddress;             // Multicast
-                shouldForward = true;
-
-                EV_INFO << "   -> FORWARD (GW): Relaying Backbone Search (TTL=" << (ttl-1) << ")\n";
-            }
-
-            // 6. EXECUTE FORWARDING (With Jitter)
-            if (shouldForward) {
-                // We use the delayed mechanism to avoid collisions
-                forwardPk->setKind(KIND_DELAYED_FORWARD);
-
-                // CRITICAL: We need to know *where* to send it when the timer expires.
-                // Since we can't easily attach the IP to the message object itself without a custom class,
-                // we will cheat slightly: If it's unicast, we send immediately.
-                // If it's broadcast, we use jitter.
-
-                if (forwardIp.isMulticast()) {
-                     scheduleAt(simTime() + uniform(0, 0.01), forwardPk);
-                } else {
-                     // Unicast is safe to send immediately (MAC handles contention)
-                     socket.sendTo(forwardPk, forwardIp, destPort);
-                }
-            } else {
-                delete forwardPk;
-            }
-
-            delete pk; // Delete original packet
-            return;
-        }
-            //OLD!!!!
-    // --- CASE 1: DATA PACKET (The Forwarding Filter) ---
-    /*if (strcmp(pk->getName(), "DATA") == 0) {
+    // CASE 1: DATA PACKET HANDLING
+    // ---------------------------------------------------------
+    if (strcmp(pk->getName(), "DATA") == 0) {
         int src = pk->par("srcId");
         int seq = pk->par("seqNum");
         int ttl = pk->par("ttl");
+        int targetNode = pk->par("destNodeId");
+        int nextHop = pk->par("nextHopId"); // The "To:" field on the envelope
 
-        // 1. Duplicate Check
+        auto tag = pk->getTag<inet::L3AddressInd>();
+        inet::L3Address lastHopIp = tag->getSrcAddress();
+
+        // --- DEBUGGING LOG ---
+        EV_INFO << "DATA_DEBUG: Node " << nodeId << " received packet: "
+                       << " [Src=" << src << " -> Dest=" << targetNode << "]"
+                       << " (TTL=" << ttl << ")" << " (NextHop=" << nextHop
+                       << ")\n";
+        // ---------------------
+
+        // 1. FILTER: Is this packet meant for someone else?
+        // If nextHop is specific (not -1) and it is NOT me, I ignore it.
+        if (nextHop != -1 && nextHop != nodeId) {
+            EV_DETAIL << "   -> DROP: Packet meant for Node " << nextHop
+                             << ", not me.\n";
+            delete pk;
+            return;
+        }
+
+        // 2. DUPLICATE CHECK: Have I processed this before?
         if (seenDataPackets.find( { src, seq }) != seenDataPackets.end()) {
-            // Optional: Log duplicates if you want to see how "noisy" the network is
-            EV_DETAIL << "Node " << nodeId << " dropped DUPLICATE Data from "
-                             << src << " (Seq " << seq << ")\n";
+            EV_DETAIL << "   -> DROP: Duplicate packet.\n";
             delete pk;
             return;
         }
         seenDataPackets.insert( { src, seq });
 
-        // --- ENHANCED LOGGING HERE ---
-        // Shows: Who I am (ID, Role, Cluster), Who sent it, and Packet Details
-        EV_INFO << "Node " << nodeId << " [Role=" << role << ", Cluster="
-                       << clusterId << "]" << " RECEIVED Data from Node " << src
-                       << " (Seq=" << seq << ", TTL=" << ttl << ")\n";
-
-        // 2. THE FILTER: MEMBERS STOP HERE
-        if (role == MEMBER || role == UNDECIDED) {
-            EV_INFO
-                           << "   -> STOP: I am a MEMBER/UNDECIDED. Consumed packet. NOT forwarding.\n";
+        // 3. DELIVERY CHECK: Am I the Final Destination?
+        if (nodeId == targetNode) {
+            EV_INFO << "Node " << nodeId << " (Target) RECEIVED DATA from Node "
+                           << src << ". DELIVERY SUCCESSFUL!\n";
             delete pk;
             return;
         }
 
-        // 3. TTL Check
+        // 4. MEMBER CHECK: Members do not route traffic.
+        // If I am a Member and I wasn't the target (checked above), I drop it.
+        if (role == MEMBER) {
+            EV_DETAIL << "   -> DROP: Member node ignores non-target packet.\n";
+            delete pk;
+            return;
+        }
+
+        // 5. ROUTING LOGIC (Cluster Head or Gateway)
         if (ttl <= 0) {
-            EV_WARN << "   -> DROP: TTL expired.\n";
+            EV_WARN << "Node " << nodeId << ": TTL expired. Dropping packet.\n";
             delete pk;
             return;
         }
 
-        // 4. Forwarding (I am CH or Gateway)
-        EV_INFO
-                       << "   -> FORWARD: I am Backbone (CH/GW). Scheduling forward with jitter.\n";
-
+        // Create the packet to forward
         Packet *forwardPk = new Packet("DATA");
-
-        // Copy parameters
         forwardPk->addPar("srcId") = src;
         forwardPk->addPar("seqNum") = seq;
         forwardPk->addPar("ttl").setLongValue(ttl - 1);
+        forwardPk->addPar("destNodeId") = targetNode;
+        forwardPk->insertAtBack(makeShared<inet::ByteCountChunk>(inet::B(100)));
 
-        // Add payload
-        const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(100));
-        forwardPk->insertAtBack(payload);
+        inet::L3Address forwardIp = destAddress; // Default to Multicast (224.0.0.1)
 
-        // --- NEW LOGIC: JITTER ---
+        // --- ROLE SPECIFIC LOGIC ---
+        // ====================================================================
+        // A. CLUSTER HEAD LOGIC (Downlink or Forward to MY Gateways)
+        // ====================================================================
 
-        // 1. Mark this packet so handleMessage knows it's a forward
-        forwardPk->setKind(KIND_DELAYED_FORWARD);
+        if (role == CLUSTER_HEAD) {
+            // CHECK: Is the target in my local neighbor table?
+            auto it = neighborTable.find(targetNode);
 
-        // 2. Pick a random delay (e.g., between 0ms and 10ms)
-        // 10ms (0.01s) is usually enough to let the MAC layer breathe
-        simtime_t forwardJitter = uniform(0, 0.01);
+            if (it != neighborTable.end()) {
+                // Case A1: Target is my neighbor -> Unicast Downlink
+                forwardPk->addPar("nextHopId") = targetNode;
+                socket.sendTo(forwardPk, it->second.ipAddress, destPort);
 
-        // 3. Schedule the packet to "arrive" at ourselves after the delay
-        scheduleAt(simTime() + forwardJitter, forwardPk);
+                EV_INFO << "Node " << nodeId << " (CH) found Target "
+                               << targetNode << " locally. Sending UNICAST to "
+                               << it->second.ipAddress << "\n";
+            } else {
+                // Case A2: Target Unknown -> Send to MY Gateways (Bridge Out)
+                EV_INFO << "Node " << nodeId
+                               << " (CH) target not here. Forwarding to Gateways.\n";
 
-        delete pk; // Delete the incoming packet as usual
+                // We handle the sending HERE explicitly because we need a loop
+                // (The standard logic at the bottom of the function assumes 1 packet)
+
+                for (auto &entry : neighborTable) {
+                    if (entry.second.role == GATEWAY) {
+                        Packet *copy = forwardPk->dup();
+                        copy->addPar("nextHopId") = entry.first; // Tag for that GW
+                        // 2. Mark it as a Delayed Forward
+                        copy->setKind(KIND_DELAYED_FORWARD);
+                        // Use jitter or send immediately
+                        // 4. Calculate Jitter
+                        // A random delay between 1ms and 15ms is usually sufficient to clear the MAC
+                        simtime_t delay = uniform(0.001, 0.015);
+
+                        // 5. Schedule it
+                        scheduleAt(simTime() + delay, copy);
+
+                        EV_DETAIL << "   -> Scheduled for Gateway "
+                                         << entry.first << " in " << delay
+                                         << "s\n";
+                        //socket.sendTo(copy, entry.second.ipAddress, destPort);
+
+                        /*Packet *gwCopy = forwardPk->dup();
+                         gwCopy->setKind(KIND_DELAYED_FORWARD); // Keep the jitter logic
+                         gwCopy->addPar("nextHopId") = entry.first;
+
+                         // Schedule with jitter (simulating processing/MAC delay)
+                         // Since we have the specific IP, we use a helper or lambda,
+                         // BUT simpler is to send immediately if you trust MAC:
+                         socket.sendTo(gwCopy, entry.second.ipAddress, destPort);*/
+                    }
+                }
+
+                // We handled the forwarding manually above.
+                // We destroy the template `forwardPk` and tell the main logic NOT to forward again.
+                delete forwardPk;
+            }
+        }
+        // ====================================================================
+        // B. GATEWAY LOGIC (The "Bridge")
+        // ====================================================================
+        else if (role == GATEWAY) {
+
+            // We need to know: Did this come from MY Cluster Head?
+            bool fromMyCH = false;
+            if (clusterId != -1
+                    && neighborTable.find(clusterId) != neighborTable.end()) {
+                if (neighborTable[clusterId].ipAddress == lastHopIp) {
+                    fromMyCH = true;
+                }
+            }
+
+            if (fromMyCH) {
+                // --- DIRECTION: OUTBOUND (CH -> GW -> Foreign GWs) ---
+                EV_INFO << "Node " << nodeId
+                               << " (GW) received from CH. Bridging OUT to foreign clusters.\n";
+
+                bool sent = false;
+                for (auto &entry : neighborTable) {
+                    const NeighborInfo &n = entry.second;
+
+                    // CRITERIA: Neighbor must be in a DIFFERENT cluster
+                    // AND must be part of the backbone (Gateway or CH)
+                    if (n.clusterId != clusterId
+                            && (n.role == GATEWAY || n.role == CLUSTER_HEAD)) {
+
+                        Packet *copy = forwardPk->dup();
+                        copy->addPar("nextHopId") = n.neighborId;
+                        copy->setKind(KIND_DELAYED_FORWARD);
+                        simtime_t delay = uniform(0.001, 0.015);
+
+                                                // 5. Schedule it
+                                                scheduleAt(simTime() + delay, copy);
+                        //socket.sendTo(copy, n.ipAddress, destPort);
+                        sent = true;
+                        EV_DETAIL
+                                         << "   -> Forwarding to foreign backbone node "
+                                         << n.neighborId << "\n";
+                    }
+                }
+                if (!sent)
+                    EV_DETAIL
+                                     << "   -> No foreign neighbors found. Dead end.\n";
+                delete forwardPk;
+            } else {
+                // --- DIRECTION: INBOUND (Foreign GW -> GW -> My CH) ---
+                EV_INFO << "Node " << nodeId
+                               << " (GW) received from Foreign neighbor. Bridging IN to CH.\n";
+
+                if (clusterId != -1
+                        && neighborTable.find(clusterId)
+                                != neighborTable.end()) {
+                    forwardPk->addPar("nextHopId") = clusterId;
+                    socket.sendTo(forwardPk, neighborTable[clusterId].ipAddress,
+                            destPort);
+                } else {
+                    EV_WARN << "   -> Orphaned Gateway (no CH). Dropping.\n";
+                    delete forwardPk;
+                }
+            }
+        }
+        // ====================================================================
+        delete pk; // Delete original packet
         return;
-    }*/
-
+    }
     // --- CASE 2: HELLO PACKET (Your existing code) ---
     else {
         int sender = (int) pk->par("senderId");
@@ -681,9 +712,9 @@ void GraphColoringClustering::updateDisplayColor() {
     // 2. Update Text Label (Role)
     /*const char *roleStr = ROLE_NAMES[role];
 
-    ds.setTagArg("t", 0, roleStr);
-    ds.setTagArg("t", 2, "black");
-    ds.parse(ds.str());*/
+     ds.setTagArg("t", 0, roleStr);
+     ds.setTagArg("t", 2, "black");
+     ds.parse(ds.str());*/
 }
 
 //----------------------------------------------------------
