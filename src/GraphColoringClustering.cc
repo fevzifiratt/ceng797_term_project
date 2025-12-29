@@ -24,6 +24,13 @@ void GraphColoringClustering::initialize(int stage) {
     cSimpleModule::initialize(stage);
 
     if (stage == INITSTAGE_LOCAL) {
+
+        // 1. Get a pointer to the Top-Level Network Module (ClusteringNetwork)
+                cModule *network = getSimulation()->getSystemModule();
+
+                // 2. Read the parameter from that module
+                numHosts = network->par("numHosts").intValue();
+
         // basic state & parameters
         nodeId = getParentModule() ? getParentModule()->getIndex() : getId();
         currentColor = -1;
@@ -76,8 +83,8 @@ void GraphColoringClustering::initialize(int stage) {
         // --- schedule timers (NO uniform(), no invalid ranges) ---
         // First HELLO: after helloInterval (can be 0s if you want it at t=0)
         simtime_t smallHelloJitter = nodeId * helloJitter;
-        scheduleAt(simTime() + helloInterval + smallHelloJitter, helloTimer);
-        //scheduleAt(simTime() + helloInterval + uniform(0, helloJitter), helloTimer);
+        //scheduleAt(simTime() + helloInterval + smallHelloJitter, helloTimer);
+        scheduleAt(simTime() + helloInterval + uniform(0, helloJitter.dbl()), helloTimer);
 
         // First coloring: after coloringJitter (0s means "immediately")
         //scheduleAt(simTime() + coloringInterval, colorTimer);
@@ -87,7 +94,7 @@ void GraphColoringClustering::initialize(int stage) {
 
         // First data packet: after dataInterval * 2 (can make it 10s)
         simtime_t smallDataJitter = nodeId * dataJitter;
-        scheduleAt(simTime() + dataInterval * 2 + smallDataJitter, dataTimer);
+        scheduleAt(simTime() + dataInterval * 2 + uniform(0, dataJitter.dbl()), dataTimer);
     }
 }
 
@@ -150,7 +157,7 @@ void GraphColoringClustering::handleHelloTimer() {
 
     // Periodic HELLO
     simtime_t jitter = nodeId * helloJitter;
-    scheduleAt(simTime() + helloInterval + jitter, helloTimer);
+    scheduleAt(simTime() + helloInterval + uniform(0, helloJitter.dbl()), helloTimer);
     // scheduleAt(simTime() + helloInterval + uniform(0, helloJitter), helloTimer);
 }
 
@@ -243,7 +250,117 @@ void GraphColoringClustering::handleMaintenanceTimer() {
 }
 
 void GraphColoringClustering::handleDataTimer() {
-    // 1. Create generic packet
+    // ---------------------------------------------------------
+        // 1. SELECT TARGET (Dynamic based on numHosts)
+        // ---------------------------------------------------------
+
+        // Safety check: need at least 2 nodes to send data
+        if (numHosts <= 1) {
+            EV_WARN << "Node " << nodeId << ": Not enough hosts to send data.\n";
+            // Reschedule anyway to keep the timer alive for later
+            simtime_t jitter = nodeId * dataJitter;
+            scheduleAt(simTime() + dataInterval + jitter, dataTimer);
+            return;
+        }
+
+        // Pick a random target between 0 and numHosts-1
+        int targetNode = intuniform(0, numHosts - 1);
+
+        // Make sure we don't send to ourselves
+        while (targetNode == nodeId) {
+            targetNode = intuniform(0, numHosts - 1);
+        }
+
+        // ---------------------------------------------------------
+        // 2. CREATE PACKET
+        // ---------------------------------------------------------
+        auto *pk = new Packet("DATA");
+
+        // Standard Parameters
+        pk->addPar("srcId") = nodeId;
+        pk->addPar("seqNum") = mySeqNum;
+        pk->addPar("ttl") = 6;           // Max hops
+        pk->addPar("destNodeId") = targetNode; // FINAL Destination
+
+        // Add payload (100 bytes)
+        const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(100));
+        pk->insertAtBack(payload);
+
+        // ---------------------------------------------------------
+        // 3. SENDING LOGIC (Uplink vs. Search)
+        // ---------------------------------------------------------
+        bool sent = false;
+
+        // --- CASE A: I am a Simple MEMBER ---
+        // I should send this ONLY to my Cluster Head (Uplink).
+        if (role == MEMBER && clusterId != -1) {
+
+            // Look up my CH in the neighbor table to find their IP
+            auto it = neighborTable.find(clusterId);
+
+            if (it != neighborTable.end()) {
+                inet::L3Address chIp = it->second.ipAddress;
+
+                // Logical Tag: "This is for my CH"
+                pk->addPar("nextHopId") = clusterId;
+
+                EV_INFO << "Node " << nodeId << " (Member) sending UNICAST UPLINK to CH "
+                        << clusterId << " (" << chIp << ") for Target " << targetNode << "\n";
+
+                // Send Unicast to CH's IP
+                socket.sendTo(pk, chIp, destPort);
+                sent = true;
+            }
+            else {
+                // Error: I have a clusterId, but I don't see the CH in my table anymore
+                EV_WARN << "Node " << nodeId << " (Member) cannot find IP for CH "
+                        << clusterId << ". Dropping packet.\n";
+                delete pk;
+                sent = false;
+            }
+        }
+        // --- CASE B: I am a CLUSTER HEAD ---
+            else if (role == CLUSTER_HEAD) {
+                // OPTIMIZATION: Check if the target is already my neighbor!
+                auto it = neighborTable.find(targetNode);
+
+                if (it != neighborTable.end()) {
+                    // Found it locally! Direct delivery.
+                    pk->addPar("nextHopId") = targetNode;
+                    socket.sendTo(pk, it->second.ipAddress, destPort); // Unicast Downlink
+                    sent = true;
+                    EV_INFO << "Node " << nodeId << " (CH) found Target " << targetNode
+                            << " locally. Sending DIRECT UNICAST.\n";
+                } else {
+                    // Not found. Start Backbone Search.
+                    pk->addPar("nextHopId") = -1;
+                    socket.sendTo(pk, destAddress, destPort); // Multicast Search
+                    sent = true;
+                    EV_INFO << "Node " << nodeId << " (CH) of target Node " << targetNode << " not local. Flooding Backbone.\n";
+                }
+            }
+            // --- CASE C: GATEWAY / UNDECIDED ---
+            else {
+                // Gateways just start the search immediately
+                pk->addPar("nextHopId") = -1;
+                socket.sendTo(pk, destAddress, destPort);
+                sent = true;
+            }
+
+        // ---------------------------------------------------------
+        // 4. BOOKKEEPING & RESCHEDULE
+        // ---------------------------------------------------------
+        if (sent) {
+            // Log this packet so I don't process my own echo
+            seenDataPackets.insert( { nodeId, mySeqNum });
+            mySeqNum++;
+        }
+
+        // Schedule the NEXT data packet
+        simtime_t jitter = nodeId * dataJitter;
+        scheduleAt(simTime() + dataInterval * 2 + uniform(0, dataJitter.dbl()), dataTimer);
+    //OLD IMPLEMENTATION
+    /*// 1. Create generic packet
     auto *pk = new Packet("DATA");
 
     // 2. Add parameters manually
@@ -267,15 +384,142 @@ void GraphColoringClustering::handleDataTimer() {
 
     // 5. Schedule NEXT packet using dataInterval
     simtime_t jitter = nodeId * dataJitter;
-    scheduleAt(simTime() + dataInterval + jitter, dataTimer); // <--- Reschedule renamed timer
+    scheduleAt(simTime() + dataInterval + jitter, dataTimer); // <--- Reschedule renamed timer*/
 }
 
 //----------------------------------------------------------
 // UDP Recieve
 //----------------------------------------------------------
 void GraphColoringClustering::handleUdpPacket(Packet *pk) {
+    // ---------------------------------------------------------
+        // CASE 1: DATA PACKET HANDLING
+        // ---------------------------------------------------------
+        if (strcmp(pk->getName(), "DATA") == 0) {
+            int src = pk->par("srcId");
+            int seq = pk->par("seqNum");
+            int ttl = pk->par("ttl");
+            int targetNode = pk->par("destNodeId");
+            int nextHop = pk->par("nextHopId"); // The "To:" field on the envelope
+
+            // --- DEBUGGING LOG ---
+                    EV_INFO << "DATA_DEBUG: Node " << nodeId << " received packet: "
+                            << " [Src=" << src
+                            << " -> Dest=" << targetNode << "]"
+                            << " (TTL=" << ttl << ")"
+                            << " (NextHop=" << nextHop << ")\n";
+                    // ---------------------
+
+            // 1. FILTER: Is this packet meant for someone else?
+            // If nextHop is specific (not -1) and it is NOT me, I ignore it.
+            if (nextHop != -1 && nextHop != nodeId) {
+                EV_DETAIL << "   -> DROP: Packet meant for Node " << nextHop << ", not me.\n";
+                 delete pk;
+                 return;
+            }
+
+            // 2. DUPLICATE CHECK: Have I processed this before?
+            if (seenDataPackets.find({src, seq}) != seenDataPackets.end()) {
+                EV_DETAIL << "   -> DROP: Duplicate packet.\n";
+                delete pk;
+                return;
+            }
+            seenDataPackets.insert({src, seq});
+
+            // 3. DELIVERY CHECK: Am I the Final Destination?
+            if (nodeId == targetNode) {
+                EV_INFO << "Node " << nodeId << " (Target) RECEIVED DATA from Node " << src
+                        << ". DELIVERY SUCCESSFUL!\n";
+                delete pk;
+                return;
+            }
+
+            // 4. MEMBER CHECK: Members do not route traffic.
+            // If I am a Member and I wasn't the target (checked above), I drop it.
+            if (role == MEMBER) {
+                EV_DETAIL << "   -> DROP: Member node ignores non-target packet.\n";
+                delete pk;
+                return;
+            }
+
+            // 5. ROUTING LOGIC (Cluster Head or Gateway)
+            if (ttl <= 0) {
+                EV_WARN << "Node " << nodeId << ": TTL expired. Dropping packet.\n";
+                delete pk;
+                return;
+            }
+
+            // Create the packet to forward
+            Packet *forwardPk = new Packet("DATA");
+            forwardPk->addPar("srcId") = src;
+            forwardPk->addPar("seqNum") = seq;
+            forwardPk->addPar("ttl").setLongValue(ttl - 1);
+            forwardPk->addPar("destNodeId") = targetNode;
+            forwardPk->insertAtBack(makeShared<inet::ByteCountChunk>(inet::B(100)));
+
+            bool shouldForward = false;
+            inet::L3Address forwardIp = destAddress; // Default to Multicast (224.0.0.1)
+
+            // --- ROLE SPECIFIC LOGIC ---
+
+            if (role == CLUSTER_HEAD) {
+                // CHECK: Is the target in my local neighbor table?
+                auto it = neighborTable.find(targetNode);
+
+                if (it != neighborTable.end()) {
+                    // FOUND LOCALLY -> UNICAST DOWNLINK
+                    inet::L3Address targetIp = it->second.ipAddress;
+
+                    forwardPk->addPar("nextHopId") = targetNode; // Tag specifically for target
+                    forwardIp = targetIp;                        // Use Real IP Unicast
+                    shouldForward = true;
+
+                    EV_INFO << "Node " << nodeId << " (CH) found Target " << targetNode
+                            << " locally. Sending UNICAST to " << targetIp << "\n";
+                }
+                else {
+                    // NOT FOUND -> BACKBONE FLOOD
+                    forwardPk->addPar("nextHopId") = -1; // -1 = Search Mode
+                    forwardIp = destAddress;             // Multicast
+                    shouldForward = true;
+
+                    EV_INFO << "Node " << nodeId << " (CH) target not here. Flooding Backbone.\n";
+                }
+            }
+            else if (role == GATEWAY) {
+                // GATEWAY -> RELAY THE SEARCH
+                forwardPk->addPar("nextHopId") = -1; // Keep it as Search
+                forwardIp = destAddress;             // Multicast
+                shouldForward = true;
+
+                EV_INFO << "   -> FORWARD (GW): Relaying Backbone Search (TTL=" << (ttl-1) << ")\n";
+            }
+
+            // 6. EXECUTE FORWARDING (With Jitter)
+            if (shouldForward) {
+                // We use the delayed mechanism to avoid collisions
+                forwardPk->setKind(KIND_DELAYED_FORWARD);
+
+                // CRITICAL: We need to know *where* to send it when the timer expires.
+                // Since we can't easily attach the IP to the message object itself without a custom class,
+                // we will cheat slightly: If it's unicast, we send immediately.
+                // If it's broadcast, we use jitter.
+
+                if (forwardIp.isMulticast()) {
+                     scheduleAt(simTime() + uniform(0, 0.01), forwardPk);
+                } else {
+                     // Unicast is safe to send immediately (MAC handles contention)
+                     socket.sendTo(forwardPk, forwardIp, destPort);
+                }
+            } else {
+                delete forwardPk;
+            }
+
+            delete pk; // Delete original packet
+            return;
+        }
+            //OLD!!!!
     // --- CASE 1: DATA PACKET (The Forwarding Filter) ---
-    if (strcmp(pk->getName(), "DATA") == 0) {
+    /*if (strcmp(pk->getName(), "DATA") == 0) {
         int src = pk->par("srcId");
         int seq = pk->par("seqNum");
         int ttl = pk->par("ttl");
@@ -340,29 +584,7 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
 
         delete pk; // Delete the incoming packet as usual
         return;
-
-        // OLD BEFORE RETRANSMISSION COLLISION!!!
-        // 4. Forwarding (I am CH or Gateway)
-        /*EV_INFO
-         << "   -> FORWARD: I am Backbone (CH/GW). Relaying to neighbors.\n";
-         // Packet *forwardPk = pk->dup();
-         // forwardPk->par("ttl").setLongValue(ttl - 1); // Fixed the .setIntValue error
-         Packet *forwardPk = new Packet("DATA");
-
-         // 2. Copy the parameters (addPar style)
-         // Note: We use the *new* TTL values here
-         forwardPk->addPar("srcId") = src;
-         forwardPk->addPar("seqNum") = seq;
-         forwardPk->addPar("ttl").setLongValue(ttl - 1);
-         // add a small dummy payload so UDP doesn't see an EmptyChunk
-         const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(100)); // 100 bytes is enough
-         forwardPk->insertAtBack(payload);
-
-         socket.sendTo(forwardPk, destAddress, destPort);
-
-         delete pk;
-         return;*/
-    }
+    }*/
 
     // --- CASE 2: HELLO PACKET (Your existing code) ---
     else {
@@ -370,11 +592,14 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
         int neighCol = (int) pk->par("color");
         int neighRole = (int) pk->par("role");
         int neighCid = (int) pk->par("clusterId");
+        // --- NEW: Extract IP Address ---
+        auto tag = pk->getTag<inet::L3AddressInd>();
+        inet::L3Address senderIp = tag->getSrcAddress();
 
-        //if (sender == nodeId) {
-        //    delete pk;
-        //    return;
-        //}
+        if (sender == nodeId) {
+            delete pk;
+            return;
+        }
 
         EV_INFO << "Node " << nodeId << " received HELLO from " << sender
                        << " (color=" << neighCol << ", role=" << neighRole
@@ -382,6 +607,7 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
 
         NeighborInfo info;
         info.neighborId = sender;
+        info.ipAddress = senderIp; // <--- Save it to the table
         info.color = neighCol;
         info.role = neighRole;
         info.clusterId = neighCid;

@@ -21,6 +21,7 @@
 #include "inet/common/packet/Packet.h"
 #include "inet/transportlayer/contract/udp/UdpSocket.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
+#include "inet/networklayer/common/L3AddressTag_m.h"
 
 class GraphColoringClustering : public omnetpp::cSimpleModule, public inet::UdpSocket::ICallback
 {
@@ -62,10 +63,12 @@ class GraphColoringClustering : public omnetpp::cSimpleModule, public inet::UdpS
 
     // --- visualization ---
     int lastDisplayColor = -1;
+    int numHosts = -1; // <--- Add this variable
 
     // --- neighbor table ---
     struct NeighborInfo {
         int neighborId;
+        inet::L3Address ipAddress; // <--- NEW: Store the real IP
         int color;
         int role;
         int clusterId;
