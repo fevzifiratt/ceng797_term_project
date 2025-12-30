@@ -354,44 +354,89 @@ void GraphColoringClustering::handleDataTimer() {
             pk->addPar("nextHopId") = targetNode;
             socket.sendTo(pk, it->second.ipAddress, destPort);
             sent = true;
-
             EV_INFO << "Node " << nodeId << " (CH) found Target " << targetNode
                            << " locally. Sending DIRECT UNICAST.\n";
         }
-        // 2. Not local? Send to ALL my Gateways (Backbone Search)
-        else {
-            EV_INFO << "From node " << nodeId << " (CH) target " << targetNode
-                           << " not local. Unicasting to Gateways.\n";
+        // 2. Check Routing Table (Smart Unicast to Gateway)
+        else if (backboneRoutingTable.find(targetNode)
+                != backboneRoutingTable.end()) {
+            int gwId = backboneRoutingTable[targetNode];
 
-            int gwCount = 0;
-            // Iterate over neighbors to find Gateways
-            for (auto &entry : neighborTable) {
-                if (entry.second.role == GATEWAY) {
-                    // We must COPY the packet for each Gateway
-                    Packet *gwPk = pk->dup();
-                    gwPk->addPar("nextHopId") = entry.first; // Tag for specific GW
-
-                    socket.sendTo(gwPk, entry.second.ipAddress, destPort);
-                    gwCount++;
-
-                    EV_DETAIL << "   -> Sent copy to Gateway Neighbor "
-                                     << entry.first << "\n";
-                }
-            }
-
-            if (gwCount > 0) {
+            // Verify the Gateway is still a valid neighbor
+            auto gwIt = neighborTable.find(gwId);
+            if (gwIt != neighborTable.end() && gwIt->second.role == GATEWAY) {
+                pk->addPar("nextHopId") = gwId;
+                socket.sendTo(pk, gwIt->second.ipAddress, destPort);
                 sent = true;
-                // We sent copies, so we delete the original template
-                delete pk;
-                pk = nullptr;
+                EV_INFO << "Node " << nodeId << " (CH) found CACHED route to "
+                               << targetNode << " via GW " << gwId
+                               << ". Sending Unicast.\n";
             } else {
-                EV_WARN << "Node " << nodeId
-                               << " (CH) has NO Gateways! Packet dropped.\n";
-                delete pk;
-                pk = nullptr;
-                sent = false;
+                // Route is stale (GW died or moved), remove it and fall back to flood
+                backboneRoutingTable.erase(targetNode);
+                goto FALLBACK_FLOOD;
             }
         }
+        // 3. Fallback: Flood All Gateways
+        else {
+            FALLBACK_FLOOD: ;
+            EV_INFO << "Node " << nodeId
+                           << " (CH) route unknown. Flooding all Gateways.\n";
+
+            int gwCount = 0;
+            for (auto &entry : neighborTable) {
+                if (entry.second.role == GATEWAY) {
+                    Packet *gwPk = pk->dup();
+                    gwPk->addPar("nextHopId") = entry.first;
+                    // Jittered send
+                    simtime_t delay = uniform(0.001, 0.01);
+                    gwPk->setKind(KIND_DELAYED_FORWARD);
+                    scheduleAt(simTime() + delay, gwPk);
+                    gwCount++;
+                }
+            }
+            if (gwCount > 0) {
+                sent = true;
+                delete pk; // originals deleted because we sent dups
+                pk = nullptr;
+            } else {
+                delete pk;
+                pk = nullptr;
+            }
+        }
+        /*else {
+         EV_INFO << "From node " << nodeId << " (CH) target " << targetNode
+         << " not local. To Gateways.\n";
+
+         int gwCount = 0;
+         // Iterate over neighbors to find Gateways
+         for (auto &entry : neighborTable) {
+         if (entry.second.role == GATEWAY) {
+         // We must COPY the packet for each Gateway
+         Packet *gwPk = pk->dup();
+         gwPk->addPar("nextHopId") = entry.first; // Tag for specific GW
+
+         socket.sendTo(gwPk, entry.second.ipAddress, destPort);
+         gwCount++;
+
+         EV_DETAIL << "   -> Sent copy to Gateway Neighbor "
+         << entry.first << "\n";
+         }
+         }
+
+         if (gwCount > 0) {
+         sent = true;
+         // We sent copies, so we delete the original template
+         delete pk;
+         pk = nullptr;
+         } else {
+         EV_WARN << "Node " << nodeId
+         << " (CH) has NO Gateways! Packet dropped.\n";
+         delete pk;
+         pk = nullptr;
+         sent = false;
+         }
+         }*/
     }
     // --- CASE C: UNDECIDED ---
     else {
@@ -440,6 +485,31 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
                        << ")\n";
         // ---------------------
 
+        // =========================================================
+        // STEP A: LEARNING (Route Caching)
+        // =========================================================
+        if (role == CLUSTER_HEAD) {
+            // 1. Identify which neighbor sent this to me
+            int lastHopId = -1;
+            for (const auto &entry : neighborTable) {
+                if (entry.second.ipAddress == lastHopIp) {
+                    lastHopId = entry.first;
+                    break;
+                }
+            }
+
+            // 2. If it came from a GATEWAY, record the path!
+            // Logic: "To reach the original sender 'src', I should route via 'lastHopId'"
+            if (lastHopId != -1 && neighborTable[lastHopId].role == GATEWAY) {
+                backboneRoutingTable[src] = lastHopId;
+                // EV_DETAIL << "Node " << nodeId << " learned route: To " << src << " -> GW " << lastHopId << "\n";
+            }
+        }
+
+        // =========================================================
+        // STEP B: FILTERING & CHECKS
+        // =========================================================
+
         // 1. FILTER: Is this packet meant for someone else?
         // If nextHop is specific (not -1) and it is NOT me, I ignore it.
         if (nextHop != -1 && nextHop != nodeId) {
@@ -449,13 +519,37 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
             return;
         }
 
-        // 2. DUPLICATE CHECK: Have I processed this before?
-        if (seenDataPackets.find( { src, seq }) != seenDataPackets.end()) {
+        // --- CHECK: DID THIS COME FROM MY CLUSTER HEAD? ---
+        bool fromMyCH = false;
+        if (role != UNDECIDED && clusterId != -1) {
+            auto it = neighborTable.find(clusterId);
+            if (it != neighborTable.end()) {
+                if (it->second.ipAddress == lastHopIp) {
+                    fromMyCH = true;
+                }
+            }
+        }
+
+        // 2. DUPLICATE CHECK (With Exception for Source-Gateway)
+        bool isSeen = (seenDataPackets.find( { src, seq })
+                != seenDataPackets.end());
+
+        // EXCEPTION: If I am a Gateway, and I am the Source, and my CH sent it back to me,
+        // I MUST process it so I can bridge it out to foreign neighbors.
+        bool isMyPacketReturning =
+                (src == nodeId && role == GATEWAY && fromMyCH);
+
+        if (isSeen && !isMyPacketReturning) {
             EV_DETAIL << "   -> DROP: Duplicate packet.\n";
             delete pk;
             return;
         }
-        seenDataPackets.insert( { src, seq });
+
+        // If it's new, mark it.
+        // If it is my packet returning, it's already marked, which is fine.
+        if (!isSeen) {
+            seenDataPackets.insert( { src, seq });
+        }
 
         // 3. DELIVERY CHECK: Am I the Final Destination?
         if (nodeId == targetNode) {
@@ -495,58 +589,74 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
         // A. CLUSTER HEAD LOGIC (Downlink or Forward to MY Gateways)
         // ====================================================================
 
+        // --- CLUSTER HEAD LOGIC ---
         if (role == CLUSTER_HEAD) {
-            // CHECK: Is the target in my local neighbor table?
-            auto it = neighborTable.find(targetNode);
 
+            // 1. CHECK LOCAL NEIGHBORS (Direct Delivery)
+            auto it = neighborTable.find(targetNode);
             if (it != neighborTable.end()) {
-                // Case A1: Target is my neighbor -> Unicast Downlink
                 forwardPk->addPar("nextHopId") = targetNode;
                 socket.sendTo(forwardPk, it->second.ipAddress, destPort);
+                EV_INFO << "Node " << nodeId << " (CH) delivering locally to "
+                               << targetNode << "\n";
 
-                EV_INFO << "Node " << nodeId << " (CH) found Target "
-                               << targetNode << " locally. Sending UNICAST to "
-                               << it->second.ipAddress << "\n";
-            } else {
-                // Case A2: Target Unknown -> Send to MY Gateways (Bridge Out)
+                // We sent the template directly, so we are done.
+                // Note: If you want to be safe with memory, you could set forwardPk = nullptr
+                // but strictly speaking, socket.sendTo takes ownership or copies depending on version.
+                // In standard INET, sendTo takes ownership.
+            }
+
+            // 2. CHECK ROUTING TABLE (Smart Unicast to Gateway)
+            else if (backboneRoutingTable.find(targetNode)
+                    != backboneRoutingTable.end()) {
+                int gwId = backboneRoutingTable[targetNode];
+
+                // Verify the Gateway is still a valid neighbor and IS a Gateway
+                auto gwIt = neighborTable.find(gwId);
+                if (gwIt != neighborTable.end()
+                        && gwIt->second.role == GATEWAY) {
+
+                    forwardPk->addPar("nextHopId") = gwId;
+
+                    // Jittered Unicast to ONE Gateway
+                    forwardPk->setKind(KIND_DELAYED_FORWARD);
+                    simtime_t delay = uniform(0.001, 0.015); // Small jitter
+                    scheduleAt(simTime() + delay, forwardPk);
+
+                    EV_INFO << "Node " << nodeId
+                                   << " (CH) forwarding to CACHED GW " << gwId
+                                   << "\n";
+                } else {
+                    // Stale route (GW died or moved) -> Remove & Fallback
+                    backboneRoutingTable.erase(targetNode);
+                    goto CH_FORWARD_FLOOD;
+                }
+            }
+
+            // 3. FALLBACK: FLOOD ALL GATEWAYS
+            else {
+                CH_FORWARD_FLOOD: ;
                 EV_INFO << "Node " << nodeId
-                               << " (CH) target not here. Forwarding to Gateways.\n";
+                               << " (CH) route unknown. Flooding all Gateways.\n";
 
-                // We handle the sending HERE explicitly because we need a loop
-                // (The standard logic at the bottom of the function assumes 1 packet)
-
+                int gwCount = 0;
                 for (auto &entry : neighborTable) {
                     if (entry.second.role == GATEWAY) {
-                        Packet *copy = forwardPk->dup();
-                        copy->addPar("nextHopId") = entry.first; // Tag for that GW
-                        // 2. Mark it as a Delayed Forward
-                        copy->setKind(KIND_DELAYED_FORWARD);
-                        // Use jitter or send immediately
-                        // 4. Calculate Jitter
-                        // A random delay between 1ms and 15ms is usually sufficient to clear the MAC
+                        // Create Copy
+                        Packet *gwCopy = forwardPk->dup();
+
+                        gwCopy->addPar("nextHopId") = entry.first;
+                        gwCopy->setKind(KIND_DELAYED_FORWARD);
+
+                        // Jittered Schedule
                         simtime_t delay = uniform(0.001, 0.015);
+                        scheduleAt(simTime() + delay, gwCopy);
 
-                        // 5. Schedule it
-                        scheduleAt(simTime() + delay, copy);
-
-                        EV_DETAIL << "   -> Scheduled for Gateway "
-                                         << entry.first << " in " << delay
-                                         << "s\n";
-                        //socket.sendTo(copy, entry.second.ipAddress, destPort);
-
-                        /*Packet *gwCopy = forwardPk->dup();
-                         gwCopy->setKind(KIND_DELAYED_FORWARD); // Keep the jitter logic
-                         gwCopy->addPar("nextHopId") = entry.first;
-
-                         // Schedule with jitter (simulating processing/MAC delay)
-                         // Since we have the specific IP, we use a helper or lambda,
-                         // BUT simpler is to send immediately if you trust MAC:
-                         socket.sendTo(gwCopy, entry.second.ipAddress, destPort);*/
+                        gwCount++;
                     }
                 }
 
-                // We handled the forwarding manually above.
-                // We destroy the template `forwardPk` and tell the main logic NOT to forward again.
+                // Delete the template (forwardPk) because we sent duplicates (or didn't send anything)
                 delete forwardPk;
             }
         }
@@ -583,8 +693,8 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
                         copy->setKind(KIND_DELAYED_FORWARD);
                         simtime_t delay = uniform(0.001, 0.015);
 
-                                                // 5. Schedule it
-                                                scheduleAt(simTime() + delay, copy);
+                        // 5. Schedule it
+                        scheduleAt(simTime() + delay, copy);
                         //socket.sendTo(copy, n.ipAddress, destPort);
                         sent = true;
                         EV_DETAIL
@@ -667,7 +777,6 @@ void GraphColoringClustering::socketDataArrived(UdpSocket *socket, Packet *pk) {
 //----------------------------------------------------------
 // Coloring & neighbor maintenance
 //----------------------------------------------------------
-
 bool GraphColoringClustering::pruneNeighbors() {
     simtime_t now = simTime();
     std::vector<int> toRemove;
