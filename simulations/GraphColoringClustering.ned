@@ -35,6 +35,22 @@ simple GraphColoringClustering like IApp
 		// NEW: UDP parameters
         int localPort = default(5000);
         int destPort = default(5000);
+
+        // --- STATISTICS COLLECTION ---
+        // 1. Define the signal carrying "long" (integer) values
+
+
+        // 2. Define how to record it. 'vector' allows plotting over time.
+        @signal[role](type="long");
+        @statistic[role](source="role"; record=vector; interpolationmode=sample-hold);
+
+        // 'count' will sum up the total number of packets sent/received across the simulation
+		@signal[dataSent](type="long");
+        @statistic[totalSent](source="dataSent"; record=count);
+
+        @signal[dataReceived](type="long");
+        @statistic[totalReceived](source="dataReceived"; record=count);
+
     gates:
         input socketIn @labels(UdpControlInfo/up);
         output socketOut @labels(UdpControlInfo/down);

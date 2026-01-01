@@ -60,6 +60,8 @@
   ../../inet-4.5.4/src/inet/queueing/base/PacketProcessorBase.h \
   ../../inet-4.5.4/src/inet/queueing/contract/IPacketProcessor.h \
   ../../inet-4.5.4/src/inet/queueing/contract/IPassivePacketSink.h \
+  ../../inet-4.5.4/src/inet/networklayer/common/L3AddressTag_m.h \
+  ../../inet-4.5.4/src/inet/common/TagBase_m.h \
   /home/opp_env/default_workspace/omnetpp-6.2.0/include/omnetpp/cdisplaystring.h \
   ../../inet-4.5.4/src/inet/common/packet/chunk/ByteCountChunk.h
 GraphColoringClustering.h:
@@ -123,5 +125,7 @@ GraphColoringClustering.h:
 ../../inet-4.5.4/src/inet/queueing/base/PacketProcessorBase.h:
 ../../inet-4.5.4/src/inet/queueing/contract/IPacketProcessor.h:
 ../../inet-4.5.4/src/inet/queueing/contract/IPassivePacketSink.h:
+../../inet-4.5.4/src/inet/networklayer/common/L3AddressTag_m.h:
+../../inet-4.5.4/src/inet/common/TagBase_m.h:
 /home/opp_env/default_workspace/omnetpp-6.2.0/include/omnetpp/cdisplaystring.h:
 ../../inet-4.5.4/src/inet/common/packet/chunk/ByteCountChunk.h:

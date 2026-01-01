@@ -65,6 +65,28 @@ void GraphColoringClustering::initialize(int stage) {
         dataTimer = new cMessage("dataTimer");
         lastDisplayColor = -1;
 
+        // ------------- SIGNALS -------------
+        // Register the signal so OMNET++ knows it exists
+        roleSignal = registerSignal("role");
+        // Emit initial state (UNDECIDED)
+        emit(roleSignal, role);
+
+        // Register PDR signals
+        pdrSentSignal = registerSignal("dataSent");
+        pdrReceivedSignal = registerSignal("dataReceived");
+        // Reset counters
+        numDataSent = 0;
+        numDataReceived = 0;
+
+        // Register the new change signals
+        chChangeSignal = registerSignal("chChange");
+        gwChangeSignal = registerSignal("gwChange");
+        memberChangeSignal = registerSignal("memberChange");
+
+        delaySignal = registerSignal("delay");
+
+        throughputSignal = registerSignal("throughputBits");
+
     } else if (stage == INITSTAGE_APPLICATION_LAYER) {
         // now the protocol stack (incl. UDP) exists and is registered
 
@@ -293,8 +315,9 @@ void GraphColoringClustering::handleDataTimer() {
     // Standard Parameters
     pk->addPar("srcId") = nodeId;
     pk->addPar("seqNum") = mySeqNum;
-    pk->addPar("ttl") = 6;                 // Max hops
+    pk->addPar("ttl") = 10;                 // Max hops
     pk->addPar("destNodeId") = targetNode; // FINAL Destination
+    pk->addPar("creationTime") = simTime().dbl();
 
     // Add payload (100 bytes)
     const auto &payload = makeShared<inet::ByteCountChunk>(inet::B(100));
@@ -404,39 +427,6 @@ void GraphColoringClustering::handleDataTimer() {
                 pk = nullptr;
             }
         }
-        /*else {
-         EV_INFO << "From node " << nodeId << " (CH) target " << targetNode
-         << " not local. To Gateways.\n";
-
-         int gwCount = 0;
-         // Iterate over neighbors to find Gateways
-         for (auto &entry : neighborTable) {
-         if (entry.second.role == GATEWAY) {
-         // We must COPY the packet for each Gateway
-         Packet *gwPk = pk->dup();
-         gwPk->addPar("nextHopId") = entry.first; // Tag for specific GW
-
-         socket.sendTo(gwPk, entry.second.ipAddress, destPort);
-         gwCount++;
-
-         EV_DETAIL << "   -> Sent copy to Gateway Neighbor "
-         << entry.first << "\n";
-         }
-         }
-
-         if (gwCount > 0) {
-         sent = true;
-         // We sent copies, so we delete the original template
-         delete pk;
-         pk = nullptr;
-         } else {
-         EV_WARN << "Node " << nodeId
-         << " (CH) has NO Gateways! Packet dropped.\n";
-         delete pk;
-         pk = nullptr;
-         sent = false;
-         }
-         }*/
     }
     // --- CASE C: UNDECIDED ---
     else {
@@ -453,6 +443,10 @@ void GraphColoringClustering::handleDataTimer() {
         // Log this packet so I don't process my own echo (if that were possible)
         seenDataPackets.insert( { nodeId, mySeqNum });
         mySeqNum++;
+
+        // INCREMENT AND EMIT
+        numDataSent++;
+        emit(pdrSentSignal, 1); // Emitting '1' allows OMNeT++ to count incidents
     }
 
     // Schedule the NEXT data packet
@@ -555,6 +549,21 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
         if (nodeId == targetNode) {
             EV_INFO << "Node " << nodeId << " (Target) RECEIVED DATA from Node "
                            << src << ". DELIVERY SUCCESSFUL!\n";
+
+            // --- CALCULATE DELAY ---
+            double creationTime = pk->par("creationTime").doubleValue();
+            simtime_t delay = simTime() - creationTime;
+
+            emit(delaySignal, delay.dbl()); // Record the delay
+            // -----------------------
+            // --- NEW: EMIT BITS FOR THROUGHPUT ---
+            // getBitLength() returns the total size (header + payload)
+            emit(throughputSignal, pk->getBitLength());
+            // -------------------------------------
+
+            // [ADD THIS]
+            numDataReceived++;
+            emit(pdrReceivedSignal, 1);
             delete pk;
             return;
         }
@@ -580,6 +589,8 @@ void GraphColoringClustering::handleUdpPacket(Packet *pk) {
         forwardPk->addPar("seqNum") = seq;
         forwardPk->addPar("ttl").setLongValue(ttl - 1);
         forwardPk->addPar("destNodeId") = targetNode;
+        forwardPk->addPar("creationTime") =
+                pk->par("creationTime").doubleValue();
         forwardPk->insertAtBack(makeShared<inet::ByteCountChunk>(inet::B(100)));
 
         inet::L3Address forwardIp = destAddress; // Default to Multicast (224.0.0.1)
@@ -877,11 +888,34 @@ void GraphColoringClustering::recomputeRole() {
         }
     }
 
-    if (role != oldRole || clusterId != oldClusterId) {
+    if (role != oldRole) {
+        // 1. Remove myself from the OLD role count
+        if (oldRole == CLUSTER_HEAD)
+            emit(chChangeSignal, -1);
+        else if (oldRole == GATEWAY)
+            emit(gwChangeSignal, -1);
+        else if (oldRole == MEMBER)
+            emit(memberChangeSignal, -1);
+
+        // 2. Add myself to the NEW role count
+        if (role == CLUSTER_HEAD)
+            emit(chChangeSignal, 1);
+        else if (role == GATEWAY)
+            emit(gwChangeSignal, 1);
+        else if (role == MEMBER)
+            emit(memberChangeSignal, 1);
+        // Signal to the simulation
+        emit(roleSignal, role);
         EV_INFO << "Node " << nodeId << " updates state: role " << oldRole
                        << " -> " << role << ", clusterId " << oldClusterId
                        << " -> " << clusterId << " (color=" << currentColor
                        << ")\n";
+    } else if (clusterId != oldClusterId) {
+        EV_INFO << "Node " << nodeId << " updates state: role " << oldRole
+                       << " -> " << role << ", clusterId " << oldClusterId
+                       << " -> " << clusterId << " (color=" << currentColor
+                       << ")\n";
+
     }
 }
 

@@ -23,6 +23,32 @@ network ClusteringNetwork
 {
     parameters:
         int numHosts = default(10);
+
+        // --- GLOBAL STATISTICS ---
+        // These subscribe to the signals emitted by ANY host in the network
+        // Number of roles in the network
+		@signal[chChange](type=long);
+        @statistic[totalCHs](source=sum(chChange); record=vector,timeavg,last; title="Total Number of Cluster Heads");
+
+        @signal[gwChange](type=long);
+        @statistic[totalGWs](source=sum(gwChange); record=vector,timeavg,last; title="Total Number of Gateways");
+
+        @signal[memberChange](type=long);
+        @statistic[totalMembers](source=sum(memberChange); record=vector,timeavg,last; title="Total Number of Members");
+
+        // Global PDR
+        // 1. Sum up 'dataSent' from ALL hosts
+        @statistic[globalSent](source=sum(dataSent); record=vector,last; title="Total Packets Sent by Network");
+
+        // 2. Sum up 'dataReceived' from ALL hosts
+        @statistic[globalReceived](source=sum(dataReceived); record=vector,last; title="Total Packets Received by Network");
+
+		// Collect delay from ALL hosts and calculate the global average
+        @statistic[globalDelay](source="delay"; record=vector,mean; title="Average End-to-End Delay");
+
+        // 1. Sum up all bits received by all nodes
+        @statistic[globalBits](source=sum(throughputBits); record=last,vector; title="Total Bits Received");
+
     submodules:
         radioMedium: UnitDiskRadioMedium;
         configurator: Ipv4NetworkConfigurator;
