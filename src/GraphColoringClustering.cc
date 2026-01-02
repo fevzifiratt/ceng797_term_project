@@ -924,4 +924,15 @@ void GraphColoringClustering::finish() {
     //cancelAndDelete(colorTimer);
     cancelAndDelete(maintenanceTimer);
     cancelAndDelete(dataTimer);
+
+    // 2. SAVE THE RESULTS (The part you are missing!)
+    recordScalar("Final Sent", numDataSent);
+    recordScalar("Final Received", numDataReceived);
+
+    // Calculate Delivery Ratio (PDR)
+    // Avoid division by zero if no packets were sent
+    double pdr =
+            (numDataSent > 0) ? (double) numDataReceived / numDataSent : 0.0;
+
+    recordScalar("Packet Delivery Ratio", pdr);
 }

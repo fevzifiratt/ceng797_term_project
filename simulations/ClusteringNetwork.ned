@@ -28,13 +28,13 @@ network ClusteringNetwork
         // These subscribe to the signals emitted by ANY host in the network
         // Number of roles in the network
 		@signal[chChange](type=long);
-        @statistic[totalCHs](source=sum(chChange); record=vector,timeavg,last; title="Total Number of Cluster Heads");
+        @statistic[globalCHs](source=sum(chChange); record=vector,timeavg,last; title="Total Number of Cluster Heads");
 
         @signal[gwChange](type=long);
-        @statistic[totalGWs](source=sum(gwChange); record=vector,timeavg,last; title="Total Number of Gateways");
+        @statistic[globalGWs](source=sum(gwChange); record=vector,timeavg,last; title="Total Number of Gateways");
 
         @signal[memberChange](type=long);
-        @statistic[totalMembers](source=sum(memberChange); record=vector,timeavg,last; title="Total Number of Members");
+        @statistic[globalMembers](source=sum(memberChange); record=vector,timeavg,last; title="Total Number of Members");
 
         // Global PDR
         // 1. Sum up 'dataSent' from ALL hosts
